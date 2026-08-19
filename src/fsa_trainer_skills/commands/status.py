@@ -41,12 +41,21 @@ def run(args: argparse.Namespace) -> int:
         name = args.name or skill.name
         rows = []
         for platform in registry.resolve(args.platform):
+            # Run from the directory that *holds* the user-scope config — your
+            # home directory, usually — and `<cwd>/.claude/skills` is the very
+            # same folder as `~/.claude/skills`. There is one install there, so
+            # report it once, under the scope we looked at first.
+            seen: set[Path] = set()
             for scope in ("user", "project"):
                 if scope == "project" and not platform.project_subdir:
                     continue
                 dest = platform.dest(scope, name, project_root)
                 if not dest.exists():
                     continue
+                resolved = dest.resolve()
+                if resolved in seen:
+                    continue
+                seen.add(resolved)
                 rows.append(_describe(skill, platform.key, platform.label, scope, dest))
         grouped[skill.name] = rows
 

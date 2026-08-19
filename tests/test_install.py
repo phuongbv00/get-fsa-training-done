@@ -180,3 +180,37 @@ def test_status_json_reports_the_install(isolated_home, skill, capsys):
         row["platform"] == "claude" and row["current"] and row["skill"] == skill.name
         for row in report["installs"]
     )
+
+
+def test_status_reports_a_collapsed_scope_once(isolated_home, skill, capsys):
+    """User and project scope can name the same directory; that is one install.
+
+    Running `status` from the directory that holds the user-scope config — the
+    home directory, normally — makes `<cwd>/.claude/skills` and
+    `~/.claude/skills` the same folder. Reporting it under both scopes invented
+    a project install that was never there.
+    """
+    base = ["--skill", skill.namespace, "--platform", "claude"]
+    main(["install", *base, "--no-prewarm"])
+    capsys.readouterr()
+
+    assert main(["status", *base, "--project-root", str(isolated_home), "--json"]) == 0
+    rows = json.loads(capsys.readouterr().out)["installs"]
+
+    assert len(rows) == 1, f"one directory, one row; got {[row['scope'] for row in rows]}"
+    assert rows[0]["scope"] == "user"
+
+
+def test_status_still_reports_a_genuinely_separate_project_install(
+    isolated_home, skill, tmp_path, capsys
+):
+    project = tmp_path / "proj"
+    base = ["--skill", skill.namespace, "--platform", "claude"]
+    main(["install", *base, "--no-prewarm"])
+    main(["install", *base, "--scope", "project", "--project-root", str(project), "--no-prewarm"])
+    capsys.readouterr()
+
+    assert main(["status", *base, "--project-root", str(project), "--json"]) == 0
+    rows = json.loads(capsys.readouterr().out)["installs"]
+
+    assert {row["scope"] for row in rows} == {"user", "project"}

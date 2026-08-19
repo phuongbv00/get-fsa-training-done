@@ -13,7 +13,9 @@ import re
 from pathlib import Path
 
 from .. import budget as budget_mod
+from ..levels import Level
 from ..pdf import count_pages
+from . import calibration
 from .common import CheckResult, normalize_name, read_text
 
 REQUIRED_BRIEF_SECTIONS = [
@@ -217,6 +219,7 @@ def verify(
     pdf_path: str | None,
     max_pages: int | None,
     result: CheckResult,
+    level: Level | None = None,
 ) -> None:
     if not brief_path or not rubric_path:
         result.error(f"{assessment_type} verification requires --brief and --rubric")
@@ -275,6 +278,9 @@ def verify(
         result.error(
             f"Task count mismatch: brief has {len(brief_tasks)}, rubric has {len(rubric_tasks)}"
         )
+
+    if level is not None and brief_tasks:
+        calibration.check_task_count(len(brief_tasks), level, result)
 
     for index, (brief_task, rubric_task) in enumerate(zip(brief_tasks, rubric_tasks), start=1):
         expected = f"T{index}"

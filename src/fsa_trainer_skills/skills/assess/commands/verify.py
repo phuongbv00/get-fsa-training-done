@@ -6,6 +6,7 @@ import argparse
 
 from fsa_trainer_skills.errors import UsageError
 
+from ..core import levels as levels_mod
 from ..core.verify import (
     ALL_TYPES,
     CAPSTONE_TYPES,
@@ -59,17 +60,39 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
     parser.set_defaults(func=run)
 
 
-def resolve_time_map(args: argparse.Namespace) -> dict[str, str]:
+def resolve_level(args: argparse.Namespace) -> levels_mod.Level | None:
+    """`--band` alone is a typo, not a request — say so rather than ignoring it."""
+    if not args.level:
+        if args.band:
+            raise UsageError("--band needs --level")
+        return None
+    try:
+        return levels_mod.resolve(args.level, args.band)
+    except levels_mod.UnknownLevel as exc:
+        raise UsageError(str(exc)) from None
+
+
+def resolve_time_map(
+    args: argparse.Namespace, level: levels_mod.Level | None = None
+) -> dict[str, str]:
+    """An explicit --time-map wins; otherwise the level knows the right one.
+
+    Without a level we cannot do better than the quiz timings, which is what
+    this defaulted to before levels were wired in.
+    """
     if args.time_map:
         try:
             return parse_time_map(args.time_map)
         except ValueError as exc:
             raise UsageError(str(exc)) from None
+    if level is not None:
+        return levels_mod.time_map_for(level, args.type)
     return dict(DEFAULT_TIME_MAP)
 
 
 def run(args: argparse.Namespace) -> int:
     result = CheckResult()
+    level = resolve_level(args)
 
     if args.type in LONG_FORM_TYPES or args.type in CAPSTONE_TYPES:
         long_form.verify(
@@ -79,6 +102,7 @@ def run(args: argparse.Namespace) -> int:
             pdf_path=args.pdf,
             max_pages=args.max_pages,
             result=result,
+            level=level,
         )
         if args.type in CAPSTONE_TYPES:
             from ..core.verify import capstone
@@ -95,9 +119,10 @@ def run(args: argparse.Namespace) -> int:
             master_path=args.master,
             blooket_path=args.blooket,
             coderbyte_path=args.coderbyte,
-            time_map=resolve_time_map(args),
+            time_map=resolve_time_map(args, level),
             expect_count=args.expect_count,
             result=result,
+            level=level,
         )
 
     return result.report(f"structural verification of the {args.type} artifacts")

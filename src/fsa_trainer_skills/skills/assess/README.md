@@ -99,7 +99,16 @@ fsa-trainer-skills assess verify --type long_assignment \
 
 Long-form takes `--brief`, `--rubric`, `--pdf`, `--spec`, `--max-pages`;
 question sets take `--master`, `--blooket`, `--coderbyte`, `--expect-count`,
-`--time-map`. `--level`/`--band` enable the calibration-drift warnings.
+`--time-map`.
+
+Passing `--level`/`--band` adds the calibration checks: the Bloom and
+difficulty mix of a question set, and the task count of a long-form
+assessment, are compared against that level's defaults. Drift is reported as a
+**warning, never an error** — Step 0 may legitimately override any default, so
+the run still passes. One question of slack per bucket absorbs rounding. A
+level also supplies the right `--time-map` when you do not pass one, which
+matters for non-quiz formats: `UP_SKILL` and `RE_SKILL` expect 30/45/75
+seconds, not the 5/10/20 a quiz uses.
 
 ### `render` — brief to PDF
 

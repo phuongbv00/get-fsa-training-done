@@ -30,6 +30,24 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- **`verify --level` and `--band` were parsed and thrown away.** They sat in a
+  `calibration` argument group and `run()` never read them, so the calibration
+  the workflows and `references/levels.md` promise was never actually checked.
+  They now drive `core/verify/calibration.py`, which compares a question set's
+  Bloom and difficulty mix against the level's defaults and a long-form
+  assessment's task count against the level's range. Drift is a **warning,
+  never an error** — Step 0 may legitimately override any default — and one
+  question of slack per bucket absorbs largest-remainder rounding. Passing a
+  level also supplies the right `--time-map` when none is given, which matters
+  for non-quiz formats: `UP_SKILL`/`RE_SKILL` expect 30/45/75 seconds rather
+  than a quiz's 5/10/20. `--band` without `--level` is now an error instead of
+  being silently ignored.
+- **`status` invented a second install when the two scopes named one
+  directory.** Run from the directory holding the user-scope config — the home
+  directory, normally — `<cwd>/.claude/skills` *is* `~/.claude/skills`, so the
+  same install was described once per scope and `status` reported four rows for
+  two installs. Rows are now deduplicated by resolved destination, keeping the
+  scope examined first.
 - `install/receipt.py`'s `cli_invocation()` looped over two identical
   candidate names (`("fsa-assess", "fsa-assess")`), a leftover from an
   earlier find-and-replace. There was never a second distinct candidate;

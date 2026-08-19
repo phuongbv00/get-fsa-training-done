@@ -13,6 +13,8 @@ import json
 import re
 from pathlib import Path
 
+from ..levels import Level
+from . import calibration
 from .common import (
     BLOOKET_COLUMNS,
     MASTER_COLUMNS,
@@ -251,6 +253,7 @@ def verify(
     time_map: dict[str, str],
     expect_count: int | None,
     result: CheckResult,
+    level: Level | None = None,
 ) -> list[dict[str, str]]:
     if not master_path:
         result.error("Question-set verification requires --master")
@@ -258,6 +261,8 @@ def verify(
 
     rows = read_master(Path(master_path), result)
     verify_master(rows, time_map, result, expect_count=expect_count)
+    if level is not None:
+        calibration.check_question_set(rows, level, result)
 
     if coderbyte_path:
         verify_coderbyte(Path(coderbyte_path), rows, result)
