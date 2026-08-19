@@ -13,9 +13,9 @@ the shared commands.
 
 Currently registered:
 
-| Namespace | Skill | What it does |
-| --- | --- | --- |
-| `assess` | `fsa-assess` | design and grade FSA training assessments |
+| Namespace | Skill | What it does | Docs |
+| --- | --- | --- | --- |
+| `assess` | `fsa-assess` | design and grade FSA training assessments | [README](src/fsa_trainer_skills/skills/assess/README.md) |
 
 Every skill is **stateless**. It assumes nothing about the directory layout it
 was installed into and never scans a project on a hunch — it asks for its
@@ -58,39 +58,16 @@ Add `--skill <namespace>` to target one skill instead of all of them, and
 `--dry-run` to any of `install`, `update`, or `uninstall` to see the exact
 file-by-file plan without touching anything.
 
-## The `assess` skill
+## Skills
 
-Design and grade FSA training assessments. Its worker commands live under
-`fsa-trainer-skills assess <verb>`:
+Each skill documents itself in its own `README.md` next to its code, rather
+than in this file. That keeps the root README about the CLI and the registry,
+and means adding a skill adds a file instead of editing a shared one.
 
-| Type | Produces |
-| --- | --- |
-| `quiz` | master question CSV + Blooket import |
-| `short_assignment` | learner brief + instructor rubric + PDF (1–2 days) |
-| `long_assignment` | learner brief + instructor rubric + PDF (3+ days) |
-| `theory_exam` | master question CSV + Coderbyte import |
-| `practice_exam` | learner brief + instructor rubric + PDF (timed) |
-| `capstone_project` | topic brief + project spec + rubric + PDF |
-
-Every type is calibrated by **level** — `CPL`, `FR`, `UP_SKILL`, and `RE_SKILL`,
-the latter two with `junior`/`mid`/`senior` bands — which sets the default Bloom
-mix, difficulty mix, duration, scope depth, and rubric posture.
-
-The agent authors content; the CLI does everything deterministic. Import files
-are always *derived* from the master CSV rather than written by hand, which is
-what keeps them from drifting apart:
-
-```bash
-fsa-trainer-skills assess emit blooket --master jpl_quiz_03.csv -o jpl_quiz_03_blooket.csv
-fsa-trainer-skills assess verify --type quiz --master jpl_quiz_03.csv --blooket jpl_quiz_03_blooket.csv
-```
-
-It also drives grading:
-
-```bash
-fsa-trainer-skills assess grade preprocess --roster roster.csv --src ./uploads --subject JPL --type ASSIGNMENT
-fsa-trainer-skills assess grade aggregate --scores ./scores --out grades.csv
-```
+- **[`assess`](src/fsa_trainer_skills/skills/assess/README.md)** — design and
+  grade FSA training assessments: quizzes, short and long assignments, theory
+  and practice exams, and capstone projects, each calibrated by level, plus the
+  grading pipeline.
 
 ## Dependencies
 
@@ -111,6 +88,10 @@ registry discovers it automatically — no edits to `cli.py`, the lifecycle
 commands, or `scripts/sync_version.py` are needed. Give it its own
 `payload/<skill-name>/` directory alongside its `core/`/`commands/` modules,
 and its own `VERSION` file for `sync_version.py` to keep in sync.
+
+Give it a `README.md` in that same directory documenting its commands and
+conventions, and link it from the registry table above — detailed per-skill
+docs do not belong in this file.
 
 ## Development
 

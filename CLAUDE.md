@@ -33,7 +33,7 @@ When iterating on worker commands locally, `fsa-trainer-skills --no-venv <cmd>` 
 
 ### The skill abstraction
 
-`skillkit.Skill` (mirroring `platforms.base.Platform`) is the contract: `name` (installed identity, e.g. `"fsa-assess"`), `namespace` (CLI prefix, e.g. `"assess"`), `payload_dir`, `dep_group`, `add_worker_parsers()`, `doctor_extra()`. `skills/__init__.py` discovers registered skills by scanning its subpackages for a `SKILL` object — adding a skill means adding a subpackage, nothing else. Each skill owns its own `core/` and `commands/` under `skills/<namespace>/`; only `errors.py` is genuinely shared. `install/` holds the plan/apply/receipt machinery, `platforms/` the Claude/Codex install targets — both skill-agnostic.
+`skillkit.Skill` (mirroring `platforms.base.Platform`) is the contract: `name` (installed identity, e.g. `"fsa-assess"`), `namespace` (CLI prefix, e.g. `"assess"`), `payload_dir`, `dep_group`, `add_worker_parsers()`, `doctor_extra()`. `skills/__init__.py` discovers registered skills by scanning its subpackages for a `SKILL` object — adding a skill means adding a subpackage, nothing else. Each skill owns its own `core/`, `commands/`, and `README.md` under `skills/<namespace>/`; only `errors.py` is genuinely shared. Detailed per-skill documentation belongs in that `README.md`, not the root one, which covers only the CLI and the registry table that links to it. `install/` holds the plan/apply/receipt machinery, `platforms/` the Claude/Codex install targets — both skill-agnostic.
 
 ### Generated files — never edit by hand
 
