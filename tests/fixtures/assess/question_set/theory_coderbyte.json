@@ -1,0 +1,58 @@
+{
+  "mc_questions": [
+    {
+      "question": "Which responsibility belongs to the Spring IoC container?",
+      "answers": [
+        "Creating objects and supplying their dependencies",
+        "Compiling Java source into bytecode",
+        "Translating JPQL directly into SQL",
+        "Packaging an application into a container image"
+      ]
+    },
+    {
+      "question": "What is a Spring Boot starter?",
+      "answers": [
+        "A dependency descriptor that groups commonly used libraries",
+        "A source-code generator for controller classes",
+        "A runtime replacement for the JVM",
+        "A database migration script executed at startup"
+      ]
+    },
+    {
+      "question": "Which statement best distinguishes Spring Boot from Spring Framework?",
+      "answers": [
+        "Spring Boot adds opinionated setup and auto-configuration on top of Spring",
+        "Spring Boot replaces dependency injection with static factories",
+        "Spring Framework can build only command-line applications",
+        "Spring Framework is included only for production deployments"
+      ]
+    },
+    {
+      "question": "What does it mean when Spring Boot auto-configuration backs off?",
+      "answers": [
+        "It avoids providing a default when the application defines the relevant bean",
+        "It keeps its default bean and marks the application bean as secondary",
+        "It creates both beans and injects them in registration order",
+        "It postpones the default bean until the application bean fails"
+      ]
+    },
+    {
+      "question": "Why is the main Spring Boot application class normally placed in a root package?",
+      "answers": [
+        "So component scanning naturally covers the application's subpackages",
+        "So Maven can locate the compiled JAR without configuration",
+        "So every class automatically becomes a Spring bean",
+        "So database entities no longer need mapping annotations"
+      ]
+    },
+    {
+      "question": "An application has Spring MVC on the classpath but starts without an embedded web server. The main class is a plain class with a main method. Which change is most appropriate?",
+      "answers": [
+        "Add @SpringBootApplication and call SpringApplication.run",
+        "Add @Entity and call the repository directly",
+        "Add @Transactional to the main method",
+        "Add @RestControllerAdvice to the main class"
+      ]
+    }
+  ]
+}

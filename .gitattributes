@@ -1,0 +1,3 @@
+# Assess fixtures are byte-compared against `emit` output in CI — preserve
+# line endings exactly as committed (quiz_blooket.csv is CRLF by spec).
+tests/fixtures/assess/** -text

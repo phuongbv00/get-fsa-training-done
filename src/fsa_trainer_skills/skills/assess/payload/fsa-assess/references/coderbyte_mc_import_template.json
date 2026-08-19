@@ -1,0 +1,32 @@
+{
+  "mc_questions": [
+    {
+      "question": "hello world",
+      "answers": [
+        "I am correct",
+        "Wrong 2",
+        "Wrong 3"
+      ]
+    },
+    {
+      "question": "hello coderbyte",
+      "answers": [
+        "I am correct",
+        "Wrong 2",
+        "Will be correct",
+        "Will be correct"
+      ],
+      "correctAnswers": ["2", "3"],
+      "allRequired": true
+    },
+    {
+      "question": "hello coderbyte",
+      "lockedAnswers": true,
+      "answers": [
+        "I am correct",
+        "Wrong 2",
+        "Wrong 3"
+      ]
+    }
+  ]
+}

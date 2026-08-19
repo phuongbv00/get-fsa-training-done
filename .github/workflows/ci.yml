@@ -1,0 +1,117 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pipx install ruff
+      - run: ruff check .
+      - run: ruff format --check .
+
+  consistency:
+    # The version lives in several files and the assess skill's level table in
+    # two. Drift is invisible at runtime, so it fails the build instead.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/sync_version.py --check
+      - run: python scripts/assess/gen_levels_md.py --check
+
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.9", "3.11", "3.13"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e . pytest
+      - run: pytest -q
+
+  install-round-trip:
+    # Exercises the real lifecycle against a throwaway HOME, across every
+    # registered skill, and asserts the tree is byte-clean afterwards.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e .
+      - name: install, update, uninstall
+        env:
+          CLAUDE_CONFIG_DIR: ${{ runner.temp }}/home/.claude
+          CODEX_HOME: ${{ runner.temp }}/home/.codex
+          FSA_TRAINER_SKILLS_HOME: ${{ runner.temp }}/home/cache
+        run: |
+          set -euo pipefail
+          fsa-trainer-skills install --platform all --dry-run
+          fsa-trainer-skills install --platform all
+          fsa-trainer-skills status --json
+          fsa-trainer-skills update --check
+          fsa-trainer-skills uninstall --platform all
+          test -z "$(find "$CLAUDE_CONFIG_DIR" "$CODEX_HOME" -type f 2>/dev/null)" \
+            || { echo "uninstall left files behind"; find "$CLAUDE_CONFIG_DIR" "$CODEX_HOME" -type f; exit 1; }
+      - name: emit and verify against the shipped fixtures
+        run: |
+          set -euo pipefail
+          fsa-trainer-skills assess emit blooket \
+            --master tests/fixtures/assess/question_set/quiz_master.csv -o /tmp/b.csv
+          cmp /tmp/b.csv tests/fixtures/assess/question_set/quiz_blooket.csv
+          fsa-trainer-skills assess verify --type quiz \
+            --master tests/fixtures/assess/question_set/quiz_master.csv --blooket /tmp/b.csv
+
+  npm-shim:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: node npm/lib/prepack.js
+      - run: node npm/bin/fsa-trainer-skills.js --version
+      - run: node npm/bin/fsa-trainer-skills.js doctor --json
+
+  render:
+    # Chrome is the only external dependency `assess render` has; the runner
+    # ships one.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e .
+      - name: render the canonical brief and check its page budget
+        run: |
+          set -euo pipefail
+          cp tests/fixtures/assess/long_form/sbf_practice_exam_02.md /tmp/brief.md
+          if command -v google-chrome >/dev/null; then
+            fsa-trainer-skills assess render /tmp/brief.md
+          else
+            echo "no Chrome on this runner; skipping"
+          fi

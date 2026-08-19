@@ -1,0 +1,8 @@
+Blooket Import Template,,,,,,,
+Question #,Question Text,Answer 1,Answer 2,Answer 3 (Optional),Answer 4 (Optional),Time Limit (sec) (Max: 300 seconds),Correct Answer(s) (Only include Answer #)
+1,Cách thiết lập phù hợp cho service unit test là gì?,Tạo service với mock hoặc fake dependency mà không tải Spring context,Dùng @SpringBootTest với toàn bộ bean thật,Dùng @WebMvcTest rồi mock chính service cần kiểm thử,Dùng @DataJpaTest để thay repository bằng mock,5,1
+2,@WebMvcTest tập trung kiểm thử phần nào?,Toàn bộ database production,MVC controller và web layer liên quan,Docker image runtime,JWT signing key production,5,2
+3,@DataJpaTest tập trung kiểm thử phần nào?,Controller mapping và JSON bằng MockMvc,Business logic thuần với toàn bộ dependency mock,Entity mapping và repository với persistence context,Toàn bộ wiring và HTTP server của ứng dụng,5,3
+4,@SpringBootTest thường làm gì?,Chỉ tạo một mock object,Chỉ parse file JSON,Không tải bất kỳ bean nào,Tìm cấu hình chính và tải application context đầy đủ,5,4
+5,Mockito verify dùng để làm gì?,Kiểm tra interaction mong đợi với mock,Khai báo giá trị mock sẽ trả về khi được gọi,Thu thập argument truyền vào mock để kiểm tra chi tiết,Khẳng định trạng thái cuối của một object thật,5,1
+6,ArgumentCaptor hữu ích khi nào?,Khi cần thay mọi bean bằng entity,Khi cần kiểm tra giá trị object đã truyền vào dependency mock,Khi muốn bỏ assertion,Khi cần chạy migration,5,2

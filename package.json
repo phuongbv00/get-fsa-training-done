@@ -1,0 +1,34 @@
+{
+  "name": "fsa-trainer-skills",
+  "version": "0.1.1",
+  "description": "A CLI plus a registry of agent skills for FSA training tools, installable into Claude Code and Codex.",
+  "license": "MIT",
+  "bin": {
+    "fsa-trainer-skills": "npm/bin/fsa-trainer-skills.js"
+  },
+  "files": [
+    "npm/bin/",
+    "npm/lib/",
+    "npm/python/",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "assessment",
+    "curriculum",
+    "grading",
+    "claude-code",
+    "codex",
+    "agent-skill"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "prepack": "node npm/lib/prepack.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phuongbv00/fsa-trainer-skills.git"
+  }
+}

@@ -1,0 +1,69 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fsa-trainer-skills"
+dynamic = ["version"]
+description = "A CLI plus a registry of agent skills for FSA training tools, installable into Claude Code and Codex."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Phuong Bui" }]
+keywords = ["assessment", "curriculum", "grading", "claude-code", "codex", "agent-skill"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Education",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Education :: Testing",
+]
+
+# Zero runtime dependencies, deliberately — the CLI must work on an offline
+# exam machine with nothing but a Python interpreter.
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/phuongbv/fsa-trainer-skills"
+Issues = "https://github.com/phuongbv/fsa-trainer-skills/issues"
+
+[project.scripts]
+fsa-trainer-skills = "fsa_trainer_skills.cli:run"
+
+[tool.hatch.version]
+path = "src/fsa_trainer_skills/__about__.py"
+
+[tool.hatch.build.targets.wheel]
+# Every skill lives inside this one package (including its payload data
+# files), so the default packages declaration already covers everything —
+# no force-include needed, and none is needed when a new skill registers.
+packages = ["src/fsa_trainer_skills"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/tests",
+  "/scripts",
+  "/npm",
+  "/README.md",
+  "/CHANGELOG.md",
+  "/LICENSE",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "W"]
+ignore = ["B008"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

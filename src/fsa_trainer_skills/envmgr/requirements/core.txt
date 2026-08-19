@@ -1,0 +1,5 @@
+# Baseline group: everything ported from the original design-assessment and
+# grade skills is standard library only, deliberately, so the tools keep working
+# on an offline exam machine. The venv is still created for this group so that
+# every script runs in the same isolated interpreter regardless of subcommand —
+# an empty group just means creation is a ~50ms, no-network, no-pip operation.
