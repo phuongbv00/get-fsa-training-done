@@ -49,6 +49,12 @@ REQUIRED_BANNER_LINES = ["> **Code:**", "> **Duration:**", "> **Topics:**"]
 #: learner has to extract requirements from a wall of text.
 MAX_PARAGRAPH_WORDS = 70
 
+#: Types whose task list is fixed by the programme rather than by the level.
+#: A capstone always scores D01-D05, the sprint process, and the individual, so
+#: comparing that count against the level's suggested range only ever produces a
+#: warning nobody can act on.
+FIXED_TASK_LIST_TYPES = ("capstone_project",)
+
 _BRIEF_TASK = re.compile(
     r"^###\s+Task\s+(\d+)\s+[-–—]\s+(.+?)\s+\((\d+)%\)\s*$",
     re.MULTILINE,
@@ -279,7 +285,7 @@ def verify(
             f"Task count mismatch: brief has {len(brief_tasks)}, rubric has {len(rubric_tasks)}"
         )
 
-    if level is not None and brief_tasks:
+    if level is not None and brief_tasks and assessment_type not in FIXED_TASK_LIST_TYPES:
         calibration.check_task_count(len(brief_tasks), level, result)
 
     for index, (brief_task, rubric_task) in enumerate(zip(brief_tasks, rubric_tasks), start=1):

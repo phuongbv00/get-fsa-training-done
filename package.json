@@ -1,6 +1,6 @@
 {
   "name": "fsa-trainer-skills",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "A CLI plus a registry of agent skills for FSA training tools, installable into Claude Code and Codex.",
   "license": "MIT",
   "bin": {

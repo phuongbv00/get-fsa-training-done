@@ -62,9 +62,10 @@ FSA verify --type practice_exam \
 Then run `references/verifiers/practice_exam.md`, which additionally asks for a
 realistic per-task minute budget.
 
-## Vietnamese variant
+## Translated variant
 
-Only if the user explicitly asks. `<stem>_vn.md`, bilingual `##` headings, with
-code, identifiers, HTTP status codes, and framework terms left in English.
-Render it too, and hold it to the same budget. **Never** produce a `_vn` rubric —
-the instructor rubric stays English.
+Only if the user explicitly asks. `<stem>_<lang>.md` — `_vn` for Vietnamese —
+with bilingual `##` headings, and code, identifiers, HTTP status codes, and
+framework terms left in English. Render it too, and hold it to the same budget.
+**Never** produce a translated rubric: `verify` and the grading pipeline parse
+the rubric's headings, so the instructor rubric stays English.

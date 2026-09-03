@@ -28,6 +28,22 @@ def long_form_pair(tmp_path) -> tuple[Path, Path]:
 
 
 @pytest.fixture
+def capstone_trio(tmp_path) -> tuple[Path, Path, Path]:
+    """The canonical capstone brief, spec, and rubric, copied somewhere writable."""
+    names = (
+        "mkp_capstone_project_01.md",
+        "mkp_capstone_project_01_spec.md",
+        "mkp_capstone_project_01_rubric.md",
+    )
+    paths = []
+    for name in names:
+        target = tmp_path / name
+        shutil.copyfile(FIXTURES / "capstone" / name, target)
+        paths.append(target)
+    return tuple(paths)
+
+
+@pytest.fixture
 def roster_csv(tmp_path) -> Path:
     path = tmp_path / "std_list.csv"
     # utf-8-sig: real rosters come out of Excel with a BOM.

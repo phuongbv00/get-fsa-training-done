@@ -75,7 +75,7 @@ Rules that hold for every submission:
   feature exists is not the feature.
 - Score each task on 0–10, then fold that task's caps and deductions into the
   number. There is no separate adjustment step.
-- Write one or two sentences of **learner-facing Vietnamese** feedback per task.
+- Write one or two sentences of **learner-facing English** feedback per task.
   Never leak grading method, never mention how the file was reviewed, never
   raise a suspicion about copying or AI use.
 

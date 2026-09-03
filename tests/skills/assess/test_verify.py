@@ -11,7 +11,12 @@ import csv
 import pytest
 
 from fsa_trainer_skills.skills.assess.core import levels
-from fsa_trainer_skills.skills.assess.core.verify import CheckResult, long_form, question_set
+from fsa_trainer_skills.skills.assess.core.verify import (
+    CheckResult,
+    capstone,
+    long_form,
+    question_set,
+)
 from fsa_trainer_skills.skills.assess.core.verify.common import DEFAULT_TIME_MAP
 
 from .conftest import FIXTURES
@@ -27,6 +32,27 @@ def verify_long_form(brief, rubric, **kwargs):
         max_pages=kwargs.pop("max_pages", None),
         result=result,
         level=kwargs.pop("level", None),
+    )
+    return result
+
+
+def verify_capstone(brief, spec, rubric, **kwargs):
+    """The full capstone pass: the shared long-form checks, then the capstone ones."""
+    result = CheckResult()
+    long_form.verify(
+        assessment_type="capstone_project",
+        brief_path=str(brief),
+        rubric_path=str(rubric),
+        pdf_path=None,
+        max_pages=None,
+        result=result,
+        level=kwargs.pop("level", None),
+    )
+    capstone.verify(
+        brief_path=str(brief),
+        spec_path=str(spec),
+        rubric_path=str(rubric),
+        result=result,
     )
     return result
 
@@ -53,6 +79,12 @@ def verify_question_set(master, **kwargs):
 def test_canonical_brief_and_rubric_pass(long_form_pair):
     result = verify_long_form(*long_form_pair)
     assert result.errors == []
+
+
+def test_canonical_capstone_trio_passes(capstone_trio):
+    result = verify_capstone(*capstone_trio)
+    assert result.errors == []
+    assert result.warnings == []
 
 
 def test_real_quiz_master_and_blooket_pass():
@@ -243,3 +275,145 @@ def test_task_count_inside_the_level_range_is_silent(long_form_pair):
     # Five tasks sits inside UP_SKILL (senior)'s 3-5.
     result = verify_long_form(brief, rubric, level=levels.resolve("UP_SKILL", "senior"))
     assert not any("suggests" in warning for warning in result.warnings)
+
+
+# --------------------------------------------------------------------------- #
+# Capstone sprint checkpoints
+# --------------------------------------------------------------------------- #
+
+
+def test_capstone_task_count_is_not_calibrated_against_the_level(capstone_trio):
+    """Seven tasks is the programme's shape, not drift from FR's 4-6."""
+    result = verify_capstone(*capstone_trio, level=levels.resolve("FR"))
+    assert not any("suggests" in warning for warning in result.warnings)
+
+
+def test_missing_sprint_table_is_caught(capstone_trio):
+    brief, spec, rubric = capstone_trio
+    text = spec.read_text(encoding="utf-8")
+    start = text.index("| Sprint |")
+    end = text.index("## Sprint checkpoint")
+    spec.write_text(text[:start] + text[end:], encoding="utf-8")
+    result = verify_capstone(brief, spec, rubric)
+    assert any("no sprint table" in error for error in result.errors)
+
+
+def test_a_deliverable_in_no_sprint_is_caught(capstone_trio):
+    brief, spec, rubric = capstone_trio
+    spec.write_text(
+        spec.read_text(encoding="utf-8").replace("| D01, D02 |", "| D01 |"),
+        encoding="utf-8",
+    )
+    result = verify_capstone(brief, spec, rubric)
+    assert any("No sprint is responsible for D02" in error for error in result.errors)
+
+
+def test_a_deliverable_in_two_sprints_is_caught(capstone_trio):
+    brief, spec, rubric = capstone_trio
+    spec.write_text(
+        spec.read_text(encoding="utf-8").replace("| D03 |", "| D02, D03 |"),
+        encoding="utf-8",
+    )
+    result = verify_capstone(brief, spec, rubric)
+    assert any("D02 is due in sprints 1, 2" in error for error in result.errors)
+
+
+def test_overlapping_sprint_windows_are_caught(capstone_trio):
+    brief, spec, rubric = capstone_trio
+    spec.write_text(
+        spec.read_text(encoding="utf-8").replace("| 2 | 2026-09-15 |", "| 2 | 2026-09-10 |"),
+        encoding="utf-8",
+    )
+    result = verify_capstone(brief, spec, rubric)
+    assert any("on or before Sprint 1 ends" in error for error in result.errors)
+
+
+def test_a_non_iso_sprint_date_is_caught(capstone_trio):
+    brief, spec, rubric = capstone_trio
+    spec.write_text(
+        spec.read_text(encoding="utf-8").replace("| 1 | 2026-09-01 |", "| 1 | 01/09/2026 |"),
+        encoding="utf-8",
+    )
+    result = verify_capstone(brief, spec, rubric)
+    assert any("is not ISO 8601" in error for error in result.errors)
+
+
+def test_a_brief_referring_to_a_sprint_that_does_not_exist_is_caught(capstone_trio):
+    brief, spec, rubric = capstone_trio
+    brief.write_text(
+        brief.read_text(encoding="utf-8").replace("Due in Sprint 2.", "Due in Sprint 4."),
+        encoding="utf-8",
+    )
+    result = verify_capstone(brief, spec, rubric)
+    assert any("Brief refers to Sprint 4" in error for error in result.errors)
+
+
+def test_a_missing_checkpoint_section_is_caught(capstone_trio):
+    brief, spec, rubric = capstone_trio
+    spec.write_text(
+        spec.read_text(encoding="utf-8").replace("## Sprint checkpoint", "## Notes"),
+        encoding="utf-8",
+    )
+    result = verify_capstone(brief, spec, rubric)
+    assert any("no '## Sprint checkpoint' section" in error for error in result.errors)
+
+
+def test_an_undefined_gate_is_caught(capstone_trio):
+    brief, spec, rubric = capstone_trio
+    # Every mention, not just the heading — G4 is cross-referenced from G1's body.
+    spec.write_text(
+        spec.read_text(encoding="utf-8").replace("G4", "GX"),
+        encoding="utf-8",
+    )
+    result = verify_capstone(brief, spec, rubric)
+    assert any("does not define gate G4" in error for error in result.errors)
+
+
+def test_a_multi_sprint_rubric_without_a_sprint_task_is_caught(capstone_trio):
+    brief, spec, rubric = capstone_trio
+    for path in (brief, rubric):
+        path.write_text(
+            path.read_text(encoding="utf-8").replace("Sprint Process", "Team Collaboration"),
+            encoding="utf-8",
+        )
+    result = verify_capstone(brief, spec, rubric)
+    assert any("no sprint-process task" in error for error in result.errors)
+
+
+def test_one_task_scoring_both_process_and_individual_is_caught(capstone_trio):
+    brief, spec, rubric = capstone_trio
+    for path in (brief, rubric):
+        path.write_text(
+            path.read_text(encoding="utf-8").replace(
+                "Sprint Process", "Sprint Process and individual"
+            ),
+            encoding="utf-8",
+        )
+    result = verify_capstone(brief, spec, rubric)
+    assert any("scores both the team's sprint process" in error for error in result.errors)
+
+
+def test_gates_with_no_cap_at_all_is_an_error(capstone_trio):
+    brief, spec, rubric = capstone_trio
+    text = rubric.read_text(encoding="utf-8")
+    start = text.index("## 4. Caps and Deductions")
+    end = text.index("## 5. Common point-loss reasons")
+    rubric.write_text(
+        text[:start] + "## 4. Caps and Deductions\n\nNothing is capped.\n\n" + text[end:],
+        encoding="utf-8",
+    )
+    result = verify_capstone(brief, spec, rubric)
+    assert any("never names a sprint gate" in error for error in result.errors)
+
+
+def test_a_gate_with_no_cap_warns_but_does_not_fail(capstone_trio):
+    brief, spec, rubric = capstone_trio
+    rubric.write_text(
+        rubric.read_text(encoding="utf-8").replace(
+            "| G4 missing in any sprint | T7 capped at 7.0 for every member of that team |\n", ""
+        ),
+        encoding="utf-8",
+    )
+    result = verify_capstone(brief, spec, rubric)
+    assert result.errors == []
+    assert any("names no consequence for G4" in warning for warning in result.warnings)

@@ -18,7 +18,7 @@ directory:
       "max": 10.0,
       "weight": 20.0,
       "score": 7.5,
-      "comment": "Ánh xạ entity đúng nhưng thiếu ràng buộc unique trên email."
+      "comment": "Entity mapping is correct, but the unique constraint on email is missing."
     }
   ],
   "total": 7.5
@@ -35,11 +35,11 @@ Invariants:
 
 ### Comments are learner-facing
 
-One or two sentences per task, in Vietnamese by default, addressed to the
-learner. They must never leak how the grading was done — no "chưa chạy được",
-no "review tĩnh", no weighted subtotals, no cap arithmetic, and never a
-suspicion about copying or AI use. Those belong in the instructor-only cheat
-check, which is walled off from grades entirely.
+One or two sentences per task, in English, addressed to the learner. They must
+never leak how the grading was done — no "could not run it", no "static review
+only", no weighted subtotals, no cap arithmetic, and never a suspicion about
+copying or AI use. Those belong in the instructor-only cheat check, which is
+walled off from grades entirely.
 
 ## Aggregated grade CSV
 

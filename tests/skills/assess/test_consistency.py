@@ -45,3 +45,21 @@ def test_references_named_by_workflows_all_exist():
             if not target.exists():
                 missing.append(f"{path.relative_to(payload)} -> {match.group(1)}")
     assert missing == []
+
+
+def test_the_router_names_the_real_cli_and_receipt():
+    """The CLI-resolution block is how the model reaches `FSA` at all.
+
+    These names were `fsa-assess` before the package was renamed, and a stale
+    one is invisible: the model silently falls through to step 3 and asks the
+    user to install a package that is not this one.
+    """
+    from fsa_trainer_skills.__about__ import CLI_NAME, PACKAGE_NAME
+    from fsa_trainer_skills.install.receipt import RECEIPT_NAME
+
+    router = (SKILL.payload_dir / "SKILL.md").read_text(encoding="utf-8")
+    section = router[router.index("## Resolving the CLI") : router.index("## Routing")]
+    assert RECEIPT_NAME in section
+    assert f"{CLI_NAME} --version" in section
+    assert f"pip install {PACKAGE_NAME}" in section
+    assert f"npm install -g {PACKAGE_NAME}" in section

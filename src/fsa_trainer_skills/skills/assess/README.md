@@ -110,6 +110,51 @@ level also supplies the right `--time-map` when you do not pass one, which
 matters for non-quiz formats: `UP_SKILL` and `RE_SKILL` expect 30/45/75
 seconds, not the 5/10/20 a quiz uses.
 
+### `sprint-kit` — the capstone's learner pack
+
+A capstone runs in sprints, and a sprint boundary is only a checkpoint if
+something is due and something happens when it is missing. The gates, the
+calendar, and the templates teams fill are all *derived from the project spec*,
+for the same reason import files are derived from the master: written by hand,
+the deadline in the spec and the deadline in the handout drift within a week.
+
+```bash
+fsa-trainer-skills assess sprint-kit --spec jpl_capstone_project_01_spec.md \
+  --drive-root MKP-F26 --lang en --update-spec
+```
+
+Writes four files into `<stem>_sprint_kit/`:
+
+| File | Audience |
+|---|---|
+| `SUBMISSION_GUIDE.md` | teams — calendar with real deadlines, the five gates, a tick-box checklist per sprint |
+| `backlog_template.csv` | teams — the frozen-backlog column header with example rows |
+| `sprint_review_template.md` | teams — the sprint review record skeleton |
+| `spec_sprint_checkpoint.md` | the spec's own `## Sprint checkpoint` section |
+
+`--update-spec` writes that last one into the spec directly. The gate wording
+lives once, in `core/sprintkit.py`, so the handout a team reads, the section
+`verify` checks, and the caps the rubric applies cannot disagree — a test
+asserts the gate ids match `verify/capstone.py`, and regenerating the canonical
+fixture spec must be a no-op.
+
+The command refuses to run against a sprint calendar that fails verification,
+and warns when `--drive-root` is left at its `<CLASS>` placeholder.
+
+`--lang` picks the language, `en` by default, from the `Locale` table in
+`core/sprintkit.py`. A language is added by adding a `Locale`, never by
+translating the output — a hand-edited pack is no longer derived from the spec,
+which is the only thing keeping the handout, the spec's checkpoint section, and
+the rubric's caps in agreement. Gate ids stay `G1`–`G5` in every locale, so
+`verify` and the caps work unchanged; a test asserts that for every locale, and
+another asserts each locale's handout still carries the same dates, paths, and
+filenames.
+
+The per-sprint **instructor** form is deliberately not generated: it is
+instructor-only, and emitting it beside three learner-facing files is how it
+ends up in the same shared folder. Its template is in the payload, at
+`references/sprint_checkpoint_template.md` §2.
+
 ### `render` — brief to PDF
 
 ```bash
@@ -163,10 +208,11 @@ fsa-trainer-skills assess levels show --json
 
 ```
 skills/assess/
-├── commands/            # CLI verbs: render, verify, emit, grade, levels
+├── commands/            # CLI verbs: render, verify, emit, sprint-kit, grade, levels
 ├── core/                # the logic behind them
 │   ├── levels.py        # calibration source of truth
 │   ├── emit/            # blooket, coderbyte, master
+│   ├── sprintkit.py     # capstone sprint gates and the learner pack
 │   └── verify/
 └── payload/fsa-assess/  # what gets installed into the agent
     ├── SKILL.md

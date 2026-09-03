@@ -40,12 +40,13 @@ at a time.
 | `seq` | all | auto (below), user may override |
 | `scope_source` | all | ask: paste the scope, name a path to read, or point at an existing blueprint |
 | `duration` | all | ask |
-| `language` | all | English, except `capstone_project` which is Vietnamese |
+| `language` | all | English; ask only if the user hints at another |
 | `grade_pipeline` | assignments, exams | yes — controls the submission-archive naming |
 
 Question-set types also need question count, distributions, option count, time
-map, and delivery formats; capstones need team size, sprints, stack, and demo
-format. The workflow file for the type lists its own.
+map, and delivery formats; capstones need team size, the sprint calendar, the
+sprint checkpoint gates, stack, and demo format. The workflow file for the type
+lists its own.
 
 ### Grading
 
@@ -56,10 +57,23 @@ format. The workflow file for the type lists its own.
 | `results_dir` | ask |
 | `subject`, `submission_type` | ask |
 | `brief_path`, `rubric_path` | ask (not needed for a quiz report) |
-| comment language | Vietnamese |
+| comment language | English; ask only if the user hints at another |
 
 Suggest a conventional path **only when it already exists** under a directory the
 user named. Never invent one.
+
+### A note on language
+
+English is the default for everything the skill emits, and any other language is
+available on request — say so in the plan echo when one is used. Two things do
+not follow the request:
+
+- **Instructor rubrics stay English.** `verify` parses their section headings and
+  `**Tn raw score**` rows, and the grading pipeline keys off them.
+- **A capstone's sprint pack is generated, not written**, so it exists only in
+  the languages `FSA sprint-kit --lang` offers. If the user wants one that is not
+  there, say so rather than hand-translating the output — a hand-edited pack is
+  no longer derived from the spec, which is the whole reason it is generated.
 
 ### Then echo the plan
 
@@ -95,11 +109,11 @@ So: file `jpl_short_assignment_02.md`, banner `Code: FR_JPL_SA_02` and
 
 Do this once per session, before the first command, and call the result `FSA`.
 
-1. Read `.fsa-assess-install.json` next to this `SKILL.md`; use its
+1. Read `.fsa-trainer-skills-install.json` next to this `SKILL.md`; use its
    `cli.invocation` array, adding its `pythonpath` to `PYTHONPATH`.
-2. Otherwise try `fsa-assess --version` on `PATH`.
-3. Otherwise stop and ask the user to run `pip install fsa-assess` or
-   `npm install -g fsa-assess`. Do not improvise a path to a script.
+2. Otherwise try `fsa-trainer-skills --version` on `PATH`.
+3. Otherwise stop and ask the user to run `pip install fsa-trainer-skills` or
+   `npm install -g fsa-trainer-skills`. Do not improvise a path to a script.
 
 If option 2 works but reports a version different from the `VERSION` file beside
 this `SKILL.md`, prefer option 1 — payload and CLI ship in lockstep, and an older
@@ -129,14 +143,16 @@ read the others.
   platform import files are learner-facing.
 - **Never execute learner code.** Grade from the submitted artifacts as evidence.
 - **Import files are generated, never hand-written.** `FSA emit` derives them
-  from the master CSV so the two cannot drift.
+  from the master CSV so the two cannot drift. The same holds for a capstone's
+  sprint pack: `FSA sprint-kit` derives it from the project spec.
 - **Report measurements, not impressions.** "4/4 A4 pages for a 2-hour exam" is a
   measurement; "about the right length" is not.
 
 ## Step 2 — Report back
 
-List every file created with its full path. For long-form work, give the task
-list with weights and the rendered page count against the budget. For question
+List every file created with its full path, and say which of them are
+learner-facing. For long-form work, give the task list with weights and the
+rendered page count against the budget. For question
 sets, give the confirmed structure and the actual-versus-target distribution.
 Include the `FSA verify` result and the verifier agent's verdict.
 

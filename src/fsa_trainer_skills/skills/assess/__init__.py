@@ -6,7 +6,7 @@ import argparse
 from pathlib import Path
 
 from ...skillkit import Skill
-from .commands import emit, grade, levels, render, verify
+from .commands import emit, grade, levels, render, sprint_kit, verify
 from .core.pdf import find_chrome
 
 PAYLOAD_DIR = Path(__file__).resolve().parent / "payload" / "fsa-assess"
@@ -16,7 +16,7 @@ class Assess(Skill):
     def add_worker_parsers(self, subparsers: argparse._SubParsersAction) -> None:
         parser = subparsers.add_parser(self.namespace, help=self.summary)
         sub = parser.add_subparsers(dest="assess_command", required=True, metavar="<command>")
-        for module in (render, verify, emit, grade, levels):
+        for module in (render, verify, emit, sprint_kit, grade, levels):
             module.add_parser(sub)
 
     def doctor_extra(self) -> dict[str, str]:
@@ -26,7 +26,7 @@ class Assess(Skill):
 SKILL = Assess(
     name="fsa-assess",
     namespace="assess",
-    summary="design and grade assessments (render, verify, emit, grade, levels)",
+    summary="design and grade assessments (render, verify, emit, sprint-kit, grade, levels)",
     payload_dir=PAYLOAD_DIR,
     dep_group="core",
 )
