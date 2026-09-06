@@ -132,6 +132,9 @@ FSA verify --type short_assignment \
   --level  "<LEVEL>"
 ```
 
+`--level` takes the band with it for the banded levels — `UP_SKILL:mid`,
+`RE_SKILL:senior` — and the level alone for `CPL` and `FR`.
+
 If the page budget fails, **cut content** — restated context, paragraphs that
 could be bullets, anything the rubric already covers. Re-rendering will not fix
 it, and shrinking the font is not an option.

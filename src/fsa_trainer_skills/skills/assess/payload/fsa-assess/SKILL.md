@@ -115,11 +115,13 @@ Do this once per session, before the first command, and call the result `FSA`.
 3. Otherwise stop and ask the user to run `pip install fsa-trainer-skills` or
    `npm install -g fsa-trainer-skills`. Do not improvise a path to a script.
 
-If option 2 works but reports a version different from the `VERSION` file beside
-this `SKILL.md`, prefer option 1 — payload and CLI ship in lockstep, and an older
-CLI left on `PATH` is not the one these workflows were written against.
+A receipt written on another machine names an interpreter that does not exist
+here; when its invocation fails to run, fall through to option 2. If option 2
+reports a version different from the `VERSION` file beside this `SKILL.md`, say
+so — payload and CLI ship in lockstep, and an older CLI left on `PATH` is not
+the one these workflows were written against.
 
-## Routing
+## Step 1 — Route to the workflow
 
 Read **exactly one** workflow file — the one matching the confirmed type. Do not
 read the others.

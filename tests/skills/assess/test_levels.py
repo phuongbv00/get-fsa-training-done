@@ -38,6 +38,13 @@ def test_resolve_accepts_aliases():
     assert levels.resolve("up-skill", "mid").band == "mid"
 
 
+def test_resolve_accepts_the_band_in_the_key():
+    """`--level UP_SKILL:mid` — one flag names any level, so a workflow template
+    does not need a second placeholder that CPL and FR must leave out."""
+    assert levels.resolve("UP_SKILL:mid").id == "UP_SKILL:mid"
+    assert levels.resolve("re-skill:Senior").band == "senior"
+
+
 def test_a_banded_level_requires_a_band():
     with pytest.raises(levels.UnknownLevel, match="needs a band"):
         levels.resolve("UP_SKILL")

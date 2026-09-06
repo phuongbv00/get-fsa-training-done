@@ -50,7 +50,7 @@ def run(args: argparse.Namespace) -> int:
         notes = blooket.warnings(questions)
     else:
         count = coderbyte.write(questions, out)
-        notes = coderbyte.warnings(questions)
+        notes = []
 
     size_kb = out.stat().st_size / 1024
     print(f"PASS: wrote {out} ({count} questions, {size_kb:.0f} KB)")

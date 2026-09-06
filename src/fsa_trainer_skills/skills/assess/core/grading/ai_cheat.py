@@ -18,8 +18,8 @@ ranked list for a human to review, and the two questions it can inform — "was
 this AI-written" and "did these two share a source" — are kept separate,
 because the evidence for each is different.
 
-The non-keyboard character set is calibrated to the layouts these learners use;
-`--keyboard-chars` widens or narrows it for a cohort typing on something else.
+The non-keyboard character set is calibrated to the Vietnamese and US layouts
+these learners type on.
 """
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ from pathlib import Path
 
 from fsa_trainer_skills.errors import UsageError
 
-from .plagiarism import LANG_BY_EXT, STRINGS, TOKEN, strip_noise
+from .plagiarism import LANG_BY_EXT, TOKEN, strip_noise
 from .roster import std_id_from_folder
 
 SOURCE_EXTENSIONS = set(LANG_BY_EXT) | {".xml"}
@@ -167,9 +167,9 @@ def comment_narration_metrics(text: str) -> dict:
     }
 
 
-def non_keyboard_metrics(text: str, charset: dict[str, str]) -> dict[str, int]:
+def non_keyboard_metrics(text: str) -> dict[str, int]:
     found: dict[str, int] = defaultdict(int)
-    for character, label in charset.items():
+    for character, label in NON_KEYBOARD.items():
         count = text.count(character)
         if count:
             found[label] += count
@@ -188,12 +188,8 @@ def iter_source_files(folder: Path):
 
 
 def normalized_tokens(text: str, extension: str) -> list[str]:
-    lang = LANG_BY_EXT.get(extension, "text")
-    cleaned = strip_noise(text, lang)
-    if extension == ".xml":
-        cleaned = re.sub(r"<!--.*?-->", " ", cleaned, flags=re.S)
-        cleaned = STRINGS.sub(' "" ', cleaned)
-    return TOKEN.findall(cleaned.lower())
+    lang = "xml" if extension == ".xml" else LANG_BY_EXT.get(extension, "text")
+    return TOKEN.findall(strip_noise(text, lang).lower())
 
 
 def line_metrics(text: str) -> dict:
@@ -244,9 +240,7 @@ def build_student_metrics(
     *,
     total_score: float | None = None,
     min_tokens: int = 40,
-    charset: dict[str, str] | None = None,
 ) -> tuple[dict, dict]:
-    charset = charset or NON_KEYBOARD
     files: dict[str, dict] = {}
     totals = {
         "source_files": 0,
@@ -296,7 +290,7 @@ def build_student_metrics(
                 if len(narration_samples) < 6:
                     narration_samples.append(f"{relative}: {sample}")
 
-        for label, count in non_keyboard_metrics(text, charset).items():
+        for label, count in non_keyboard_metrics(text).items():
             non_keyboard[label] += count
             totals["non_keyboard_chars"] += count
             non_keyboard_files.add(relative)
@@ -444,7 +438,6 @@ def run(
     score_dirs: list[Path] | None = None,
     min_score: float = 0.0,
     min_tokens: int = 40,
-    charset: dict[str, str] | None = None,
 ) -> Report:
     for path in preprocessed:
         if not path.is_dir():
@@ -470,7 +463,6 @@ def run(
                 folder,
                 total_score=selected.get(std_id),
                 min_tokens=min_tokens,
-                charset=charset,
             )
             metrics_by_student[std_id] = metrics
             files_by_student[std_id] = files

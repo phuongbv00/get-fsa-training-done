@@ -38,7 +38,7 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
     sub = parser.add_subparsers(dest="grade_command", required=True)
 
     prep = sub.add_parser("preprocess", help="extract and normalise submissions")
-    prep.add_argument("--roster", required=True, help="class roster CSV (No,ID,Name,Status)")
+    prep.add_argument("--roster", required=True, help="roster CSV with ID, Name, Status columns")
     prep.add_argument("--src", required=True, help="folder holding the raw uploads")
     prep.add_argument("--subject", required=True, help="subject code, e.g. JPL")
     prep.add_argument("--type", required=True, dest="submission_type", help="ASSIGNMENT, P_EXAM…")

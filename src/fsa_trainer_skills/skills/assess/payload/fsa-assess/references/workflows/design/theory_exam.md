@@ -56,7 +56,11 @@ answer that was never right.
 FSA verify --type theory_exam \
   --master    "<output_dir>/<stem>.csv" \
   --coderbyte "<output_dir>/<stem>_coderbyte.json" \
-  --time-map  Easy=30,Medium=45,Hard=75
+  --level     "<LEVEL>"
 ```
+
+`--level` (`UP_SKILL:mid` for a banded level) supplies the non-quiz time map
+and checks the Bloom and difficulty mix against the level as a warning. Pass
+`--time-map` only when the confirmed map differs from the level's.
 
 Then run `references/verifiers/theory_exam.md`.

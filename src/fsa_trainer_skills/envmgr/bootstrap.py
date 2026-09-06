@@ -90,11 +90,8 @@ def _create(venv: Path, needs_pip: bool) -> str:
 
     uv = _uv()
     if uv:
-        cmd = [uv, "venv", "--python", stamp.base_python(), str(venv)]
-        if not needs_pip:
-            # uv venvs have no pip by default, which is what we want here.
-            pass
-        _run(cmd, what="uv venv")
+        # uv venvs carry no pip by default; `uv pip install` targets them from outside.
+        _run([uv, "venv", "--python", stamp.base_python(), str(venv)], what="uv venv")
         version = subprocess.run([uv, "--version"], capture_output=True, text=True).stdout.strip()
         return version or "uv"
 
@@ -184,17 +181,18 @@ def purge() -> list[Path]:
 
 
 def info() -> dict:
-    core = stamp.venv_path(("core",))
+    groups = {}
+    for group in stamp.GROUPS:
+        venv = stamp.venv_path((group,))
+        groups[group] = {
+            "path": str(venv),
+            "ready": stamp.stamp_ok(venv, (group,)),
+            "requirements": stamp.requirement_lines(group),
+        }
     return {
         "home": str(stamp.home()),
         "base_python": stamp.base_python(),
         "uv": _uv() or "",
         "in_venv": os.environ.get("FSA_TRAINER_SKILLS_IN_VENV") == "1",
-        "groups": {
-            "core": {
-                "path": str(core),
-                "ready": stamp.stamp_ok(core, ("core",)),
-                "requirements": stamp.requirement_lines("core"),
-            },
-        },
+        "groups": groups,
     }

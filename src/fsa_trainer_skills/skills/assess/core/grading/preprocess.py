@@ -4,9 +4,11 @@ Layout produced:
 
     <out>/<SUBJECT>_<TYPE>_<STDID>/
 
-A trainee who submitted several archives gets one subfolder per archive; a lone
-archive is flattened straight into their folder. Nothing under `--src` is
-touched — the raw uploads stay exactly as they arrived.
+A trainee who submitted several uploads gets one subfolder per upload; a lone
+upload is flattened straight into their folder. An upload is an archive, a
+folder, or a loose file such as a PDF or a single source file — a document
+exam is submitted that way and must not vanish as "did not submit". Nothing
+under `--src` is touched — the raw uploads stay exactly as they arrived.
 """
 
 from __future__ import annotations
@@ -106,16 +108,16 @@ def copy_into(root: Path, target: Path) -> None:
             shutil.copy2(path, destination)
 
 
+def is_archive(path: Path) -> bool:
+    return path.is_file() and path.suffix.lower() in ARCHIVE_EXTENSIONS
+
+
 def gather_sources(src: Path, out: Path) -> list[Path]:
-    sources = []
-    for path in sorted(src.iterdir()):
-        if path.name in JUNK or path.name.startswith((".", "_")) or path == out:
-            continue
-        if path.is_file() and path.suffix.lower() in ARCHIVE_EXTENSIONS:
-            sources.append(path)
-        elif path.is_dir() and path.name != out.name:
-            sources.append(path)
-    return sources
+    return [
+        path
+        for path in sorted(src.iterdir())
+        if path.name not in JUNK and not path.name.startswith((".", "_")) and path != out
+    ]
 
 
 def run(
@@ -149,6 +151,7 @@ def run(
             continue
         by_student.setdefault(std_id, []).append((source, known))
 
+    failed: set[str] = set()
     for std_id, items in sorted(by_student.items()):
         known = items[0][1]
         folder = out / roster_mod.folder_name(subject, submission_type, std_id)
@@ -157,27 +160,34 @@ def run(
         multiple = len(items) > 1
 
         for source, _ in items:
+            target = folder / source.stem if multiple else folder
+            if not is_archive(source):
+                if source.is_dir():
+                    copy_into(content_root(source), target)
+                else:
+                    target.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(source, target / source.name)
+                continue
             staging = Path(tempfile.mkdtemp(prefix="fsa-trainer-skills-extract-"))
             try:
-                if source.is_file():
-                    extracted, info = extract(source, staging)
-                    if not extracted:
-                        outcome.failures.append((source.name, info))
-                        continue
-                    root = content_root(staging)
+                extracted, info = extract(source, staging)
+                if extracted:
+                    copy_into(content_root(staging), target)
                 else:
-                    root = content_root(source)
-                copy_into(root, folder / source.stem if multiple else folder)
+                    outcome.failures.append((source.name, info))
+                    failed.add(std_id)
             finally:
                 shutil.rmtree(staging, ignore_errors=True)
 
         if folder.exists():
             outcome.created.append((std_id, known, multiple))
 
-    submitted = {std_id for std_id, known, _ in outcome.created if known}
+    # A failed extraction is its own line in the report; listing the trainee
+    # under "did not submit" as well would say something untrue.
+    accounted = {std_id for std_id, known, _ in outcome.created if known} | failed
     outcome.missing = [
         (trainee.std_id, trainee.name)
         for trainee in roster.active
-        if trainee.std_id not in submitted
+        if trainee.std_id not in accounted
     ]
     return outcome

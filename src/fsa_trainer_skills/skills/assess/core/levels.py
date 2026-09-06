@@ -216,7 +216,13 @@ def _normalise(value: str) -> str:
 
 
 def resolve(key: str, band: str | None = None) -> Level:
-    """Look up a level, tolerating aliases and a missing or surplus band."""
+    """Look up a level, tolerating aliases and a missing or surplus band.
+
+    `key` may carry the band itself as `UP_SKILL:mid` — the same form as
+    `Level.id` — so one flag names any level, banded or not.
+    """
+    if ":" in key and not band:
+        key, band = key.split(":", 1)
     normalised = _normalise(key)
     for level in LEVELS:
         if normalised in {_normalise(alias) for alias in level.aliases}:

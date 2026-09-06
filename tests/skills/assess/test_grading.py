@@ -3,12 +3,19 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import sys
 
 import pytest
 
-from fsa_trainer_skills.skills.assess.core.grading import aggregate, batches, plagiarism
+from fsa_trainer_skills.skills.assess.core.grading import (
+    aggregate,
+    ai_cheat,
+    batches,
+    plagiarism,
+    preprocess,
+)
 from fsa_trainer_skills.skills.assess.core.grading import roster as roster_mod
 from fsa_trainer_skills.skills.assess.core.grading.roster import std_id_from_folder
 
@@ -241,3 +248,83 @@ def test_comments_and_strings_do_not_hide_a_copy(tmp_path):
 
     report = plagiarism.run(preprocessed=pre, subject="JPL", submission_type="ASSIGNMENT")
     assert report.payload["flagged_pairs"]
+
+
+def test_a_url_inside_a_string_does_not_swallow_the_line():
+    """Comments used to be stripped before strings, so the `//` in a URL literal
+    ate the rest of its line — and with it the code that followed."""
+    tokens = plagiarism.tokenize('const base = "http://x.io"; const port = 8080;', "js")
+    assert "port" in tokens
+
+
+# --------------------------------------------------------------------------- #
+# Preprocess
+# --------------------------------------------------------------------------- #
+
+
+def _preprocess(roster_csv, src):
+    return preprocess.run(
+        roster=roster_mod.load(roster_csv),
+        src=src,
+        out=src / "_preprocessed",
+        subject="JPL",
+        submission_type="ASSIGNMENT",
+    )
+
+
+def test_preprocess_keeps_a_loose_file_and_a_folder(roster_csv, tmp_path):
+    """A document exam arrives as a bare PDF; it must not be reported as
+    'did not submit' because it was never an archive."""
+    src = tmp_path / "uploads"
+    src.mkdir()
+    (src / "PhuongBV3_jpl_assignment_01.pdf").write_bytes(b"%PDF-1.4")
+    (src / "LinhTT127_jpl_assignment_01" / "nested").mkdir(parents=True)
+    (src / "LinhTT127_jpl_assignment_01" / "nested" / "Main.java").write_text("class Main {}")
+
+    outcome = _preprocess(roster_csv, src)
+
+    out = src / "_preprocessed"
+    assert {std_id for std_id, _, _ in outcome.created} == {"PhuongBV3", "LinhTT127"}
+    assert outcome.missing == []
+    assert (out / "JPL_ASSIGNMENT_PhuongBV3" / "PhuongBV3_jpl_assignment_01.pdf").is_file()
+    # Redundant single-folder nesting is collapsed.
+    assert (out / "JPL_ASSIGNMENT_LinhTT127" / "Main.java").is_file()
+
+
+@pytest.mark.skipif(
+    not any(map(shutil.which, ("ditto", "unzip", "bsdtar"))),
+    reason="no zip extractor on this machine",
+)
+def test_a_failed_extraction_is_not_also_a_missing_submission(roster_csv, tmp_path):
+    src = tmp_path / "uploads"
+    src.mkdir()
+    (src / "PhuongBV3_jpl_assignment_01.zip").write_bytes(b"not a zip at all")
+
+    outcome = _preprocess(roster_csv, src)
+
+    assert [name for name, _ in outcome.failures] == ["PhuongBV3_jpl_assignment_01.zip"]
+    assert [std_id for std_id, _ in outcome.missing] == ["LinhTT127"]
+
+
+# --------------------------------------------------------------------------- #
+# AI-authorship signals
+# --------------------------------------------------------------------------- #
+
+
+def test_ai_cheat_counts_narration_and_pasted_characters(tmp_path):
+    pre = tmp_path / "_preprocessed"
+    folder = pre / "JPL_ASSIGNMENT_PhuongBV3"
+    folder.mkdir(parents=True)
+    (folder / "UserController.java").write_text(
+        "// GET /users\n"
+        '@GetMapping("/users")\n'
+        "public List<User> listUsers() { return repo.findAll(); } // returns users → list\n",
+        encoding="utf-8",
+    )
+
+    report = ai_cheat.run(preprocessed=[pre], subject="JPL", submission_type="ASSIGNMENT")
+    metrics = report.payload["students"]["PhuongBV3"]
+
+    assert metrics["endpoint_narration"] == 1
+    assert metrics["non_keyboard_by_kind"] == {"right arrow": 1}
+    assert "INSTRUCTOR ONLY" in report.text

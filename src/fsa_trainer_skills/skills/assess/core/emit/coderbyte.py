@@ -30,10 +30,6 @@ from pathlib import Path
 
 from .master import Question
 
-#: Coderbyte's own template shows three options, but a four-option minimum is
-#: the house rule and the verifier enforces it.
-MIN_OPTIONS = 4
-
 
 def build(questions: list[Question]) -> dict:
     out = []
@@ -68,15 +64,3 @@ def write(questions: list[Question], out: Path) -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_bytes(render(questions))
     return len(questions)
-
-
-def warnings(questions: list[Question]) -> list[str]:
-    thin = [q.number for q in questions if len(q.options) < MIN_OPTIONS]
-    if not thin:
-        return []
-    return [
-        f"{len(thin)} question(s) have fewer than {MIN_OPTIONS} options (questions "
-        + ", ".join(str(n) for n in thin[:5])
-        + ("..." if len(thin) > 5 else "")
-        + ")"
-    ]

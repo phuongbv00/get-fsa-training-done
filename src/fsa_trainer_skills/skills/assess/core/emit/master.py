@@ -16,9 +16,8 @@ from fsa_trainer_skills.errors import UsageError
 
 from ..verify.common import MASTER_COLUMNS
 
-#: How many `Answer N` columns the master may carry. The standard header has 4;
-#: extended masters may add up to two more.
-MAX_OPTIONS = 6
+#: Every question carries exactly this many options; `verify` enforces the same.
+OPTION_COUNT = 4
 
 
 @dataclass(frozen=True)
@@ -72,31 +71,22 @@ def read(path: Path) -> list[Question]:
 
     with path.open(newline="", encoding="utf-8-sig") as handle:
         reader = csv.DictReader(handle)
-        fieldnames = reader.fieldnames or []
-        if fieldnames[: len(MASTER_COLUMNS)] != MASTER_COLUMNS:
+        if reader.fieldnames != MASTER_COLUMNS:
             raise UsageError(
-                "master CSV header does not match the expected columns",
+                "master CSV header does not match the expected 12 columns",
                 hint=(
                     "expected: " + ",".join(MASTER_COLUMNS) + "\n"
-                    "       found:    " + ",".join(fieldnames)
+                    "       found:    " + ",".join(reader.fieldnames or [])
                 ),
             )
-        extra_option_columns = [
-            name for name in fieldnames if name.startswith("Answer ") and name not in MASTER_COLUMNS
-        ]
         rows = list(reader)
 
     questions: list[Question] = []
     for index, row in enumerate(rows, start=1):
         number = int(row["No"].strip() or index)
-        options = [row[f"Answer {n}"].strip() for n in range(1, 5)]
-        for name in extra_option_columns:
-            value = (row.get(name) or "").strip()
-            if value:
-                options.append(value)
-        options = [option for option in options if option]
-        if len(options) < 2:
-            raise UsageError(f"question {number}: needs at least two answer options")
+        options = [row[f"Answer {n}"].strip() for n in range(1, OPTION_COUNT + 1)]
+        if not all(options):
+            raise UsageError(f"question {number}: every Answer 1-{OPTION_COUNT} must be filled")
 
         questions.append(
             Question(

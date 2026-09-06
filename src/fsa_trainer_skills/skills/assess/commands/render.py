@@ -37,8 +37,8 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
     )
     parser.add_argument(
         "--lang",
-        default="vi",
-        help="document language attribute (default: vi, which also covers English)",
+        default="en",
+        help="document language attribute (default: en; pass vi for a translated brief)",
     )
     parser.add_argument(
         "--allow-rubric",

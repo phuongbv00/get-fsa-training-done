@@ -162,8 +162,8 @@ fsa-trainer-skills assess render brief.md -o brief.pdf
 ```
 
 Renders an A4 PDF and checks it against a page budget derived from the brief's
-`Duration` header at two pages per hour. `--lang` defaults to `vi` (which also
-covers English). Rendering a file whose name marks it as an instructor rubric
+`Duration` header at two pages per hour. `--lang` sets the document language,
+`en` by default and `vi` for a translated brief. Rendering a file whose name marks it as an instructor rubric
 requires `--allow-rubric`, so a rubric is not handed out by accident.
 
 ### `grade` — the mechanical half

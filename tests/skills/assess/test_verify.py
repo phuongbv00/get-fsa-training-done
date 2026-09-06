@@ -348,6 +348,16 @@ def test_a_brief_referring_to_a_sprint_that_does_not_exist_is_caught(capstone_tr
     assert any("Brief refers to Sprint 4" in error for error in result.errors)
 
 
+def test_a_lowercase_sprint_duration_is_not_a_sprint_reference(capstone_trio):
+    """'each sprint 2 weeks long' names a length, not Sprint 2."""
+    brief, spec, rubric = capstone_trio
+    brief.write_text(
+        brief.read_text(encoding="utf-8") + "\nEach sprint 9 days long.\n", encoding="utf-8"
+    )
+    result = verify_capstone(brief, spec, rubric)
+    assert not any("Sprint 9" in error for error in result.errors)
+
+
 def test_a_missing_checkpoint_section_is_caught(capstone_trio):
     brief, spec, rubric = capstone_trio
     spec.write_text(

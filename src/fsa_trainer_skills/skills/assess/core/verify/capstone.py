@@ -81,8 +81,10 @@ _SPRINT_ROW = re.compile(
 )
 
 #: "Sprint 2" anywhere in the brief or rubric. The sprint the deliverable
-#: bullets promise has to be one the spec's calendar actually has.
-_SPRINT_REFERENCE = re.compile(r"\bsprint\s+(\d+)\b", re.IGNORECASE)
+#: bullets promise has to be one the spec's calendar actually has. Case matters:
+#: the proper noun is capitalised, and "each sprint 2 weeks long" is not a
+#: reference to Sprint 2.
+_SPRINT_REFERENCE = re.compile(r"\bSprint\s+(\d+)\b")
 
 _DELIVERABLE_TOKEN = re.compile(r"\bD\d{2}\b")
 

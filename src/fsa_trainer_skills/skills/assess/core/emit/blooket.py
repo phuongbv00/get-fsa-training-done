@@ -22,8 +22,6 @@ from ..verify.common import BLOOKET_COLUMNS, MAX_TIME_LIMIT_SECONDS
 from .master import Question
 
 TITLE_ROW = ["Blooket Import Template", "", "", "", "", "", "", ""]
-#: Blooket shows four options per question at most.
-BLOOKET_OPTIONS = 4
 
 
 def _time_limit(question: Question) -> str:
@@ -36,13 +34,11 @@ def _time_limit(question: Question) -> str:
 def rows(questions: list[Question]) -> list[list[str]]:
     out = [TITLE_ROW, list(BLOOKET_COLUMNS)]
     for index, question in enumerate(questions, start=1):
-        options = question.options[:BLOOKET_OPTIONS]
-        options += [""] * (BLOOKET_OPTIONS - len(options))
         out.append(
             [
                 str(index),
                 question.text,
-                *options,
+                *question.options,
                 _time_limit(question),
                 question.correct_field,
             ]
@@ -64,24 +60,10 @@ def write(questions: list[Question], out: Path) -> int:
 
 
 def warnings(questions: list[Question]) -> list[str]:
-    notes = []
-    over = [q.number for q in questions if len(q.options) > BLOOKET_OPTIONS]
-    if over:
-        notes.append(
-            f"{len(over)} question(s) have more than {BLOOKET_OPTIONS} options; "
-            f"Blooket shows only the first {BLOOKET_OPTIONS} (questions "
-            + ", ".join(str(n) for n in over[:5])
-            + ("..." if len(over) > 5 else "")
-            + ")"
-        )
-    capped = [
-        q.number
-        for q in questions
-        if q.time_limit.strip().isdigit() and int(q.time_limit) > MAX_TIME_LIMIT_SECONDS
+    capped = [q.number for q in questions if _time_limit(q) != q.time_limit.strip()]
+    if not capped:
+        return []
+    return [
+        f"{len(capped)} question(s) exceeded the {MAX_TIME_LIMIT_SECONDS}s "
+        "platform maximum and were capped"
     ]
-    if capped:
-        notes.append(
-            f"{len(capped)} question(s) exceeded the {MAX_TIME_LIMIT_SECONDS}s "
-            "platform maximum and were capped"
-        )
-    return notes

@@ -59,7 +59,7 @@ tbody tr:nth-child(even) { background: #fafbfc; }
 """
 
 
-def build_document(markdown: str, title: str, *, lang: str = "vi") -> str:
+def build_document(markdown: str, title: str, *, lang: str = "en") -> str:
     """A complete, self-contained HTML document — no external requests."""
     return (
         '<!DOCTYPE html><html lang="' + _html.escape(lang, quote=True) + '">'

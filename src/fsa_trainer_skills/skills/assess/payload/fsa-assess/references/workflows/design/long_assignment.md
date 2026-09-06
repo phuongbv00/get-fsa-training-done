@@ -62,4 +62,7 @@ FSA verify --type long_assignment \
   --level  "<LEVEL>"
 ```
 
+`--level` takes the band with it for the banded levels — `UP_SKILL:mid`,
+`RE_SKILL:senior` — and the level alone for `CPL` and `FR`.
+
 Then run `references/verifiers/long_assignment.md`.

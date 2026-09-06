@@ -89,9 +89,15 @@ import error that points somewhere else entirely.
 FSA verify --type quiz \
   --master  "<output_dir>/<stem>.csv" \
   --blooket "<output_dir>/<stem>_blooket.csv" \
-  --time-map Easy=5,Medium=10,Hard=20 \
+  --level   "<LEVEL>" \
   --expect-count 40
 ```
+
+`--level` takes the band with it for the banded levels — `UP_SKILL:mid` — and
+the level alone for `CPL` and `FR`. It supplies the quiz time map and compares
+the Bloom and difficulty mix against the level's defaults; drift is reported as
+a warning, never an error. Pass `--time-map Easy=5,Medium=10,Hard=20` only when
+the confirmed map differs from the level's.
 
 Then tally the actual distribution — by Bloom level, by unit, by difficulty —
 against the confirmed targets and report any material drift.

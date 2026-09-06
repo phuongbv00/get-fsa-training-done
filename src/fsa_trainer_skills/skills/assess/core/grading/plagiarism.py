@@ -79,13 +79,32 @@ SKIP_DIRS = {
     "_ai_cheat",
 }
 
-BLOCK_COMMENT = re.compile(r"/\*.*?\*/", re.S)
-HTML_COMMENT = re.compile(r"<!--.*?-->", re.S)
-LINE_SLASH = re.compile(r"//[^\n]*")
-LINE_HASH = re.compile(r"#[^\n]*")
-LINE_SQL = re.compile(r"--[^\n]*")
-STRINGS = re.compile(r"'(?:\\.|[^'\\])*'|\"(?:\\.|[^\"\\])*\"|`(?:\\.|[^`\\])*`")
+#: Strings and comments are matched in one left-to-right pass, so a `//` inside
+#: a URL literal stays part of the string and an apostrophe inside a comment
+#: stays part of the comment. Stripping them in two passes gets one of those
+#: wrong whichever order is chosen.
+_STRING = r"(?P<s>'(?:\\.|[^'\\])*'|\"(?:\\.|[^\"\\])*\"|`(?:\\.|[^`\\])*`)"
+_BLOCK_COMMENT = r"/\*.*?\*/"
+_HTML_COMMENT = r"<!--.*?-->"
+_LINE_COMMENT = {
+    "//": ("js", "ts", "java", "c", "cpp", "cs", "php", "go", "css"),
+    "#": ("py", "rb"),
+    "--": ("sql",),
+}
 TOKEN = re.compile(r"[A-Za-z_]\w+|[0-9]+|[^\sA-Za-z0-9_]")
+
+
+def _noise_pattern(lang: str) -> re.Pattern:
+    parts = [_STRING, _BLOCK_COMMENT]
+    if lang in {"html", "xml"}:
+        parts.append(_HTML_COMMENT)
+    parts += [
+        re.escape(marker) + r"[^\n]*" for marker, langs in _LINE_COMMENT.items() if lang in langs
+    ]
+    return re.compile("|".join(parts), re.S)
+
+
+_NOISE = {lang: _noise_pattern(lang) for lang in set(LANG_BY_EXT.values()) | {"xml"}}
 
 DEFAULTS = {
     "threshold": 0.5,
@@ -103,16 +122,8 @@ def stable_hash(text: str) -> int:
 
 def strip_noise(text: str, lang: str) -> str:
     """Drop comments and string literals so wording cannot mask copying."""
-    text = BLOCK_COMMENT.sub(" ", text)
-    if lang == "html":
-        text = HTML_COMMENT.sub(" ", text)
-    if lang in {"js", "ts", "java", "c", "cpp", "cs", "php", "go", "css"}:
-        text = LINE_SLASH.sub(" ", text)
-    if lang in {"py", "rb"}:
-        text = LINE_HASH.sub(" ", text)
-    if lang == "sql":
-        text = LINE_SQL.sub(" ", text)
-    return STRINGS.sub(' "" ', text)
+    pattern = _NOISE.get(lang, _NOISE["text"])
+    return pattern.sub(lambda m: ' "" ' if m.group("s") else " ", text)
 
 
 def tokenize(text: str, lang: str) -> list[str]:

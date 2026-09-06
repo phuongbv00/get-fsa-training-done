@@ -161,6 +161,9 @@ FSA verify --type capstone_project \
   --level  "<LEVEL>"
 ```
 
+`--level` takes the band with it for the banded levels — `UP_SKILL:mid`,
+`RE_SKILL:senior` — and the level alone for `CPL` and `FR`.
+
 There is no page budget — the duration is measured in weeks — but the render
 still produces the PDF that gets handed out.
 

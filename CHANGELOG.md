@@ -30,6 +30,40 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- **The design workflows could not verify a banded level.** Every long-form
+  workflow passed `--level "<LEVEL>"` alone, which `verify` rejects for
+  `UP_SKILL` and `RE_SKILL` (`needs a band`), and the quiz and theory-exam
+  workflows passed no `--level` at all, so the calibration check never ran for
+  a question set. `--level` now accepts the band in the key — `UP_SKILL:mid`,
+  the same form as `Level.id` — and every workflow passes it; the level also
+  supplies the time map, so the explicit `--time-map` is only needed when the
+  confirmed map differs.
+- **`emit` accepted a master `verify` rejects.** `emit/master.py` read up to
+  six `Answer N` columns while `verify` and the workflow require exactly the
+  twelve-column header with four filled answers. The extended-master path is
+  gone: `emit` enforces the same header and the same four options, and the
+  option-count warnings that only that path could trigger are gone with it.
+- **`grade preprocess` silently dropped loose-file uploads.** Only archives
+  and folders were gathered, so a bare PDF or a single source file was skipped
+  without a word and its trainee reported as "did NOT submit". Loose files are
+  now copied into the trainee's folder like any other upload. A trainee whose
+  only archive failed to extract was also listed under "did NOT submit"; the
+  failure line is now the only report.
+- `grade ai-cheat` documented a `--keyboard-chars` flag that did not exist;
+  the docstring and the unused `charset` plumbing are removed.
+- `grade plagiarism` stripped comments before string literals, so a `//` in a
+  URL literal (or a `#` in a Python string) swallowed the rest of the line.
+  Strings and comments are now matched in one left-to-right pass.
+- `assess render` defaulted to `--lang vi`; it is `en`, like everything else
+  the skill emits, with `vi` for a translated brief.
+- The capstone verifier read "each sprint 2 weeks long" as a reference to
+  Sprint 2; the reference pattern is now the capitalised proper noun only.
+- `doctor` exited non-zero when no browser was found, although only `render`
+  needs one; it is reported but no longer fails the check. `doctor` also
+  enumerates every dependency group rather than a hard-coded `core`.
+- `SKILL.md` jumped from Step 0 to Step 2; routing is now Step 1, and the
+  CLI-resolution section says to fall through when a receipt written on
+  another machine names an interpreter that is not there.
 - **`verify --level` and `--band` were parsed and thrown away.** They sat in a
   `calibration` argument group and `run()` never read them, so the calibration
   the workflows and `references/levels.md` promise was never actually checked.

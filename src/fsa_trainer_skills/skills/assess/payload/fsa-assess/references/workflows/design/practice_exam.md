@@ -59,6 +59,9 @@ FSA verify --type practice_exam \
   --level  "<LEVEL>"
 ```
 
+`--level` takes the band with it for the banded levels — `UP_SKILL:mid`,
+`RE_SKILL:senior` — and the level alone for `CPL` and `FR`.
+
 Then run `references/verifiers/practice_exam.md`, which additionally asks for a
 realistic per-task minute budget.
 
@@ -66,6 +69,7 @@ realistic per-task minute budget.
 
 Only if the user explicitly asks. `<stem>_<lang>.md` — `_vn` for Vietnamese —
 with bilingual `##` headings, and code, identifiers, HTTP status codes, and
-framework terms left in English. Render it too, and hold it to the same budget.
+framework terms left in English. Render it too, with `FSA render --lang vi`,
+and hold it to the same budget.
 **Never** produce a translated rubric: `verify` and the grading pipeline parse
 the rubric's headings, so the instructor rubric stays English.

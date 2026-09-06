@@ -100,9 +100,9 @@ def run(args: argparse.Namespace) -> int:
 
 
 def _healthy(report: dict) -> bool:
+    """Exit status. A missing browser is reported above but does not fail the
+    check: only `render` needs it, and a grading machine never does."""
     for info in report["payloads"].values():
         if any(p.startswith("ERROR") for p in info["problems"]):
             return False
-    if "chrome" in report["extra"] and not report["extra"]["chrome"]:
-        return False
     return any(report["archive_tools"].values())
