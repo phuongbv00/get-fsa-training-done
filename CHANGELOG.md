@@ -6,6 +6,34 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **`fsa-training-program` (`program`) — design a training programme and export
+  its workbooks.** Replaces a Node pipeline that lived in a separate repository
+  and worked for exactly one cohort: it carried seven modules, 280 hours, 70
+  days, a 240-minute training day, a 16800-minute total, `W1..W14` and `D1..D96`
+  as literals. **Every one of those now derives** — the module table gives the
+  codes and totals, `total_hours × 60 / total_days` gives the length of a
+  training day, and the CSV headers give the calendar's width. When a figure
+  cannot be derived the sources disagree, which is a finding rather than a
+  number to pick.
+  - `program verify` reconciles the curriculum, the four schedules and every
+    syllabus/session-plan pair against each other. 36 rules, each carrying an id
+    into a generated `references/rules.md`.
+  - `program derive` computes what must not be typed twice: a syllabus's Time
+    Allocation from its session plan, and the four CSV skeletons from the module
+    table.
+  - `program export syllabus` fills the FPT vendor workbook by **editing** a
+    copy of the template with `zipfile` and `xml.etree` — the populated sheets
+    are rewritten and every other part is copied through byte-identically. On
+    the real form that preserves 32 of 35 parts (losing only the calc chain and
+    the form's dead identity sheet), where an openpyxl round trip drops the
+    classification label, the custom properties and the print setup, and the
+    Node pipeline emitted 17.
+  - The reference pipeline special-cased two topic codes; matching an assessment
+    item to the sessions delivering it by **occurrence** — the item plus its
+    ordinal — removes both. A long assignment spread over kickoff, completion
+    and acceptance rows is one assignment; `Quiz 1` and `Quiz 2` are two.
 ### Changed
 
 - **BREAKING: the skill is renamed `fsa-training-assessment`, under the

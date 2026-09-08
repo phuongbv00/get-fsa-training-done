@@ -1,0 +1,13 @@
+Unit,Training Unit/Chapter,Session,Content,Learning Objectives,Delivery Type,Duration (mins),Training Format,Training Materials / Logistics & General Notes
+1,Relational Modelling,1,"Entities, relationships, keys, and normalization to 3NF",DBF-K1,Concept/Lecture,60,Blended,dbf_lecture_01.md
+1,Relational Modelling,1,"Long assignment kickoff: issue the brief, schema, and rubric","DBF-K1, DBF-K2",Assignment/Lab,120,Blended,dbf_assignment_01.md and rubric
+1,Relational Modelling,1,Review of the models produced this session,DBF-K1,Guides/Review,30,Blended,Worked domain brief
+1,Relational Modelling,1,Quiz 1 — modelling and integrity scenarios (MCQ),DBF-K1,Test/Quiz,30,Blended,dbf_quiz_01.csv
+1,Relational Modelling,2,DDL and constraints against the modelled schema,DBF-K1,Concept/Lecture,60,Blended,dbf_lecture_02.md
+1,Relational Modelling,2,Implement the schema and seed it repeatably,"DBF-K1, DBF-K2",Assignment/Lab,150,Blended,dbf_lab_01.md
+1,Relational Modelling,2,Review of the implemented schemas,DBF-K1,Guides/Review,30,Blended,Worked example
+2,Querying and Assessment,3,"Joins, grouping, and aggregation",DBF-K2,Concept/Lecture,30,Blended,dbf_lecture_03.md
+2,Querying and Assessment,3,"Long assignment acceptance: run the submission from a clean database","DBF-K1, DBF-K2",Assignment/Lab,30,Blended,dbf_assignment_01.md and rubric
+2,Querying and Assessment,3,Quiz 2 — SQL correctness and aggregation (OE),DBF-K2,Test/Quiz,30,Blended,dbf_quiz_02.csv
+2,Querying and Assessment,3,Final theory exam — database design and SQL reasoning (OE),"DBF-K1, DBF-K2",Exam,60,Blended,dbf_final_theory_exam_01.md
+2,Querying and Assessment,3,Final practice exam — bounded tasks against a fresh instance,"DBF-K1, DBF-K2",Exam,90,Blended,dbf_final_practice_exam_01.md

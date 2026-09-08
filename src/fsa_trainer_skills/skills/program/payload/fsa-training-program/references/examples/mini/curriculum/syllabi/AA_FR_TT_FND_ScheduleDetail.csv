@@ -1,0 +1,10 @@
+Unit,Training Unit/Chapter,Session,Content,Learning Objectives,Delivery Type,Duration (mins),Training Format,Training Materials / Logistics & General Notes
+1,Ways of Working,1,"Planning, tracking, and the definition of done",FND-K1,Concept/Lecture,60,Blended,fnd_lecture_01.md
+1,Ways of Working,1,"Long assignment kickoff: issue the brief, deliverables, and rubric","FND-K1, FND-K2",Assignment/Lab,150,Blended,fnd_assignment_01.md and rubric
+1,Ways of Working,1,Review of the planning artifacts produced this session,FND-K1,Guides/Review,30,Blended,Worked example
+2,Delivery Practice,2,Collaboration workflow and review etiquette,FND-K2,Concept/Lecture,60,Blended,fnd_lecture_02.md
+2,Delivery Practice,2,"Long assignment acceptance: walk the submission and its evidence","FND-K1, FND-K2",Assignment/Lab,20,Blended,fnd_assignment_01.md and rubric
+2,Delivery Practice,2,Retrospective on the delivered increment,FND-K2,Guides/Review,10,Blended,Worked example
+2,Delivery Practice,2,Quiz 1 — planning and collaboration scenarios (MCQ),FND-K1,Test/Quiz,30,Blended,fnd_quiz_01.csv
+2,Delivery Practice,2,Final theory exam — ways-of-working reasoning (OE),"FND-K1, FND-K2",Exam,60,Blended,fnd_final_theory_exam_01.md
+2,Delivery Practice,2,Final practice exam — complete a bounded delivery task,"FND-K1, FND-K2",Exam,60,Blended,fnd_final_practice_exam_01.md

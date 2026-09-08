@@ -15,6 +15,7 @@ Currently registered:
 
 | Namespace | Skill | What it does | Docs |
 | --- | --- | --- | --- |
+| `program` | `fsa-training-program` | design a training programme and export its workbooks | [README](src/fsa_trainer_skills/skills/program/README.md) |
 | `assessment` | `fsa-training-assessment` | design and grade FSA training assessments | [README](src/fsa_trainer_skills/skills/assessment/README.md) |
 
 Every skill is **stateless**. It assumes nothing about the directory layout it
@@ -64,6 +65,12 @@ Each skill documents itself in its own `README.md` next to its code, rather
 than in this file. That keeps the root README about the CLI and the registry,
 and means adding a skill adds a file instead of editing a shared one.
 
+- **[`program`](src/fsa_trainer_skills/skills/program/README.md)** — design a
+  training programme: the curriculum and its schedules, the outcome-standard
+  mapping, one syllabus and session plan per topic, and the vendor workbooks.
+  Nothing is a constant: module counts, totals, the length of a training day and
+  the calendar's width are all derived from the sources and checked against each
+  other.
 - **[`assessment`](src/fsa_trainer_skills/skills/assessment/README.md)** — design and
   grade FSA training assessments: quizzes, short and long assignments, theory
   and practice exams, and capstone projects, each calibrated by level, plus the

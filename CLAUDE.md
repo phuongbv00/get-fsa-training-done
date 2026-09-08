@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `fsa-trainer-skills` ships a CLI plus a registry of agent skills, all of which must stay in sync:
 
-- **A skill registry** — each skill is a subpackage under `src/fsa_trainer_skills/skills/` exporting a module-level `SKILL: Skill` object. Currently one: `skills/assessment/`, the `fsa-training-assessment` skill (design and grade FSA training assessments).
+- **A skill registry** — each skill is a subpackage under `src/fsa_trainer_skills/skills/` exporting a module-level `SKILL: Skill` object. Currently two: `skills/program/` (`fsa-training-program`, the curriculum, schedules, syllabi and vendor workbooks) and `skills/assessment/` (`fsa-training-assessment`, quizzes, exams, assignments and grading).
 - **The `fsa-trainer-skills` CLI** — shared lifecycle commands (`install`, `update`, `uninstall`, `status`, `doctor`, `env`) that operate across every registered skill, plus each skill's own worker commands under `fsa-trainer-skills <namespace> <verb>` (e.g. `fsa-trainer-skills assessment render`).
 
 ## Commands
@@ -38,12 +38,23 @@ When iterating on worker commands locally, `fsa-trainer-skills --no-venv <cmd>` 
 ### Generated files — never edit by hand
 
 - `src/fsa_trainer_skills/skills/assessment/payload/fsa-training-assessment/references/levels.md` is generated from `skills/assessment/core/levels.py` by `scripts/assessment/gen_levels_md.py`. Edit the Python, then regenerate.
+- `src/fsa_trainer_skills/skills/program/payload/fsa-training-program/references/rules.md` is generated from `skills/program/core/rules.py`, and `references/schemas.md` from `core/schemas.py` + `core/schedule.py`, by the scripts in `scripts/program/`.
 - The version is canonical in `src/fsa_trainer_skills/__about__.py`; `scripts/sync_version.py` iterates the skill registry and propagates it to `package.json` and every skill's payload `VERSION` file — adding a skill needs no edit to this script.
 
 Every `scripts/<skill>/gen_*.py` is covered by one globbed gate in `tests/test_consistency.py` and one loop in CI, so a new skill's generated reference is checked the day it lands.
 - `npm/python/` is a staged copy of `src/fsa_trainer_skills` created by `npm/lib/prepack.js` (the npm package is a thin shim over the Python implementation). Regenerate it; never edit it.
 
 CI (`consistency` job and `tests/test_consistency.py`) fails on drift in any of these. The top-level `tests/test_consistency.py` holds cross-skill gates (payload validity against Codex's rules, no duplicate skill names/namespaces, version sync); assess-specific gates (every assessment type has a workflow and verifier, SKILL.md links every workflow file) live in `tests/skills/assessment/test_consistency.py`.
+
+### Skill/CLI contract (program)
+
+**No programme constant is ever hardcoded.** The reference pipeline this replaces (a Node script in a separate repo) carried seven modules, 280 hours, 70 days, a 240-minute training day, a 16800-minute total, `W1..W14` and `D1..D96` as literals, and worked for exactly one cohort. All of them derive: the module table gives the codes and totals, `total_hours × 60 / total_days` gives the length of a training day, and the CSV headers give the calendar's width. When a figure cannot be derived the sources disagree — that is a finding, not a number to choose. Genuine policy (pass mark, first weekday, chapter span, creator, item patterns) is a flag instead.
+
+Derived tables are never typed by hand, for the same reason `assessment emit` exists: `derive allocation` computes a syllabus's §8 from its session plan and `derive skeleton` writes the CSV headers and row order from the module table. `verify` re-checks the same arithmetic, so a derived file passes by construction.
+
+The rulebook lives once, in `core/rules.py`; bodies live in `core/checks/` and `references/rules.md` is generated from it. An assessment item is matched to the sessions delivering it by **occurrence** — the item plus its ordinal — so a long assignment spread over kickoff/completion/acceptance rows counts as one and `Quiz 1`/`Quiz 2` count as two, which is what removed the reference pipeline's two topic-code special cases.
+
+`export` **edits** a copy of the vendor workbook with `zipfile` + `xml.etree` rather than rebuilding it: the populated sheets are rewritten and every other part is copied through byte-identically. Measured on the real form, an openpyxl round trip loses the classification label, the custom properties and the print setup, and the Node pipeline emitted 17 of 35 parts. Consequently the writer never touches `styles.xml` — it reuses each cell's existing style and cannot invent formatting — and the session-plan band is a fixed height with the summary block below it, so an over-long plan is refused rather than allowed to overwrite it. The vendor templates are the customer's property: never committed, and `.xlsx` only.
 
 ### Skill/CLI contract (assessment)
 
