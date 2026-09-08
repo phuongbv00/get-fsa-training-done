@@ -34,6 +34,21 @@ All notable changes to this project are documented here. The format follows
     item to the sessions delivering it by **occurrence** — the item plus its
     ordinal — removes both. A long assignment spread over kickoff, completion
     and acceptance rows is one assignment; `Quiz 1` and `Quiz 2` are two.
+- **`fsa-training-material` (`material`) — write the teaching material a session
+  plan calls for.** Lecture notes, module handbooks, appendices, and the
+  step-by-step lab guides the corpus was missing entirely.
+  - `material verify` checks a document against the template its filename
+    claims: one title on line 1, no front matter, an objectives section,
+    contiguous section numbers, a language tag on every fence, and every link
+    and `#anchor` resolving. 22 rules, with a generated `references/structure.md`.
+  - `material coverage` is the cross-skill check. A session plan's materials
+    column names the file serving each session, so it reports both what is
+    promised and missing and what is present and unscheduled — counting files
+    that belong to another skill as such rather than as gaps.
+  - `material derive appendix` rebuilds the appendix's syllabus map, whose deep
+    anchors are the only ones in a module and break silently when a heading is
+    renamed.
+
 ### Changed
 
 - **BREAKING: the skill is renamed `fsa-training-assessment`, under the

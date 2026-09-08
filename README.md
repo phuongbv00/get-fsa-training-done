@@ -16,7 +16,14 @@ Currently registered:
 | Namespace | Skill | What it does | Docs |
 | --- | --- | --- | --- |
 | `program` | `fsa-training-program` | design a training programme and export its workbooks | [README](src/fsa_trainer_skills/skills/program/README.md) |
+| `material` | `fsa-training-material` | write lecture notes, handbooks and lab guides | [README](src/fsa_trainer_skills/skills/material/README.md) |
 | `assessment` | `fsa-training-assessment` | design and grade FSA training assessments | [README](src/fsa_trainer_skills/skills/assessment/README.md) |
+
+The three divide one job. A programme's session plan names, in its
+`Training Materials` column, the file that serves each session — so `program`
+declares that a slot exists and what it weighs, `material` writes the lecture
+note or lab guide, and `assessment` writes the quiz, brief or exam. No skill
+authors another's artifact, and each checks its own half of that manifest.
 
 Every skill is **stateless**. It assumes nothing about the directory layout it
 was installed into and never scans a project on a hunch — it asks for its
@@ -71,6 +78,9 @@ and means adding a skill adds a file instead of editing a shared one.
   Nothing is a constant: module counts, totals, the length of a training day and
   the calendar's width are all derived from the sources and checked against each
   other.
+- **[`material`](src/fsa_trainer_skills/skills/material/README.md)** — write the
+  teaching material a session plan calls for: lecture notes, module handbooks,
+  appendices, and the step-by-step lab guides.
 - **[`assessment`](src/fsa_trainer_skills/skills/assessment/README.md)** — design and
   grade FSA training assessments: quizzes, short and long assignments, theory
   and practice exams, and capstone projects, each calibrated by level, plus the

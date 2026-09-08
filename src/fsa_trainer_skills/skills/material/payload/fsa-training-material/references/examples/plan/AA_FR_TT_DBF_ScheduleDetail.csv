@@ -1,0 +1,9 @@
+Unit,Training Unit/Chapter,Session,Content,Learning Objectives,Delivery Type,Duration (mins),Training Format,Training Materials / Logistics & General Notes
+1,Relational Modelling,1,"Module introduction: how to work through the notes and set up the environment",DBF-K1,Class Meeting,30,Blended,00_Study_Guide_Handbook.md
+1,Relational Modelling,1,"Entities, relationships, keys, and normalization to 3NF",DBF-K1,Concept/Lecture,60,Blended,01_Relational_Modelling.md
+1,Relational Modelling,1,"Lab: model the catalogue and implement it with keys and constraints","DBF-K1, DBF-K2",Assignment/Lab,90,Blended,dbf_lab_01.md
+1,Relational Modelling,1,Review of the schemas produced this session,DBF-K1,Guides/Review,30,Blended,Worked domain brief
+2,Querying,2,"Joins, grouping, and aggregation",DBF-K2,Concept/Lecture,60,Blended,02_Querying.md
+2,Querying,2,Quiz 1 — modelling and SQL scenarios (MCQ),DBF-K2,Test/Quiz,30,Blended,dbf_quiz_01.csv
+2,Querying,2,Module revision against the syllabus map,"DBF-K1, DBF-K2",Guides/Review,30,Blended,99_Appendix.md
+2,Querying,2,Final theory exam — modelling and SQL reasoning (OE),"DBF-K1, DBF-K2",Exam,120,Blended,dbf_final_theory_exam_01.md

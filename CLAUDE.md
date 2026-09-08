@@ -6,8 +6,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `fsa-trainer-skills` ships a CLI plus a registry of agent skills, all of which must stay in sync:
 
-- **A skill registry** — each skill is a subpackage under `src/fsa_trainer_skills/skills/` exporting a module-level `SKILL: Skill` object. Currently two: `skills/program/` (`fsa-training-program`, the curriculum, schedules, syllabi and vendor workbooks) and `skills/assessment/` (`fsa-training-assessment`, quizzes, exams, assignments and grading).
+- **A skill registry** — each skill is a subpackage under `src/fsa_trainer_skills/skills/` exporting a module-level `SKILL: Skill` object. Currently three, dividing one job: `skills/program/` (`fsa-training-program`, the curriculum, schedules, syllabi and vendor workbooks), `skills/material/` (`fsa-training-material`, lecture notes, handbooks and lab guides), and `skills/assessment/` (`fsa-training-assessment`, quizzes, exams, assignments and grading).
 - **The `fsa-trainer-skills` CLI** — shared lifecycle commands (`install`, `update`, `uninstall`, `status`, `doctor`, `env`) that operate across every registered skill, plus each skill's own worker commands under `fsa-trainer-skills <namespace> <verb>` (e.g. `fsa-trainer-skills assessment render`).
+
+## How the three skills relate
+
+A programme's `<TOPIC>_ScheduleDetail.csv` has a `Training Materials / Logistics & General Notes` column, and **that column is the manifest binding the three**. A row says a session exists, runs 90 minutes, serves objective `FEF-K1`, and will be served by a file called `fef_lab_01.md`.
+
+- `program` declares the **slot** — that it exists, what it weighs, what will fill it.
+- `material` produces `fef_lab_01.md`; `assessment` produces `dbf_quiz_01.csv`.
+
+No skill authors another's artifact. Each verifies its own half of the manifest and, when a finding is really about someone else's file, names the skill that owns it. Keep that boundary when adding checks: `program verify` reports a missing *slot*, `material coverage` reports a missing *material*, and neither writes the other's file.
 
 ## Commands
 
@@ -39,6 +48,7 @@ When iterating on worker commands locally, `fsa-trainer-skills --no-venv <cmd>` 
 
 - `src/fsa_trainer_skills/skills/assessment/payload/fsa-training-assessment/references/levels.md` is generated from `skills/assessment/core/levels.py` by `scripts/assessment/gen_levels_md.py`. Edit the Python, then regenerate.
 - `src/fsa_trainer_skills/skills/program/payload/fsa-training-program/references/rules.md` is generated from `skills/program/core/rules.py`, and `references/schemas.md` from `core/schemas.py` + `core/schedule.py`, by the scripts in `scripts/program/`.
+- `src/fsa_trainer_skills/skills/material/payload/fsa-training-material/references/structure.md` is generated from `skills/material/core/grammar.py` by `scripts/material/gen_structure_md.py`.
 - The version is canonical in `src/fsa_trainer_skills/__about__.py`; `scripts/sync_version.py` iterates the skill registry and propagates it to `package.json` and every skill's payload `VERSION` file — adding a skill needs no edit to this script.
 
 Every `scripts/<skill>/gen_*.py` is covered by one globbed gate in `tests/test_consistency.py` and one loop in CI, so a new skill's generated reference is checked the day it lands.
@@ -55,6 +65,14 @@ Derived tables are never typed by hand, for the same reason `assessment emit` ex
 The rulebook lives once, in `core/rules.py`; bodies live in `core/checks/` and `references/rules.md` is generated from it. An assessment item is matched to the sessions delivering it by **occurrence** — the item plus its ordinal — so a long assignment spread over kickoff/completion/acceptance rows counts as one and `Quiz 1`/`Quiz 2` count as two, which is what removed the reference pipeline's two topic-code special cases.
 
 `export` **edits** a copy of the vendor workbook with `zipfile` + `xml.etree` rather than rebuilding it: the populated sheets are rewritten and every other part is copied through byte-identically. Measured on the real form, an openpyxl round trip loses the classification label, the custom properties and the print setup, and the Node pipeline emitted 17 of 35 parts. Consequently the writer never touches `styles.xml` — it reuses each cell's existing style and cannot invent formatting — and the session-plan band is a fixed height with the summary block below it, so an over-long plan is refused rather than allowed to overwrite it. The vendor templates are the customer's property: never committed, and `.xlsx` only.
+
+### Skill/CLI contract (material)
+
+The template a lecture note follows lives once, in `core/grammar.py`, and `references/structure.md` is generated from it — prose describing a required section the checker does not enforce would calibrate the model to a constraint nothing holds it to.
+
+`material coverage` is the cross-skill check: it reads a programme's `ScheduleDetail` **by column name, tolerating any superset**, and deliberately does not enforce that CSV's schema — that is `program verify`'s job. Each skill enforces only what it owns, so there is no shared constant and no duplicated rulebook.
+
+Everything defaults to English; a Vietnamese translation is a separate `_vn` sibling artifact, matching the corpus convention, never a rewrite of the original.
 
 ### Skill/CLI contract (assessment)
 
