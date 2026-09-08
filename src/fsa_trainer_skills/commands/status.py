@@ -8,7 +8,7 @@ from pathlib import Path
 
 from .. import skills as skill_registry
 from ..__about__ import __version__
-from ..install import fsops, planner
+from ..install import fsops, legacy, planner
 from ..install import receipt as receipt_mod
 from ..platforms import registry
 from ..skillkit import Skill
@@ -37,19 +37,44 @@ def run(args: argparse.Namespace) -> int:
     project_root = Path(args.project_root).expanduser().resolve() if args.project_root else None
 
     grouped: dict[str, list[dict]] = {}
+    superseded: dict[str, list[dict]] = {}
     for skill in skills:
         name = args.name or skill.name
         rows = []
+        stale: list[dict] = []
         for platform in registry.resolve(args.platform):
             # Run from the directory that *holds* the user-scope config — your
             # home directory, usually — and `<cwd>/.claude/skills` is the very
             # same folder as `~/.claude/skills`. There is one install there, so
             # report it once, under the scope we looked at first.
             seen: set[Path] = set()
+            stale_seen: set[Path] = set()
             for scope in ("user", "project"):
                 if scope == "project" and not platform.project_subdir:
                     continue
                 dest = platform.dest(scope, name, project_root)
+                # A superseded install is worth reporting whether or not the
+                # new one exists yet — in fact "old present, new absent" is the
+                # case that matters most, so this runs before the exists check.
+                if not args.name:
+                    for item in legacy.find(
+                        skill, platform, scope, project_root, current_dest=dest
+                    ):
+                        if item.dest.resolve() in stale_seen:
+                            continue
+                        stale_seen.add(item.dest.resolve())
+                        stale.append(
+                            {
+                                "skill": skill.name,
+                                "skill_namespace": skill.namespace,
+                                "previous_name": item.name,
+                                "platform": platform.key,
+                                "label": platform.label,
+                                "scope": scope,
+                                "dest": str(item.dest),
+                                "dest_display": format_dest(item.dest),
+                            }
+                        )
                 if not dest.exists():
                     continue
                 resolved = dest.resolve()
@@ -58,6 +83,7 @@ def run(args: argparse.Namespace) -> int:
                 seen.add(resolved)
                 rows.append(_describe(skill, platform.key, platform.label, scope, dest))
         grouped[skill.name] = rows
+        superseded[skill.name] = stale
 
     if args.as_json:
         print(
@@ -65,6 +91,7 @@ def run(args: argparse.Namespace) -> int:
                 {
                     "package_version": __version__,
                     "installs": [row for rows in grouped.values() for row in rows],
+                    "superseded": [row for rows in superseded.values() for row in rows],
                 },
                 indent=2,
             )
@@ -75,9 +102,11 @@ def run(args: argparse.Namespace) -> int:
     any_installed = False
     for skill_name, rows in grouped.items():
         print(f"\n{skill_name}")
-        if not rows:
+        if not rows and not superseded.get(skill_name):
             print("  No installs found.")
             continue
+        if not rows:
+            print("  No current install found.")
         any_installed = True
         for row in rows:
             marker = "  " if row["current"] else "! "
@@ -92,6 +121,20 @@ def run(args: argparse.Namespace) -> int:
                 )
             if row["version"] == "unmanaged":
                 print("      no receipt — not installed by fsa-trainer-skills")
+        for stale_row in superseded.get(skill_name, []):
+            # Not cosmetic: the host loads this too, so the agent sees two
+            # skills advertising the same triggers until it is cleared.
+            print(
+                f"!   {stale_row['label']} ({stale_row['scope']}): superseded install "
+                f"{stale_row['previous_name']}  {stale_row['dest_display']}"
+            )
+            # `update` refuses when nothing is installed at the new name, so
+            # name the command that will actually work from here.
+            verb = "update" if rows else "install"
+            print(
+                f"      still loaded by the host — `fsa-trainer-skills {verb} "
+                f"--skill {stale_row['skill_namespace']}` removes it"
+            )
     if not any_installed:
         print("\nRun `fsa-trainer-skills install --platform all` to install.")
     return 0

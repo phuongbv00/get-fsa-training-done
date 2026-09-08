@@ -13,6 +13,7 @@ from ..platforms.base import Platform
 from ..skillkit import Skill
 from .common import (
     add_target_args,
+    clean_legacy_installs,
     print_plan,
     resolve_skills,
     resolve_targets,
@@ -81,6 +82,10 @@ def _update_one(
             f"{dest} is not managed by fsa-trainer-skills",
             hint="run `fsa-trainer-skills install` (add --force to adopt an existing directory)",
         )
+
+    if not args.check:
+        # --check writes nothing, so it must not clear anything either.
+        clean_legacy_installs(skill, platform, scope, dest, args, label)
 
     plan = planner.build_plan(dest, payload, existing, __version__)
     same_version = existing.version == __version__

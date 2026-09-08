@@ -17,13 +17,13 @@ def no_venv(monkeypatch):
 
 
 def test_a_skill_verb_reaches_its_worker(capsys):
-    assert cli.main(["assess", "levels", "show", "--level", "UP_SKILL:mid", "--json"]) == 0
+    assert cli.main(["assessment", "levels", "show", "--level", "UP_SKILL:mid", "--json"]) == 0
     assert json.loads(capsys.readouterr().out)[0]["id"] == "UP_SKILL:mid"
 
 
 def test_the_level_flag_rejects_a_missing_band():
     with pytest.raises(UsageError, match="needs a band"):
-        cli.main(["assess", "levels", "show", "--level", "UP_SKILL"])
+        cli.main(["assessment", "levels", "show", "--level", "UP_SKILL"])
 
 
 def test_doctor_reports_every_dependency_group(capsys):

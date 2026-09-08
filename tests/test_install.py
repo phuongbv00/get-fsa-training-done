@@ -7,6 +7,7 @@ with zero edits to this file.
 
 from __future__ import annotations
 
+import dataclasses
 import json
 
 import pytest
@@ -214,3 +215,163 @@ def test_status_still_reports_a_genuinely_separate_project_install(
     rows = json.loads(capsys.readouterr().out)["installs"]
 
     assert {row["scope"] for row in rows} == {"user", "project"}
+
+
+# --- Legacy-name cleanup -------------------------------------------------
+#
+# Renaming a skill changes its install directory, orphaning the old one. The
+# orphan is not inert: hosts load every directory under `skills/`, so a stale
+# copy keeps advertising the same triggers and the agent sees two skills
+# competing for one request. These cover the cleanup and, just as importantly,
+# the directories it must refuse to touch.
+
+LEGACY = "legacy-old-name"
+
+
+@pytest.fixture
+def renamed(skill, monkeypatch):
+    """`skill`, as if it had previously been installed under another name.
+
+    `Skill` is frozen, and the lifecycle commands look the skill up in the
+    registry rather than taking one as an argument, so the copy has to go into
+    the registry for the command under test to see it.
+    """
+    renamed_skill = dataclasses.replace(skill, previous_names=(LEGACY,))
+    monkeypatch.setitem(skill_registry._SKILLS, skill.namespace, renamed_skill)
+    return renamed_skill
+
+
+def install_as(skill, name: str) -> object:
+    """Put a real, receipted install at `name` — what the old version left."""
+    assert (
+        main(
+            [
+                "install",
+                "--skill",
+                skill.namespace,
+                "--platform",
+                "claude",
+                "--name",
+                name,
+                "--no-prewarm",
+            ]
+        )
+        == 0
+    )
+    return registry.get("claude").dest("user", name)
+
+
+def test_install_clears_an_install_under_a_previous_name(isolated_home, renamed, capsys):
+    legacy_dest = install_as(renamed, LEGACY)
+    assert (legacy_dest / "SKILL.md").is_file()
+    capsys.readouterr()
+
+    assert (
+        main(["install", "--skill", renamed.namespace, "--platform", "claude", "--no-prewarm"]) == 0
+    )
+
+    assert "removed the superseded" in capsys.readouterr().out
+    assert not legacy_dest.exists()
+    assert (dest_for(renamed, "claude") / "SKILL.md").is_file()
+
+
+def test_update_clears_an_install_under_a_previous_name(isolated_home, renamed, capsys):
+    legacy_dest = install_as(renamed, LEGACY)
+    main(["install", "--skill", renamed.namespace, "--platform", "claude", "--no-prewarm"])
+    # Put it back, so `update` is the command that has to notice it.
+    legacy_dest = install_as(renamed, LEGACY)
+    capsys.readouterr()
+
+    assert main(["update", "--skill", renamed.namespace, "--platform", "claude"]) == 0
+    assert not legacy_dest.exists()
+
+
+def test_update_check_clears_nothing(isolated_home, renamed):
+    legacy_dest = install_as(renamed, LEGACY)
+    main(["install", "--skill", renamed.namespace, "--platform", "claude", "--no-prewarm"])
+    legacy_dest = install_as(renamed, LEGACY)
+
+    main(["update", "--skill", renamed.namespace, "--platform", "claude", "--check"])
+    assert (legacy_dest / "SKILL.md").is_file()
+
+
+def test_dry_run_clears_nothing(isolated_home, renamed, capsys):
+    legacy_dest = install_as(renamed, LEGACY)
+    capsys.readouterr()
+
+    main(
+        [
+            "install",
+            "--skill",
+            renamed.namespace,
+            "--platform",
+            "claude",
+            "--dry-run",
+            "--no-prewarm",
+        ]
+    )
+
+    assert "would remove the superseded" in capsys.readouterr().out
+    assert (legacy_dest / "SKILL.md").is_file()
+
+
+def test_legacy_cleanup_keeps_a_file_you_edited(isolated_home, renamed, capsys):
+    legacy_dest = install_as(renamed, LEGACY)
+    edited = legacy_dest / "SKILL.md"
+    edited.write_text("my own notes", encoding="utf-8")
+    capsys.readouterr()
+
+    main(["install", "--skill", renamed.namespace, "--platform", "claude", "--no-prewarm"])
+
+    assert "kept 1 file(s) you had modified" in capsys.readouterr().out
+    assert edited.read_text(encoding="utf-8") == "my own notes"
+
+
+def test_legacy_cleanup_ignores_a_directory_we_did_not_install(isolated_home, renamed):
+    """No receipt means it is not ours, whatever it is called."""
+    stranger = registry.get("claude").dest("user", LEGACY)
+    stranger.mkdir(parents=True)
+    (stranger / "SKILL.md").write_text("someone else's skill", encoding="utf-8")
+
+    main(["install", "--skill", renamed.namespace, "--platform", "claude", "--no-prewarm"])
+
+    assert (stranger / "SKILL.md").read_text(encoding="utf-8") == "someone else's skill"
+
+
+def test_legacy_cleanup_ignores_a_receipt_naming_another_skill(isolated_home, renamed):
+    """A receipt is only licence to delete when it names the name we expected."""
+    legacy_dest = install_as(renamed, LEGACY)
+    receipt = receipt_mod.read(legacy_dest)
+    receipt.skill_name = "something-else"
+    receipt_mod.write(legacy_dest, receipt)
+
+    main(["install", "--skill", renamed.namespace, "--platform", "claude", "--no-prewarm"])
+
+    assert (legacy_dest / "SKILL.md").is_file()
+
+
+def test_status_reports_a_superseded_install_with_no_current_one(isolated_home, renamed, capsys):
+    """The case that matters most: old name present, new name absent.
+
+    An earlier version of this check only looked for legacy directories beside
+    an install that already existed, so the one state a user actually upgrades
+    from reported "No installs found" while the stale copy kept loading.
+    """
+    install_as(renamed, LEGACY)
+    capsys.readouterr()
+
+    assert main(["status", "--skill", renamed.namespace, "--platform", "claude"]) == 0
+    out = capsys.readouterr().out
+    assert "superseded install" in out
+    assert LEGACY in out
+    # `update` refuses when nothing is installed under the new name.
+    assert "install --skill" in out
+
+
+def test_status_json_lists_superseded_installs(isolated_home, renamed, capsys):
+    install_as(renamed, LEGACY)
+    capsys.readouterr()
+
+    main(["status", "--skill", renamed.namespace, "--platform", "claude", "--json"])
+    payload = json.loads(capsys.readouterr().out)
+    assert [row["previous_name"] for row in payload["superseded"]] == [LEGACY]

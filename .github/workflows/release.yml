@@ -27,7 +27,9 @@ jobs:
             exit 1
           fi
       - run: python scripts/sync_version.py --check
-      - run: python scripts/assess/gen_levels_md.py --check
+      - run: |
+          set -euo pipefail
+          for generator in scripts/*/gen_*.py; do python "$generator" --check; done
 
   pypi:
     needs: guard

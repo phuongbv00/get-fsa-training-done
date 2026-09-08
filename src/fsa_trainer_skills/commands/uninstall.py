@@ -7,8 +7,8 @@ import shutil
 from pathlib import Path
 
 from ..errors import FsaTrainerSkillsError, UnmanagedDestinationError
-from ..install import fsops
 from ..install import receipt as receipt_mod
+from ..install import removal
 from ..platforms.base import Platform
 from ..skillkit import Skill
 from .common import add_target_args, resolve_skills, resolve_targets
@@ -92,16 +92,7 @@ def _uninstall_one(
         print(f"{label}: removed {dest}")
         return True
 
-    to_delete: list[str] = []
-    kept: list[str] = []
-    for record in receipt.files:
-        path = dest / record.path
-        if not path.is_file():
-            continue
-        if fsops.sha256_file(path) == record.sha256:
-            to_delete.append(record.path)
-        else:
-            kept.append(record.path)
+    to_delete, kept = removal.classify_recorded(dest, receipt)
 
     if args.dry_run:
         print(f"{label}: would remove {len(to_delete)} file(s) from {dest}")
@@ -109,18 +100,8 @@ def _uninstall_one(
             print(f"  {len(kept)} modified file(s) would be kept")
         return True
 
-    for rel in to_delete:
-        (dest / rel).unlink(missing_ok=True)
-    receipt_mod.receipt_path(dest).unlink(missing_ok=True)
-
-    fsops.prune_empty_dirs(dest, [Path(d) for d in receipt.dirs])
-
-    leftovers = fsops.walk_files(dest)
-    if not leftovers and dest.is_dir():
-        try:
-            _rmdir_tree(dest)
-        except OSError:
-            pass
+    to_delete, leftovers = removal.remove_recorded(dest, receipt)
+    if not leftovers:
         print(f"{label}: removed {dest}")
     else:
         print(f"{label}: removed {len(to_delete)} file(s); kept {len(leftovers)} in {dest}")
@@ -129,16 +110,3 @@ def _uninstall_one(
         if len(leftovers) > 10:
             print(f"    ... and {len(leftovers) - 10} more")
     return True
-
-
-def _rmdir_tree(root: Path) -> None:
-    """Remove `root` and any empty directories under it, bottom-up."""
-    for path in sorted(
-        (p for p in root.rglob("*") if p.is_dir()),
-        key=lambda p: len(p.parts),
-        reverse=True,
-    ):
-        if not any(path.iterdir()):
-            path.rmdir()
-    if not any(root.iterdir()):
-        root.rmdir()

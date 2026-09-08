@@ -22,8 +22,9 @@ jobs:
       - run: ruff format --check .
 
   consistency:
-    # The version lives in several files and the assess skill's level table in
-    # two. Drift is invisible at runtime, so it fails the build instead.
+    # The version lives in several files, and each skill's generated references
+    # live in two — one for the CLI to execute, one for the model to read.
+    # Drift is invisible at runtime, so it fails the build instead.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,7 +32,13 @@ jobs:
         with:
           python-version: "3.12"
       - run: python scripts/sync_version.py --check
-      - run: python scripts/assess/gen_levels_md.py --check
+      # Globbed, so a new skill's generated reference is covered the day it lands.
+      - run: |
+          set -euo pipefail
+          for generator in scripts/*/gen_*.py; do
+            echo "== $generator"
+            python "$generator" --check
+          done
 
   test:
     strategy:
@@ -47,6 +54,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install --upgrade pip
       - run: pip install -e . pytest
+      # The workers run in the managed venv; the tests run here, so they need
+      # the same libraries to exercise the real renderer and archive readers.
+      - run: pip install -r src/fsa_trainer_skills/envmgr/requirements/core.txt
       - run: pytest -q
 
   install-round-trip:
@@ -76,11 +86,11 @@ jobs:
       - name: emit and verify against the shipped fixtures
         run: |
           set -euo pipefail
-          fsa-trainer-skills assess emit blooket \
-            --master tests/fixtures/assess/question_set/quiz_master.csv -o /tmp/b.csv
-          cmp /tmp/b.csv tests/fixtures/assess/question_set/quiz_blooket.csv
-          fsa-trainer-skills assess verify --type quiz \
-            --master tests/fixtures/assess/question_set/quiz_master.csv --blooket /tmp/b.csv
+          fsa-trainer-skills assessment emit blooket \
+            --master tests/fixtures/assessment/question_set/quiz_master.csv -o /tmp/b.csv
+          cmp /tmp/b.csv tests/fixtures/assessment/question_set/quiz_blooket.csv
+          fsa-trainer-skills assessment verify --type quiz \
+            --master tests/fixtures/assessment/question_set/quiz_master.csv --blooket /tmp/b.csv
 
   npm-shim:
     runs-on: ubuntu-latest
@@ -97,8 +107,9 @@ jobs:
       - run: node npm/bin/fsa-trainer-skills.js doctor --json
 
   render:
-    # Chrome is the only external dependency `assess render` has; the runner
-    # ships one.
+    # `render` needs no browser and no system fonts: it runs in the managed venv
+    # and embeds its own faces. So this no longer skips itself when a runner
+    # happens to lack Chrome — it must render, every time, on a bare machine.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -109,9 +120,14 @@ jobs:
       - name: render the canonical brief and check its page budget
         run: |
           set -euo pipefail
-          cp tests/fixtures/assess/long_form/sbf_practice_exam_02.md /tmp/brief.md
-          if command -v google-chrome >/dev/null; then
-            fsa-trainer-skills assess render /tmp/brief.md
-          else
-            echo "no Chrome on this runner; skipping"
-          fi
+          cp tests/fixtures/assessment/long_form/sbf_practice_exam_02.md /tmp/brief.md
+          fsa-trainer-skills assessment render /tmp/brief.md
+      - name: a Vietnamese brief keeps its diacritics
+        # The reason the fonts are embedded. Chrome used to resolve these from
+        # the host, so this would have depended on the runner's font packages.
+        run: |
+          set -euo pipefail
+          printf '# \u0110\u1ec1 b\u00e0i\n\nN\u1ed9p b\u00e0i d\u01b0\u1edbi d\u1ea1ng `m\u00e3_s\u1ed1.zip`.\n' > /tmp/vn.md
+          fsa-trainer-skills assessment render /tmp/vn.md --lang vi -o /tmp/vn.pdf
+          pip install pypdf
+          python -c 'from pypdf import PdfReader; t="\n".join(p.extract_text() for p in PdfReader("/tmp/vn.pdf").pages); assert all(f in t for f in ("\u0110\u1ec1 b\u00e0i","N\u1ed9p","m\u00e3_s\u1ed1")), t; assert "\x00" not in t, "missing glyph"; print("Vietnamese round-trip OK")'

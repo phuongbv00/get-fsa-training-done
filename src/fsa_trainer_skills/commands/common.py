@@ -91,11 +91,41 @@ def resolve_skills(args: argparse.Namespace) -> list[Skill]:
     return chosen
 
 
+def project_root_of(args: argparse.Namespace) -> Path | None:
+    raw = getattr(args, "project_root", None)
+    return Path(raw).expanduser().resolve() if raw else None
+
+
+def clean_legacy_installs(
+    skill: Skill,
+    platform: Platform,
+    scope: str,
+    dest: Path,
+    args: argparse.Namespace,
+    label: str,
+) -> None:
+    """Clear installs left behind under a name this skill used to have.
+
+    Renaming a skill changes its install directory, so the old one is orphaned
+    — and an orphan is not inert: the host still loads it, so the agent sees two
+    skills claiming the same triggers. `--dir` and `--name` are skipped because
+    the caller has named an exact destination, and inferring siblings from that
+    would be guessing.
+    """
+    if getattr(args, "dir", None) or getattr(args, "name", None):
+        return
+    from ..install import legacy
+
+    for item in legacy.find(skill, platform, scope, project_root_of(args), current_dest=dest):
+        for line in legacy.clean(item, dry_run=bool(getattr(args, "dry_run", False))):
+            print(f"{label}: {line}")
+
+
 def resolve_targets(args: argparse.Namespace, skill: Skill) -> list[Target]:
     """Expand --platform/--scope/--dir into concrete destinations for `skill`."""
     name = args.name or skill.name
     scope = registry.check_scope(args.scope)
-    project_root = Path(args.project_root).expanduser().resolve() if args.project_root else None
+    project_root = project_root_of(args)
 
     if args.dir:
         dest = Path(args.dir).expanduser().resolve()

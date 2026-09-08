@@ -14,7 +14,7 @@ from .skills import get as get_skill
 
 
 def skill_payload(namespace: str) -> Path:
-    """Directory of one skill's payload, e.g. `.../assess/payload/fsa-assess`."""
+    """Directory of one skill's payload, e.g. `.../assessment/payload/fsa-training-assessment`."""
     skill = get_skill(namespace)
     path = skill.payload_dir
     if not (path / "SKILL.md").is_file():

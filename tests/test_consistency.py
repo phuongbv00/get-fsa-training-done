@@ -1,7 +1,7 @@
 """Gates that stop the repo shipping something internally inconsistent
 across the skill registry.
 
-The version lives in several files and the `assess` skill's level table lives
+The version lives in several files and the `assessment` skill's level table lives
 in two — one for the CLI to read and one for the model to read. Drift between
 them is invisible at runtime: a workflow would calibrate to numbers the
 verifier does not check against. These run in CI for that reason.
@@ -9,6 +9,7 @@ verifier does not check against. These run in CI for that reason.
 
 from __future__ import annotations
 
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -16,6 +17,7 @@ from pathlib import Path
 import pytest
 
 from fsa_trainer_skills import skills as skill_registry
+from fsa_trainer_skills.cli import LIFECYCLE_COMMANDS
 from fsa_trainer_skills.platforms import registry
 from fsa_trainer_skills.skillmeta import read_skill_frontmatter
 
@@ -38,10 +40,25 @@ def test_version_is_consistent_across_files():
     assert result.returncode == 0, result.stderr
 
 
-@pytest.mark.skipif(not (SCRIPTS / "assess" / "gen_levels_md.py").exists(), reason="script missing")
-def test_levels_markdown_matches_the_python_table():
-    result = run_script("assess/gen_levels_md.py", "--check")
+GENERATORS = sorted(path.relative_to(SCRIPTS).as_posix() for path in SCRIPTS.glob("*/gen_*.py"))
+
+
+@pytest.mark.parametrize("generator", GENERATORS, ids=lambda g: g.replace("/", ":"))
+def test_generated_payload_files_are_current(generator):
+    """Every `scripts/<skill>/gen_*.py` in one gate.
+
+    Parametrized over the glob rather than listed, so a new skill's generated
+    reference is covered the day it lands — the failure mode otherwise is a
+    payload file that quietly stops matching the Python it came from, which
+    nothing reports at runtime because the model just reads the stale prose.
+    """
+    result = run_script(generator, "--check")
     assert result.returncode == 0, result.stderr
+
+
+def test_there_is_at_least_one_generator():
+    """Guards the glob above: an empty parametrization passes vacuously."""
+    assert GENERATORS
 
 
 @pytest.mark.parametrize("skill", skill_registry.all_skills(), ids=lambda s: s.namespace)
@@ -61,3 +78,76 @@ def test_no_duplicate_skill_names_or_namespaces():
     all_skills = skill_registry.all_skills()
     assert len({s.name for s in all_skills}) == len(all_skills)
     assert len({s.namespace for s in all_skills}) == len(all_skills)
+
+
+def _code_spans(text: str) -> list[str]:
+    """Fenced blocks and inline code spans — the only places a command is a command.
+
+    Prose legitimately says "FSA training assessments"; only code is a claim
+    about something runnable.
+    """
+    spans: list[str] = []
+    in_fence = False
+    fenced: list[str] = []
+    for line in text.splitlines():
+        if line.lstrip().startswith("```"):
+            if in_fence:
+                spans.append("\n".join(fenced))
+                fenced = []
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            fenced.append(line)
+        else:
+            spans.extend(re.findall(r"`([^`\n]+)`", line))
+    return spans
+
+
+@pytest.mark.parametrize("skill", skill_registry.all_skills(), ids=lambda s: s.namespace)
+def test_payload_commands_name_a_real_cli_path(skill):
+    """`FSA` is the bare CLI, so `FSA <word>` must be a lifecycle command or
+    this skill's own namespace.
+
+    The payloads used to write `FSA verify` for a worker command *and*
+    `FSA doctor` for a lifecycle one. Only one of those can be right: worker
+    verbs live under a namespace and lifecycle commands do not, so one form
+    silently resolved to nothing. Nothing catches that at runtime — the model
+    just runs a command that does not exist.
+    """
+    allowed = LIFECYCLE_COMMANDS | {skill.namespace}
+    offenders = []
+    for path in sorted(skill.payload_dir.rglob("*.md")):
+        for snippet in _code_spans(path.read_text(encoding="utf-8")):
+            for match in re.finditer(r"\bFSA ([a-z][a-z-]*)", snippet):
+                if match.group(1) not in allowed:
+                    offenders.append(f"{path.relative_to(skill.payload_dir)}: FSA {match.group(1)}")
+    assert offenders == []
+
+
+#: The one place a skill may reach for an external binary. `.rar` is
+#: proprietary and has no pure-Python reader, so it is allow-listed by path
+#: rather than by convention.
+BINARY_ALLOWLIST = {"assessment/core/grading/preprocess.py"}
+
+
+def test_no_skill_shells_out_to_an_external_binary():
+    """Every skill does its deterministic work in Python.
+
+    Rendering and archive extraction both used to shell out — to headless
+    Chrome and to ditto/unzip/7z — which made the toolchain depend on what
+    happened to be installed on a grading or exam machine. They no longer do,
+    and this keeps it that way: the failure mode is quiet, because a binary
+    that exists on the developer's laptop is invisible until someone else runs
+    the command.
+    """
+    root = Path(skill_registry.all_skills()[0].payload_dir).parents[2]
+    offenders = []
+    for path in sorted(root.rglob("*.py")):
+        relative = path.relative_to(root).as_posix()
+        if relative in BINARY_ALLOWLIST:
+            continue
+        source = path.read_text(encoding="utf-8")
+        for needle in ("subprocess", "shutil.which", "os.system", "os.exec"):
+            if needle in source:
+                offenders.append(f"{relative}: {needle}")
+    assert offenders == []

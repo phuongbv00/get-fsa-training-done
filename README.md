@@ -15,7 +15,7 @@ Currently registered:
 
 | Namespace | Skill | What it does | Docs |
 | --- | --- | --- | --- |
-| `assess` | `fsa-assess` | design and grade FSA training assessments | [README](src/fsa_trainer_skills/skills/assess/README.md) |
+| `assessment` | `fsa-training-assessment` | design and grade FSA training assessments | [README](src/fsa_trainer_skills/skills/assessment/README.md) |
 
 Every skill is **stateless**. It assumes nothing about the directory layout it
 was installed into and never scans a project on a hunch — it asks for its
@@ -64,26 +64,44 @@ Each skill documents itself in its own `README.md` next to its code, rather
 than in this file. That keeps the root README about the CLI and the registry,
 and means adding a skill adds a file instead of editing a shared one.
 
-- **[`assess`](src/fsa_trainer_skills/skills/assess/README.md)** — design and
+- **[`assessment`](src/fsa_trainer_skills/skills/assessment/README.md)** — design and
   grade FSA training assessments: quizzes, short and long assignments, theory
   and practice exams, and capstone projects, each calibrated by level, plus the
   grading pipeline.
 
 ## Dependencies
 
-The CLI has **no** Python dependencies.
+Every skill does its deterministic work in Python, and **no skill needs an
+external binary**.
 
-Two external binaries matter to the `assess` skill, and `fsa-trainer-skills
-doctor` checks for both:
+Installing the package pulls nothing: `dependencies = []` is deliberate, so the
+lifecycle commands run on a bare interpreter. The libraries the worker commands
+need live in the **managed virtualenv** instead — declared once in
+`src/fsa_trainer_skills/envmgr/requirements/core.txt` and shared by every skill:
 
-- a Chromium-family browser, for rendering briefs to PDF
-- an archive extractor (`ditto`, `unzip`, `bsdtar`, `7z`, or `unar`), for
-  unpacking submissions
+| Library | Used by |
+| --- | --- |
+| `xhtml2pdf` | `assessment render`, for the brief PDF |
+| `py7zr` | `assessment grade preprocess`, for `.7z` submissions |
+
+`fsa-trainer-skills install` builds that environment, so the first install needs
+a network and everything after it does not — which is the property that matters
+on an exam machine.
+
+There is exactly one optional external tool. `.rar` is proprietary and has no
+pure-Python reader, so a `.rar` submission needs `unar`, `7z`, or `bsdtar` on
+`PATH`; every other archive format is read in-process. `fsa-trainer-skills
+doctor` reports it as optional and never fails for its absence.
+
+Rendering embeds its own fonts (see
+[`core/fonts/`](src/fsa_trainer_skills/skills/assessment/core/fonts)), so a
+Vietnamese brief comes out identical on every machine rather than depending on
+which faces the host happens to have installed.
 
 ## Adding a skill
 
 A skill is a subpackage under `src/fsa_trainer_skills/skills/` exporting a
-module-level `SKILL: Skill` object (see `skills/assess/__init__.py`). The
+module-level `SKILL: Skill` object (see `skills/assessment/__init__.py`). The
 registry discovers it automatically — no edits to `cli.py`, the lifecycle
 commands, or `scripts/sync_version.py` are needed. Give it its own
 `payload/<skill-name>/` directory alongside its `core/`/`commands/` modules,
@@ -99,7 +117,7 @@ docs do not belong in this file.
 pip install -e .
 pytest
 python scripts/sync_version.py --check
-python scripts/assess/gen_levels_md.py --check
+for generator in scripts/*/gen_*.py; do python "$generator" --check; done
 ```
 
 `src/fsa_trainer_skills/__about__.py` holds the canonical version;

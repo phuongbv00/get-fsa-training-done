@@ -19,11 +19,15 @@ class Skill:
     payload directory name, and the default installed directory name.
     """
 
-    name: str  # e.g. "fsa-assess"
-    namespace: str  # e.g. "assess"
+    name: str  # e.g. "fsa-training-assessment"
+    namespace: str  # e.g. "assessment"
     summary: str  # one-line description, used in --help
     payload_dir: Path
     dep_group: str = "core"  # envmgr.stamp.GROUPS key this skill's workers need
+    #: Names this skill was installed under before. `install` and `update`
+    #: clear a directory left behind under one of these, so a rename does not
+    #: leave a second copy advertising the same triggers to the agent.
+    previous_names: tuple[str, ...] = ()
 
     def add_worker_parsers(
         self, subparsers: argparse._SubParsersAction
@@ -32,5 +36,5 @@ class Skill:
 
     def doctor_extra(self) -> dict[str, str]:
         """Optional extra environment checks `doctor` should report for this
-        skill (e.g. assess reports the Chrome binary `render` needs)."""
+        skill (e.g. assessment reports the Chrome binary `render` needs)."""
         return {}

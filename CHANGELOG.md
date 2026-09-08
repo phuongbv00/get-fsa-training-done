@@ -8,6 +8,61 @@ All notable changes to this project are documented here. The format follows
 
 ### Changed
 
+- **BREAKING: the skill is renamed `fsa-training-assessment`, under the
+  `assessment` namespace** (was `fsa-assess` / `assess`), making room for a
+  family of three: `fsa-training-program` and `fsa-training-material` follow.
+  Every worker command moves with it — `fsa-trainer-skills assessment render`,
+  `... assessment grade`, and so on.
+- **A rename orphans the old install, so `install` and `update` now clear it.**
+  The installed directory is named after the skill, and hosts load every
+  directory under `skills/` — so a stale `fsa-assess` folder would keep
+  advertising the same "ra đề" / "chấm điểm" triggers as the new skill and the
+  agent would see two skills competing for one request. `Skill.previous_names`
+  drives the cleanup, which removes exactly what the old receipt vouches for and
+  keeps any file you edited, the same rule `uninstall` follows. `status` and
+  `doctor` report a superseded install when they find one.
+- **No skill shells out to an external binary any more.** The libraries the
+  workers need live in the managed venv (`envmgr/requirements/core.txt`), which
+  `install` pre-warms; the package itself still declares zero dependencies, so
+  the offline guarantee holds after the first install rather than before it. A
+  consistency gate fails the build if a skill reaches for `subprocess` or
+  `shutil.which` again.
+- **`assessment render` no longer needs Chrome.** It renders with `xhtml2pdf`
+  in-process and **embeds its own fonts**, so a Vietnamese brief comes out
+  identical everywhere instead of depending on the host's installed faces.
+  *This changes existing output:* `xhtml2pdf` implements less print CSS than
+  Chrome — `break-inside` and `break-after` are ignored — so a brief may land on
+  a different number of pages than before. The page budget itself is unchanged.
+  The `--chrome` flag is gone.
+- **`assessment grade preprocess` no longer needs an archive extractor.** `.zip`
+  and `.tar*` are read with the standard library and `.7z` with `py7zr`.
+  Extraction now refuses entries that would escape the trainee's folder, which
+  the shell tools used to handle for us. `.rar` is the one exception — it is
+  proprietary with no pure-Python reader — and still uses `unar`, `7z`, or
+  `bsdtar` when one is on `PATH`; `doctor` reports it as optional and no longer
+  fails when no extractor is present.
+- The level table moved to `fsa_trainer_skills/levels.py`, shared beside
+  `errors.py`, since a programme code carries a level segment too. Behaviour is
+  unchanged. The finding/report value type moved to `fsa_trainer_skills/findings.py`
+  for the same reason — two skills check many artifacts in one run and need a
+  finding to name where it was found and which rule fired. The rule ids stay
+  private to each skill; only the shape is shared.
+- The generated-reference gate is now globbed over `scripts/*/gen_*.py`, in both
+  the test suite and CI, so a new skill's generated payload file is covered the
+  day it lands rather than when someone remembers to add it.
+- Payload workflows now write `FSA assessment <verb>` for worker commands.
+  `FSA` is the bare CLI: worker verbs take a namespace and lifecycle commands do
+  not, so the old mix of `FSA verify` and `FSA doctor` could not both be right.
+  A gate now checks every `FSA <word>` in a payload resolves to something real.
+
+### Fixed
+
+- **The page-budget check could reject a brief that was within budget.**
+  `count_pages` took the largest `/Count` anywhere in the PDF, but `/Count` also
+  appears in the outline tree, where it counts bookmarks — one per heading. A
+  one-page brief with eight headings reported eight pages. It now reads `/Count`
+  only from a `/Type /Pages` node.
+
 - **Repositioned as `fsa-trainer-skills`, a multi-skill repo.** The single
   `fsa-assess` package and CLI are now a shared `fsa-trainer-skills` CLI over a
   registry of independent skills; `fsa-assess` is the first one registered,
