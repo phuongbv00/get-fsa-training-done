@@ -17,7 +17,7 @@
 - Review the code and documentation as evidence; do not require executing the project to assign a score.
 - Correct mapping and persistence come first. A smaller correct app scores higher than a broad app with broken mappings, unsafe transactions, or unclear query behavior.
 - Hibernate/JPA understanding matters. The learner should be able to explain entity state, owning side, generated SQL, transaction boundaries, and fetch strategy decisions.
-- Score each task on a 0-10 raw scale, then apply the task weight.
+- Score each task on a 0-10 raw scale, fold that task's caps and deductions into the number, then apply the task weight.
 
 ---
 
@@ -33,7 +33,7 @@
 | T6 | README and Deliverable Quality | 10% | Build/run docs, README complete, sample data/seed, feature checklist, clean explainable code |
 | | **Total** | **100%** | |
 
-`final_before_deductions = sum(task_score * weighted_number) / 100`, where each `task_score` is on a 0-10 raw scale.
+`total = sum(task_score * weighted_number) / 100`, where each `task_score` is on a 0-10 raw scale with that task's caps and deductions already folded into it. Nothing is subtracted from the total afterwards.
 
 ---
 
@@ -126,39 +126,66 @@
 
 ## 4. Caps and Deductions
 
-Apply caps first when a critical foundation is missing, then apply deductions. Final score is floored at 0.
+Every entry below bounds the **raw 0-10 score of the task it sits under**. The lowest applicable cap for a task wins, caps are never additive, deductions apply after the cap, and the task score is floored at 0. The final score is the weighted sum of the task scores and is never adjusted.
 
-### Caps
+### Every task
 
-| Issue | Cap |
+Failures that leave no task evidenced at all.
+
+| Trigger | Effect |
 |---|---:|
-| No meaningful Java source submitted | max 2.0 |
-| Not a Maven project and no runnable/build evidence in files | max 7.0 |
-| Does not use JPA/Hibernate for persistence | max 4.5 |
-| Uses Spring/Spring Boot/Spring Data JPA to hide core Hibernate work | max 7.0 |
-| Data is only in memory; no real database persistence | max 5.0 |
-| Entities exist but required relationships are mostly absent or incorrect | max 6.5 |
-| No end-to-end lending transaction | max 6.5 |
-| Lending can clearly make available copies negative in ordinary sequential use | max 7.0 |
-| No JPQL/Criteria query evidence | max 7.0 |
-| Deliverables cannot be understood/reviewed from provided files | max 4.0 |
+| No meaningful Java source submitted | cap 2.0 |
+| Not a Maven project and no runnable/build evidence in files | cap 7.0 |
+| Does not use JPA/Hibernate for persistence | cap 4.5 |
+| Uses Spring/Spring Boot/Spring Data JPA to hide core Hibernate work | cap 7.0 |
+| Deliverables cannot be understood/reviewed from provided files | cap 4.0 |
+| Plagiarism copied from another learner | 0 for both parties |
+| Code the learner cannot explain in discussion/review | down to 0 on the task it affects |
+| Raw types or unchecked casts in meaningful code | -0.5 |
+| Leftover debug spam, `printStackTrace` in normal flow, commented-out dead code | -0.3 |
 
-### Deductions
+### T1 - Hibernate Project Setup & Entity Mapping
 
-| Issue | Deduction |
+| Trigger | Effect |
 |---|---:|
-| User input concatenated into JPQL/SQL query strings | -1.0 |
+| Data is only in memory; no real database persistence | cap 5.0 |
 | Mixed `javax.persistence` and `jakarta.persistence` imports causing fragility | -0.5 |
 | Resources not closed / `EntityManagerFactory` lifecycle ignored | -0.5 |
-| Blanket `FetchType.EAGER` used to avoid lazy loading errors | -0.7 |
+
+### T2 - Relationships & Bean Validation
+
+| Trigger | Effect |
+|---|---:|
+| Entities exist but required relationships are mostly absent or incorrect | cap 6.5 |
 | Dangerous cascade remove on many-to-many shared entities | -0.7 |
-| Raw types or unchecked casts in meaningful code | -0.5 |
+
+### T3 - Catalog, Member, Lending, and Return Flows
+
+| Trigger | Effect |
+|---|---:|
+| No end-to-end lending transaction | cap 6.5 |
+| Lending can clearly make available copies negative in ordinary sequential use | cap 7.0 |
+
+### T4 - JPQL, Named Queries, and Criteria API
+
+| Trigger | Effect |
+|---|---:|
+| No JPQL/Criteria query evidence | cap 7.0 |
+| User input concatenated into JPQL/SQL query strings | -1.0 |
+
+### T5 - Performance Optimization Evidence
+
+| Trigger | Effect |
+|---|---:|
+| Blanket `FetchType.EAGER` used to avoid lazy loading errors | -0.7 |
+
+### T6 - README and Deliverable Quality
+
+| Trigger | Effect |
+|---|---:|
 | Incomplete README | -0.5 |
 | Missing required deliverables or project structure is difficult to review | -0.5 |
 | Provided files include generated build output, local database files with secrets, IDE-only generated noise, or unrelated large files | -0.3 |
-| Leftover debug spam, `printStackTrace` in normal flow, commented-out dead code | -0.3 |
-| Code the learner cannot explain in discussion/review | up to zero for the affected task |
-| Plagiarism copied from another learner | zero for both parties |
 
 ---
 
@@ -185,8 +212,4 @@ Apply caps first when a critical foundation is missing, then apply deductions. F
 | T6 README and Deliverable Quality | | 10% | |
 | **Total** | | **100%** | |
 
-Caps applied: _______________________________________________
-
-Deductions: __________________________________________ = - ____
-
-Final score: ______ / 10
+Each task score already carries its own caps and deductions, so the weighted sum is the final score — there is nothing left to subtract.

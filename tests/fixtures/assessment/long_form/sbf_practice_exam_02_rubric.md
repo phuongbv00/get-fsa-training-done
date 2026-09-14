@@ -67,12 +67,12 @@
 | T5 | Security: Login, JWT & Role-Based Access | 15% | Persistent accounts with irreversible passwords, login through Spring Security, signed token with server-owned role, cryptographic verification per request, externalized secret, stateless, four-row access matrix with deny-by-default, safe 401/403 |
 | | **Total** | **100%** | |
 
-`final_before_deductions = sum(task_score * weighted_number) / 100`, where each
-`task_score` is on a 0-10 raw scale.
+`total = sum(task_score * weighted_number) / 100`, where each `task_score` is on
+a 0-10 raw scale with that task's caps and deductions already folded into it.
 
 Note: T3 (the invariant) and T2 (the contract) together carry 50%. A submission
 whose stock rule is absent or unconditional cannot reach the 8+ band even with
-polished scaffolding — see Caps.
+polished scaffolding — see the T3 caps in section 4.
 
 ---
 
@@ -156,47 +156,71 @@ polished scaffolding — see Caps.
 
 ## 4. Caps and Deductions
 
-### Caps
+Every entry below bounds the **raw 0-10 score of the task it sits under**, never
+the weighted total. When several caps apply to the same task, use the lowest;
+caps are never additive. Deductions apply after the cap and the task score is
+floored at 0. Do not deduct twice for a defect the task's sub-criteria already
+scored down.
 
-| Issue | Cap |
+### Every task
+
+Failures that make the submission unreadable as a Spring Boot application, so no
+task can be evidenced.
+
+| Trigger | Effect |
 |---|---:|
-| No meaningful Java source submitted | max 2.0 |
-| Source is not a recognizable Spring Boot application | max 4.0 |
-| Required persistence is replaced by an in-memory Java collection | max 5.0 |
-| No create-to-read end-to-end flow is represented in source | max 5.5 |
-| No stock-adjustment endpoint is implemented | max 6.0 |
-| The stock adjustment accepts every request with no rule check (quantity can go negative) | max 6.5 |
-| The check and the write occur in separate transactions or separate service calls, **and** the rule is otherwise correct | max 8.5 |
-| No working security: the API is fully anonymous, or no login/token is implemented | max 8.5 |
-| Passwords stored in plaintext/reversible/`{noop}` form, or credentials compared manually | max 6.5 |
-| Security accepts an unsigned/unverified/tampered token, or trusts a client-supplied role | max 7.0 |
-| Controllers contain most persistence and business logic; no meaningful service boundary | max 7.0 |
-| The JPA entity is used directly as both request and response contract throughout | max 7.5 |
-| Submission files are too incomplete or disorganized to identify required behavior | max 4.0 |
-
-When several caps apply, use the lowest applicable cap; do not add caps together.
-
-### Deductions
-
-| Issue | Deduction |
-|---|---:|
-| Field injection used for required application dependencies | -0.3 |
-| Enum persisted by ordinal instead of name | -0.3 |
-| Collection endpoint loads an unbounded `findAll()` result | -0.5 |
-| Pagination ordering is unstable or absent | -0.3 |
-| `status` filter applied in Java after loading all rows | -0.3 |
-| Boundary case `quantity + delta == 0` incorrectly rejected (off-by-one) | -0.3 |
-| A rejected adjustment still changes `updatedAt` or the stored quantity | -0.5 |
-| A rule violation is returned as `200 OK` | -0.5 |
-| Raw exception message or stack trace exposed to clients | -0.7 |
-| Raw password, hash, bearer token, or signing secret written to logs or a response | -0.7 |
-| Hard-coded signing secret or real seeded password committed | -0.7 |
+| No meaningful Java source submitted | cap 2.0 |
+| Source is not a recognizable Spring Boot application | cap 4.0 |
+| Submission files are too incomplete or disorganized to identify required behavior | cap 4.0 |
 | Generated output, IDE-only noise, or unrelated large files included | -0.2 |
 | Meaningful dead/debug code left in the submission | -0.2 |
 
-Apply a deduction once per issue category unless the issue causes distinct,
-independent harm. Do not deduct twice for a defect already reflected in a task
-score.
+### T1 - Foundation, Entity & Persistence
+
+| Trigger | Effect |
+|---|---:|
+| Required persistence is replaced by an in-memory Java collection | cap 5.0 |
+| Field injection used for required application dependencies | -0.3 |
+| Enum persisted by ordinal instead of name | -0.3 |
+
+### T2 - REST API & DTO Contract
+
+| Trigger | Effect |
+|---|---:|
+| No create-to-read end-to-end flow is represented in source | cap 5.5 |
+| Controllers contain most persistence and business logic; no meaningful service boundary | cap 7.0 |
+| The JPA entity is used directly as both request and response contract throughout | cap 7.5 |
+| Collection endpoint loads an unbounded `findAll()` result | -0.5 |
+| Pagination ordering is unstable or absent | -0.3 |
+| `status` filter applied in Java after loading all rows | -0.3 |
+
+### T3 - Transactional Stock Adjustment
+
+| Trigger | Effect |
+|---|---:|
+| No stock-adjustment endpoint is implemented | cap 6.0 |
+| The stock adjustment accepts every request with no rule check (quantity can go negative) | cap 6.5 |
+| The check and the write occur in separate transactions or separate service calls, **and** the rule is otherwise correct | cap 8.5 |
+| Boundary case `quantity + delta == 0` incorrectly rejected (off-by-one) | -0.3 |
+| A rejected adjustment still changes `updatedAt` or the stored quantity | -0.5 |
+
+### T4 - Validation & Error Handling
+
+| Trigger | Effect |
+|---|---:|
+| A rule violation is returned as `200 OK` | -0.5 |
+| Raw exception message or stack trace exposed to clients | -0.7 |
+
+### T5 - Security: Login, JWT & Role-Based Access
+
+| Trigger | Effect |
+|---|---:|
+| No working security: the API is fully anonymous, or no login/token is implemented | cap 8.5 |
+| Passwords stored in plaintext/reversible/`{noop}` form, or credentials compared manually | cap 6.5 |
+| Security accepts an unsigned/unverified/tampered token, or trusts a client-supplied role | cap 7.0 |
+| Raw password, hash, bearer token, or signing secret written to logs or a response | -0.7 |
+| Hard-coded signing secret or real seeded password committed | -0.7 |
+
 
 ---
 
@@ -242,8 +266,5 @@ automated tests, Docker, Actuator, deployment.
 | T5 Security: Login, JWT & Role-Based Access | | 15% | |
 | **Total** | | **100%** | |
 
-Caps applied: _______________________________________________
-
-Deductions: __________________________________________ = - ____
-
-Final score: ______ / 10
+Each task score already carries its own caps and deductions, so the total is the
+weighted sum and nothing is subtracted from it afterwards.

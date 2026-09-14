@@ -132,18 +132,37 @@ zero on T6, and both are correct.
 
 ## 4. Caps — goes in the rubric, under `## 4. Caps and Deductions`
 
-Gates cost something or they are not gates. These are absolute maxima for the
-task named, the lowest applicable cap wins, and they are never additive —
+Gates cost something or they are not gates. That section is grouped one
+subsection per task, and each entry below is an absolute maximum for **that
+task's raw 0-10 score**, never for the final total — the lowest applicable cap
+for a task wins and caps are never additive. See
 `references/grading_contract.md` §3.
 
-| Trigger | Cap |
+### T2 - D02 Product Backlog and WBS
+
+| Trigger | Effect |
+|---|---|
+| G1 missed in half the sprints or more | cap 5.0 — a backlog that was never frozen did not guide the work |
+
+### T4 - D04 Source Code
+
+| Trigger | Effect |
+|---|---|
+| G3 missed | the sprint deliverable is graded from whatever the folder held at the deadline; nothing uploaded later is read |
+
+### T6 - Sprint Process
+
+| Trigger | Effect |
 |---|---|
 | Any gate missed in a sprint | that sprint's checkpoint raw score capped at 5.0 |
-| G1 missed in half the sprints or more | T2 capped at 5.0 — a backlog that was never frozen did not guide the work |
-| G2 missing or tagged after the deadline in any sprint | T6 capped at 6.0; the code itself is still graded on its merits in T4 |
-| G3 missed | the sprint deliverable is graded from whatever the folder held at the deadline; nothing uploaded later is read |
-| G4 missing in any sprint | T7 capped at 7.0 for every member of that team — the record is the primary dated evidence of who did what |
+| G2 missing or tagged after the deadline in any sprint | cap 6.0; the code itself is still graded on its merits in T4 |
 | G5 missed | that sprint's G5 criterion scores 0, and the deliverable's own task carries the standard late treatment |
+
+### T7 - Individual Contribution
+
+| Trigger | Effect |
+|---|---|
+| G4 missing in any sprint | cap 7.0 for every member of that team — the record is the primary dated evidence of who did what |
 
 Write the caps with the gate ids in them. `FSA assessment verify --type capstone_project`
 reads this section looking for `G1`–`G5`, and warns for every gate that appears

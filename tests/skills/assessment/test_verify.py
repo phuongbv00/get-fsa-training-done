@@ -129,6 +129,115 @@ def test_weight_mismatch_between_brief_and_rubric_is_caught(long_form_pair):
     assert any("weight" in error.lower() for error in result.errors)
 
 
+def replace_caps_section(rubric, body: str) -> None:
+    text = rubric.read_text(encoding="utf-8")
+    start = text.index("## 4. Caps and Deductions")
+    end = text.index("## 5. Common point-loss reasons")
+    rubric.write_text(text[:start] + body + text[end:], encoding="utf-8")
+
+
+def test_a_flat_caps_table_is_rejected(long_form_pair):
+    """The retired shape: one table for the whole rubric, so `max 5.0` names no
+    task and the adjustment cannot be reproduced from the score sheet."""
+    brief, rubric = long_form_pair
+    replace_caps_section(
+        rubric,
+        "## 4. Caps and Deductions\n\n"
+        "| Issue | Cap |\n|---|---:|\n"
+        "| No meaningful Java source submitted | max 2.0 |\n\n",
+    )
+    result = verify_long_form(brief, rubric)
+    assert any("no '### Tn - <name>' subsections" in error for error in result.errors)
+
+
+def test_a_cap_row_above_the_first_subsection_is_rejected(long_form_pair):
+    brief, rubric = long_form_pair
+    text = rubric.read_text(encoding="utf-8")
+    start = text.index("## 4. Caps and Deductions")
+    header = (
+        "## 4. Caps and Deductions\n\n| Issue | Cap |\n|---|---:|\n| Nothing works | max 2.0 |\n"
+    )
+    rubric.write_text(
+        text[:start] + header + text[start + len("## 4. Caps and Deductions") :],
+        encoding="utf-8",
+    )
+    result = verify_long_form(brief, rubric)
+    assert any("before the first subsection" in error for error in result.errors)
+
+
+def test_caps_for_a_task_the_rubric_does_not_have_are_caught(long_form_pair):
+    brief, rubric = long_form_pair
+    replace_caps_section(
+        rubric,
+        "## 4. Caps and Deductions\n\n### T9 - Ghost task\n\n"
+        "| Trigger | Effect |\n|---|---:|\n| Anything | cap 5.0 |\n\n",
+    )
+    result = verify_long_form(brief, rubric)
+    assert any("fixed task list has no T9" in error for error in result.errors)
+
+
+def test_a_caps_subsection_without_the_task_name_is_caught(long_form_pair):
+    """A bare `### T3` would otherwise fold into the subsection above it."""
+    brief, rubric = long_form_pair
+    replace_caps_section(
+        rubric,
+        "## 4. Caps and Deductions\n\n### T1\n\n"
+        "| Trigger | Effect |\n|---|---:|\n| No persistence | cap 5.0 |\n\n",
+    )
+    result = verify_long_form(brief, rubric)
+    assert any("'### T1 - <name>'" in error for error in result.errors)
+
+
+def test_caps_subsections_out_of_task_order_are_caught(long_form_pair):
+    brief, rubric = long_form_pair
+    replace_caps_section(
+        rubric,
+        "## 4. Caps and Deductions\n\n"
+        "### T3 - Transactional Stock Adjustment\n\n"
+        "| Trigger | Effect |\n|---|---:|\n| No adjustment endpoint | cap 6.0 |\n\n"
+        "### T1 - Foundation, Entity & Persistence\n\n"
+        "| Trigger | Effect |\n|---|---:|\n| No persistence | cap 5.0 |\n\n",
+    )
+    result = verify_long_form(brief, rubric)
+    assert any("must run in task order" in error for error in result.errors)
+
+
+def test_every_task_block_must_precede_the_task_subsections(long_form_pair):
+    brief, rubric = long_form_pair
+    replace_caps_section(
+        rubric,
+        "## 4. Caps and Deductions\n\n"
+        "### T1 - Foundation, Entity & Persistence\n\n"
+        "| Trigger | Effect |\n|---|---:|\n| No persistence | cap 5.0 |\n\n"
+        "### Every task\n\n"
+        "| Trigger | Effect |\n|---|---:|\n| No source at all | cap 2.0 |\n\n",
+    )
+    result = verify_long_form(brief, rubric)
+    assert any("must come before the task" in error for error in result.errors)
+
+
+def test_a_score_sheet_that_adjusts_the_total_is_rejected(long_form_pair):
+    brief, rubric = long_form_pair
+    rubric.write_text(
+        rubric.read_text(encoding="utf-8") + "\n\nDeductions: ______ = - ____\n",
+        encoding="utf-8",
+    )
+    result = verify_long_form(brief, rubric)
+    assert any("submission-level" in error for error in result.errors)
+
+
+def test_a_rubric_computing_a_pre_deduction_total_is_rejected(long_form_pair):
+    brief, rubric = long_form_pair
+    rubric.write_text(
+        rubric.read_text(encoding="utf-8").replace(
+            "`total = sum(", "`final_before_deductions = sum("
+        ),
+        encoding="utf-8",
+    )
+    result = verify_long_form(brief, rubric)
+    assert any("final_before_deductions" in error for error in result.errors)
+
+
 def test_score_sheet_rows_do_not_double_count_tasks(long_form_pair):
     """A rubric whose score sheet puts the id in its own cell must not
     double-count the task list. Parsing the whole document instead of the fixed
@@ -420,7 +529,9 @@ def test_a_gate_with_no_cap_warns_but_does_not_fail(capstone_trio):
     brief, spec, rubric = capstone_trio
     rubric.write_text(
         rubric.read_text(encoding="utf-8").replace(
-            "| G4 missing in any sprint | T7 capped at 7.0 for every member of that team |\n", ""
+            "| G4 missing in any sprint | cap 7.0 for every member of that team — "
+            "the record is the primary dated evidence of who did what |\n",
+            "",
         ),
         encoding="utf-8",
     )

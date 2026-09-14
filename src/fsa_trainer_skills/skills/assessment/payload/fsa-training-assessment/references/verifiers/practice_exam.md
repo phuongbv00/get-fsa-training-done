@@ -63,7 +63,8 @@ Check both structure and content:
 - Rubric criteria are observable from submitted files and do not require
   hidden execution unless the exam explicitly includes runnable evidence.
 - Caps reflect exam-critical failures such as missing runnable source, missing
-  required persistence/configuration, or no end-to-end flow.
+  required persistence/configuration, or no end-to-end flow, and each sits under
+  the task whose raw score it bounds rather than over the final total.
 - No solution hints or grading details leak into the learner-facing brief.
 
 - **Level calibration.** Check the scope, task count, and rubric strictness

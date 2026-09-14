@@ -43,7 +43,7 @@ one paragraph per task for the rule that carries the real difficulty.
 
 ### Caps carry more weight
 
-In the rubric, a missing foundation should cap the whole task rather than
+In the rubric, a missing foundation should cap that task's raw score rather than
 deducting from it — under time pressure candidates skip foundations first, and
 a cap is what stops a broken-but-broad submission outscoring a correct narrow
 one. Apply the level's rubric posture from `references/levels.md`.

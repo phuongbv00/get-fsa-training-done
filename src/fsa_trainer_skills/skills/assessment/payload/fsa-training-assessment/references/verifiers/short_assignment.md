@@ -59,8 +59,10 @@ Check both structure and content:
   observable evidence for each criterion.
 - Per-task raw-point tables sum to 10.0 and can be applied by both a human
   grader and an LLM reviewing submitted files.
-- Caps and deductions cover critical failure modes without double-counting
-  ordinary missing features.
+- Caps and deductions sit under the task they bound — one `### Tn` subsection
+  each, submission-wide failures under `### Every task` — and cover critical
+  failure modes without double-counting ordinary missing features. Nothing is
+  capped or deducted from the final total.
 - Deliverables are concrete and do not over-specify submission transport unless
   the user explicitly asked for it.
 

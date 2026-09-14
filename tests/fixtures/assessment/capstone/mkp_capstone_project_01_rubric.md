@@ -96,19 +96,42 @@ T1-T5.
 
 ## 4. Caps and Deductions
 
-Absolute maxima for the task named. The lowest applicable cap wins, and caps are
-never additive. Deductions apply after caps, floored at zero.
+Every entry bounds the raw 0-10 score of the task it sits under, never the
+weighted total. The lowest applicable cap for a task wins, caps are never
+additive, and deductions apply after the cap with the task score floored at 0.
 
-| Trigger | Cap |
+### T2 - D02 Product Backlog and WBS
+
+| Trigger | Effect |
+|---|---|
+| G1 missed in half the sprints or more | cap 5.0 — a backlog that was never frozen did not guide the work |
+
+### T3 - D03 Requirement and Design Documents
+
+| Trigger | Effect |
+|---|---|
+| Exported images instead of diagram sources | cap 6.0 |
+
+### T4 - D04 Source Code
+
+| Trigger | Effect |
+|---|---|
+| Stack not as mandated | cap 5.0 |
+| G3 missed | the sprint deliverable is graded from what the folder held at the deadline; nothing uploaded later is read |
+
+### T6 - Sprint Process
+
+| Trigger | Effect |
 |---|---|
 | Any gate missed in a sprint | that sprint's checkpoint raw score capped at 5.0 |
-| G1 missed in half the sprints or more | T2 capped at 5.0 |
-| G2 missing, or tagged after the deadline, in any sprint | T6 capped at 6.0 |
-| G3 missed | the sprint deliverable is graded from what the folder held at the deadline |
-| G4 missing in any sprint | T7 capped at 7.0 for every member of that team |
-| G5 missed | that checkpoint criterion scores 0 |
-| Exported images instead of diagram sources | T3 capped at 6.0 |
-| Stack not as mandated | T4 capped at 5.0 |
+| G2 missing, or tagged after the deadline, in any sprint | cap 6.0; the code itself is still graded on its merits in T4 |
+| G5 missed | that sprint's G5 criterion scores 0 |
+
+### T7 - Individual contribution
+
+| Trigger | Effect |
+|---|---|
+| G4 missing in any sprint | cap 7.0 for every member of that team — the record is the primary dated evidence of who did what |
 
 ## 5. Common point-loss reasons
 

@@ -116,6 +116,27 @@ Task ids and weights **must match the brief exactly**. Sub-criterion tables sum
 to exactly 10.0 per task. Every criterion must be settleable by reading files,
 by a human or a model, without running anything.
 
+Section 4 is grouped by task, one `### Tn - <name>` subsection each, in task
+order, and every entry bounds that task's raw 0-10 score — never the final
+total, which is always the weighted sum and is never adjusted afterwards. Only
+tasks that need caps get a subsection. Failures that leave no task evidenced at
+all — no meaningful source, files too disorganized to read — go in a single
+`### Every task` subsection before them.
+
+```markdown
+### T3 - Transactional Stock Adjustment
+
+| Trigger | Effect |
+|---|---:|
+| No stock-adjustment endpoint is implemented | cap 6.0 |
+| The rejected adjustment still writes `updatedAt` | -0.3 |
+```
+
+Section 6 lists the tasks and their weights and stops there: no `Caps applied:`
+line, no `Deductions:` line, nothing subtracted from the total. Read
+`references/grading_contract.md` §3 for why, and note that `verify` enforces all
+of it.
+
 Apply the level's rubric posture — see `references/levels.md`.
 
 ## 4. Render, then verify

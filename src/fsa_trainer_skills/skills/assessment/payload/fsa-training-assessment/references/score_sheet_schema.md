@@ -31,7 +31,9 @@ Invariants:
 - `weight` is a percentage, and the weights across tasks sum to 100.
 - `total = sum(score * weight) / 100`.
 - There is **no** `bonus`, `adjustments`, `deductions`, or submission-level
-  `comment`. Caps and deductions are folded into the task score they belong to.
+  `comment`. Caps and deductions are folded into the task score they belong to,
+  which is why the rubric groups them by task — see
+  `references/grading_contract.md` §3.
 
 ### Comments are learner-facing
 

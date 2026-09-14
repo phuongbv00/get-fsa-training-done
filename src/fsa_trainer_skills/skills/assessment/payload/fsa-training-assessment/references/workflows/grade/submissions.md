@@ -73,8 +73,10 @@ Rules that hold for every submission:
   three of five tasks properly outscores one that half-implements all five.
 - **Claims only count when the submission backs them up.** A README asserting a
   feature exists is not the feature.
-- Score each task on 0–10, then fold that task's caps and deductions into the
-  number. There is no separate adjustment step.
+- Score each task on 0–10, then fold that task's own caps and deductions — its
+  `### Tn` subsection of the rubric's section 4, plus anything under
+  `### Every task` — into the number. Nothing is subtracted from the total
+  afterwards; there is no separate adjustment step.
 - Write one or two sentences of **learner-facing English** feedback per task.
   Never leak grading method, never mention how the file was reviewed, never
   raise a suspicion about copying or AI use.

@@ -31,13 +31,47 @@ The brief may state only the outcome while the rubric names the mechanism — se
 it does, make sure the named mechanism is a realistic way to satisfy the
 outcome, and phrase it so an equally valid alternative is not punished.
 
-## 3. Caps and deductions are folded into task scores
+## 3. Caps and deductions belong to a task, not to the total
 
-There is no separate adjustment step. A cap is an absolute maximum for that
-task, the lowest applicable cap wins, and caps are never additive. Deductions
-apply after caps and the result is floored at zero. All of it lands inside the
-task score it belongs to, so the score sheet needs no `bonus` or `adjustments`
-field.
+There is no separate adjustment step and nothing is ever subtracted from the
+final score. The rubric's `## 4. Caps and Deductions` is written as one
+subsection per task, and every entry inside it bounds **that task's raw 0-10
+score**:
+
+```markdown
+## 4. Caps and Deductions
+
+### Every task
+
+| Trigger | Effect |
+|---|---:|
+| No meaningful source submitted | cap 2.0 |
+| Generated output or unrelated large files included | -0.2 |
+
+### T3 - Transactional Stock Adjustment
+
+| Trigger | Effect |
+|---|---:|
+| No stock-adjustment endpoint is implemented | cap 6.0 |
+| The rejected adjustment still writes `updatedAt` | -0.3 |
+```
+
+- A cap is an absolute maximum for that task's raw score. The lowest applicable
+  cap for a task wins; caps are never additive.
+- Deductions apply after the cap, and the task score is floored at zero.
+- `### Every task` is the only non-task subsection, it comes first, and it holds
+  the failures that leave no task evidenced at all.
+
+`### Every task` costs nothing in reach: deducting `d` from every task's raw
+score lowers `sum(score * weight) / 100` by exactly `d`, and capping every task
+at `c` caps the total at `c`. What changes is that the score sheet can record it
+— the sheet carries task scores and nothing else, so an adjustment made after
+weighting cannot be reproduced from the file, and a flat table of `max 5.0` rows
+leaves two graders disagreeing about which task each one bounded.
+
+`FSA assessment verify` rejects a rubric with table rows outside a subsection of
+section 4, with subsections out of task order, or with a `Caps applied:` /
+`Deductions:` line in its score sheet.
 
 ## 4. The submission archive name carries the roster id
 

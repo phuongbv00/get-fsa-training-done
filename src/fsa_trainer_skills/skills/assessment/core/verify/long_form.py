@@ -34,14 +34,29 @@ RETIRED_BRIEF_SECTIONS = [
     "## 3. Constraints",
 ]
 
+SCORING_GUIDE_SECTION = "## 3. Per-Task Scoring Guide"
+CAPS_SECTION = "## 4. Caps and Deductions"
+SCORE_SHEET_SECTION = "## 6. Score sheet"
+
 REQUIRED_RUBRIC_SECTIONS = [
     "## 1. Grading Principle",
     "## 2. Fixed Task List",
-    "## 3. Per-Task Scoring Guide",
-    "## 4. Caps and Deductions",
+    SCORING_GUIDE_SECTION,
+    CAPS_SECTION,
     "## 5. Common point-loss reasons",
-    "## 6. Score sheet",
+    SCORE_SHEET_SECTION,
 ]
+
+#: The one subsection of section 4 that is not a task. It holds the failures
+#: that sink the whole submission, and it costs nothing in reach: deducting `d`
+#: from every task's raw score lowers `sum(score * weight) / 100` by exactly
+#: `d`, and capping every task at `c` caps the total at `c`.
+EVERY_TASK_HEADING = "### Every task"
+
+#: Retired with the move to per-task caps. Both compute a final score by
+#: adjusting the weighted total, and the score sheet has no field to record
+#: that — it carries task scores and nothing else.
+RETIRED_TOTAL_ADJUSTMENT = re.compile(r"^(Caps applied|Deductions)\s*:", re.IGNORECASE)
 
 REQUIRED_BANNER_LINES = ["> **Code:**", "> **Duration:**", "> **Topics:**"]
 
@@ -62,6 +77,9 @@ _BRIEF_TASK = re.compile(
 )
 _RUBRIC_TASK_ROW = re.compile(r"^\|\s*(T\d+)\s*\|\s*([^|]+?)\s*\|\s*(\d+)%\s*\|", re.MULTILINE)
 _RUBRIC_TASK_SECTION = re.compile(r"^###\s+(T\d+)\s+[-–—]")
+#: Section 4 headings are matched loosely so a bare `### T3` is reported
+#: rather than silently folded into the subsection above it.
+_CAPS_TASK_HEADING = re.compile(r"^###\s+(T\d+)\b")
 
 
 def section_body(text: str, heading: str) -> str:
@@ -96,8 +114,13 @@ def parse_rubric_tasks(text: str) -> list[dict[str, str]]:
     ]
 
 
-def check_raw_point_sums(text: str, result: CheckResult) -> None:
-    """Each per-task sub-criterion table must total exactly the declared 10.0."""
+def check_raw_point_sums(rubric_text: str, result: CheckResult) -> None:
+    """Each per-task sub-criterion table must total exactly the declared 10.0.
+
+    Scoped to section 3: section 4 now opens a `### Tn` subsection per task as
+    well, and those tables carry caps, not sub-criterion points.
+    """
+    text = section_body(rubric_text, SCORING_GUIDE_SECTION)
     current_id: str | None = None
     running = 0.0
     saw_any = False
@@ -135,6 +158,96 @@ def check_raw_point_sums(text: str, result: CheckResult) -> None:
 
     if not saw_any:
         result.error("Rubric has no per-task '**Tn raw score**' total rows")
+
+
+def check_caps_are_per_task(
+    rubric_text: str, rubric_tasks: list[dict[str, str]], result: CheckResult
+) -> None:
+    """Section 4 groups every cap and deduction under the task it bounds.
+
+    A flat table cannot be graded twice the same way: `max 5.0` on its own says
+    nothing about which score it bounds, and if the answer is the weighted
+    total then the adjustment cannot be reproduced from the score sheet, which
+    records task scores and nothing else.
+    """
+    body = section_body(rubric_text, CAPS_SECTION)
+    if not body:
+        # The missing section is already reported against REQUIRED_RUBRIC_SECTIONS.
+        return
+
+    known = {task["id"] for task in rubric_tasks}
+    seen: list[str] = []
+    scoped = False
+    stray = 0
+
+    for raw in body.splitlines():
+        line = raw.strip()
+        if line == EVERY_TASK_HEADING:
+            if seen:
+                result.error(
+                    f"{CAPS_SECTION}: {EVERY_TASK_HEADING!r} must come before the task "
+                    "subsections — it is what applies to all of them"
+                )
+            scoped = True
+            continue
+        heading = _CAPS_TASK_HEADING.match(line)
+        if heading:
+            task_id = heading.group(1)
+            if not _RUBRIC_TASK_SECTION.match(line):
+                result.error(
+                    f"{CAPS_SECTION}: write the {task_id} subsection as "
+                    f"'### {task_id} - <name>', so the grader reading a cap sees which "
+                    "task it bounds"
+                )
+            if known and task_id not in known:
+                result.error(
+                    f"{CAPS_SECTION} has a {task_id} subsection but the fixed task "
+                    f"list has no {task_id}"
+                )
+            elif task_id in seen:
+                result.error(f"{CAPS_SECTION} lists {task_id} twice")
+            seen.append(task_id)
+            scoped = True
+            continue
+        if not scoped and line.startswith("|"):
+            stray += 1
+
+    if not seen:
+        result.error(
+            f"{CAPS_SECTION} has no '### Tn - <name>' subsections; every cap and "
+            "deduction bounds one task's raw 0-10 score, so group them under the task "
+            f"they belong to, with submission-wide failures under {EVERY_TASK_HEADING!r}"
+        )
+        return
+
+    if stray:
+        result.error(
+            f"{CAPS_SECTION} has {stray} table line(s) before the first subsection; "
+            "a cap or deduction that names no task is an adjustment to the weighted "
+            "total, which the score sheet cannot record"
+        )
+
+    order = [int(task_id[1:]) for task_id in seen]
+    if order != sorted(order):
+        result.error(f"{CAPS_SECTION} subsections must run in task order, got {', '.join(seen)}")
+
+
+def check_total_is_not_adjusted(rubric_text: str, result: CheckResult) -> None:
+    """No step anywhere adjusts the weighted total after the tasks are scored."""
+    if "final_before_deductions" in rubric_text:
+        result.error(
+            "Rubric computes a 'final_before_deductions'; caps and deductions are "
+            "folded into the task score they bound, so the total is always "
+            "`sum(task_score * weight) / 100`"
+        )
+    for raw in section_body(rubric_text, SCORE_SHEET_SECTION).splitlines():
+        line = raw.strip()
+        if RETIRED_TOTAL_ADJUSTMENT.match(line):
+            result.error(
+                f"{SCORE_SHEET_SECTION} carries a submission-level {line.split(':')[0]!r} "
+                "line; the sheet records task scores only, with caps and deductions "
+                "already folded into them"
+            )
 
 
 def check_page_budget(
@@ -305,3 +418,5 @@ def verify(
             )
 
     check_raw_point_sums(rubric_text, result)
+    check_caps_are_per_task(rubric_text, rubric_tasks, result)
+    check_total_is_not_adjusted(rubric_text, result)
