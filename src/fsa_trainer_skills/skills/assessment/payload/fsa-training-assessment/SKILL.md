@@ -103,7 +103,7 @@ a `Level:` banner line only. Putting it in the stem breaks rubric discovery and
 the submission-archive contract in `references/grading_contract.md`.
 
 So: file `jpl_short_assignment_02.md`, banner `Code: FR_JPL_SA_02` and
-`Level: FR`, archive `PhuongBV3_jpl_assignment_02.zip`.
+`Level: FR`, archive `jpl_assignment_02_<fpt_account>.zip`.
 
 ## Resolving the CLI
 

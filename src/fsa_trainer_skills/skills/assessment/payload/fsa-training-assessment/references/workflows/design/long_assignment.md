@@ -40,7 +40,7 @@ Multi-day work can reasonably ask for a repository rather than an archive, and
 for a migration or seed script alongside the source. It still must not ask for
 written explanation — the no-README rule holds, for the same reason.
 
-If the deliverable is a repository, the roster id goes in its name (see
+If the deliverable is a repository, the FPT account goes in its name (see
 `references/grading_contract.md`).
 
 ### Scope, by level

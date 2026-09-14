@@ -103,6 +103,11 @@ def match_std_id(stem: str, roster: Roster) -> tuple[str, bool]:
     Three tiers, most reliable first: an exact token match, then the longest
     roster id appearing inside the collapsed stem, then the last token as a
     raw fallback flagged unknown.
+
+    Position is never assumed — an upload named by a trainee rarely respects
+    one. The fallback takes the last token because the required shape is
+    `<subject>_<token>_<seq>_<fpt_account>`, so the trailing token is the
+    account; see the skill's `references/grading_contract.md` §4.
     """
     parts = tokens(stem)
     for token in parts:

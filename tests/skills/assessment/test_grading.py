@@ -41,6 +41,21 @@ def test_roster_lookup_is_case_insensitive(roster_csv):
     assert roster.get("phuongbv3").std_id == "PhuongBV3"
 
 
+def test_the_required_archive_name_resolves_to_the_account(roster_csv):
+    """`<subject>_<token>_<seq>_<fpt_account>`: the account is the last token,
+    and it must win over the subject and the sequence number."""
+    roster = roster_mod.load(roster_csv)
+    assert roster_mod.match_std_id("fnd_p_exam_01_PhuongBV3", roster) == ("PhuongBV3", True)
+    assert roster_mod.match_std_id("jpl_assignment_02_linhtt127", roster) == ("LinhTT127", True)
+
+
+def test_an_unknown_account_falls_back_to_the_trailing_token(roster_csv):
+    """With the account last, the raw fallback names the trainee rather than
+    the sequence number, so UNKNOWN-ID folders are resolvable by eye."""
+    roster = roster_mod.load(roster_csv)
+    assert roster_mod.match_std_id("fnd_p_exam_01_NgocNT9", roster) == ("NgocNT9", False)
+
+
 def test_std_id_with_an_underscore_survives_the_folder_round_trip():
     """`name.split("_")[-1]` truncated any id containing an underscore, which
     then matched nothing and vanished from the results without a word."""
@@ -279,16 +294,16 @@ def test_preprocess_keeps_a_loose_file_and_a_folder(roster_csv, tmp_path):
     'did not submit' because it was never an archive."""
     src = tmp_path / "uploads"
     src.mkdir()
-    (src / "PhuongBV3_jpl_assignment_01.pdf").write_bytes(b"%PDF-1.4")
-    (src / "LinhTT127_jpl_assignment_01" / "nested").mkdir(parents=True)
-    (src / "LinhTT127_jpl_assignment_01" / "nested" / "Main.java").write_text("class Main {}")
+    (src / "jpl_assignment_01_PhuongBV3.pdf").write_bytes(b"%PDF-1.4")
+    (src / "jpl_assignment_01_LinhTT127" / "nested").mkdir(parents=True)
+    (src / "jpl_assignment_01_LinhTT127" / "nested" / "Main.java").write_text("class Main {}")
 
     outcome = _preprocess(roster_csv, src)
 
     out = src / "_preprocessed"
     assert {std_id for std_id, _, _ in outcome.created} == {"PhuongBV3", "LinhTT127"}
     assert outcome.missing == []
-    assert (out / "JPL_ASSIGNMENT_PhuongBV3" / "PhuongBV3_jpl_assignment_01.pdf").is_file()
+    assert (out / "JPL_ASSIGNMENT_PhuongBV3" / "jpl_assignment_01_PhuongBV3.pdf").is_file()
     # Redundant single-folder nesting is collapsed.
     assert (out / "JPL_ASSIGNMENT_LinhTT127" / "Main.java").is_file()
 
@@ -300,11 +315,11 @@ def test_preprocess_keeps_a_loose_file_and_a_folder(roster_csv, tmp_path):
 def test_a_failed_extraction_is_not_also_a_missing_submission(roster_csv, tmp_path):
     src = tmp_path / "uploads"
     src.mkdir()
-    (src / "PhuongBV3_jpl_assignment_01.zip").write_bytes(b"not a zip at all")
+    (src / "jpl_assignment_01_PhuongBV3.zip").write_bytes(b"not a zip at all")
 
     outcome = _preprocess(roster_csv, src)
 
-    assert [name for name, _ in outcome.failures] == ["PhuongBV3_jpl_assignment_01.zip"]
+    assert [name for name, _ in outcome.failures] == ["jpl_assignment_01_PhuongBV3.zip"]
     assert [std_id for std_id, _ in outcome.missing] == ["LinhTT127"]
 
 

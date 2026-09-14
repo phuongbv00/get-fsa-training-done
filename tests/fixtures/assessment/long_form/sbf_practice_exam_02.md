@@ -150,8 +150,9 @@ Ownership rules are **not** part of this exam — role-level access is enough.
 
 ## 3. Deliverables
 
-- [ ] A single zip named `<StudentID>_sbf_p_exam_02.zip`, where `<StudentID>` is
-      exactly your id on the class roster (for example `PhuongBV3`).
+- [ ] A single zip named `sbf_p_exam_02_<fpt_account>.zip`, where
+      `<fpt_account>` is your FPT account (for example
+      `sbf_p_exam_02_PhuongBV3.zip`).
 - [ ] Inside it, the Maven project folder containing `pom.xml`,
       `src/main/java/` and `src/main/resources/`.
 - [ ] Environment placeholders, where present, for the JWT secret and seeded

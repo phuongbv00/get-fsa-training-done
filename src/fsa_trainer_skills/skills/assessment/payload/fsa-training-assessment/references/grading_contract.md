@@ -73,17 +73,18 @@ leaves two graders disagreeing about which task each one bounded.
 section 4, with subsections out of task order, or with a `Caps applied:` /
 `Deductions:` line in its score sheet.
 
-## 4. The submission archive name carries the roster id
+## 4. The submission archive name ends with the FPT account
 
 Preprocessing matches each uploaded archive against the roster's `ID` column, so
 when the deliverable is a single archive, require:
 
 ```
-<StudentID>_<subject_lower>_<archive_token>_<seq>.zip
+<subject_lower>_<archive_token>_<seq>_<fpt_account>.zip
 ```
 
-and say plainly that `<StudentID>` is exactly their id on the class roster, with
-a concrete example (`PhuongBV3_jpl_p_exam_02.zip`).
+and say plainly that `<fpt_account>` is their FPT account — the same string as
+their id on the class roster — with a concrete example
+(`jpl_p_exam_02_PhuongBV3.zip`).
 
 The `<archive_token>` is **not** the artifact's type token:
 
@@ -95,12 +96,20 @@ The `<archive_token>` is **not** the artifact's type token:
 | `practice_exam` | `p_exam` |
 | `capstone_project` | `capstone` |
 
-So `jpl_practice_exam_02.md` asks for `<StudentID>_jpl_p_exam_02.zip`.
+So `jpl_practice_exam_02.md` asks for `jpl_p_exam_02_<fpt_account>.zip`, and
+`fnd_practice_exam_01.md` asks for `fnd_p_exam_01_<fpt_account>.zip`.
 
-Never use a vague placeholder like `<your_name>` or `<your_account>`. An archive
-whose name does not contain the roster id lands in UNKNOWN-ID and has to be
-resolved by hand. If the deliverable is a repository rather than an archive, put
-the roster id in the repository name instead.
+**The account goes last, and the assessment stem first.** The stem is identical
+for everyone, so a folder of uploads sorts by assessment and then by account,
+and the account is the one token that varies. It is also what the id matcher
+falls back to when nothing matches the roster: it takes the last token, which
+under this shape is the account rather than the sequence number.
+
+Never write a vague placeholder like `<your_name>` or `<your_account>` — name
+the FPT account explicitly and show an example. An archive whose name does not
+contain the roster id lands in UNKNOWN-ID and has to be resolved by hand. If the
+deliverable is a repository rather than an archive, put the account in the
+repository name instead.
 
 **Avoid roster ids containing underscores.** Folder names are
 `<SUBJECT>_<TYPE>_<STDID>`, and while the tooling now strips the known prefix
