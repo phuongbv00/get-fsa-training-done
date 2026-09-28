@@ -100,6 +100,15 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
+- **`grade preprocess` deleted each submission's `.git`.** It was in the junk
+  set alongside `.DS_Store`, so a Git-workflow assignment reached the grader as
+  a bare working tree. Measured on a real FND cohort: one trainee scored 0 for
+  "branch and commits" while the raw archive held a ticket branch with two
+  commits, and two others scored 10 and 9.7 for a merge whose committed file
+  still carried the `<<<<<<<` markers — the fix existed only in the working
+  tree, which was all the grader saw. `.git` is now kept, and since it is a
+  sibling of the tree, nesting collapse stops at the repository root. The
+  cheat checks already skip `.git`, so their fingerprints are unchanged.
 - **The page-budget check could reject a brief that was within budget.**
   `count_pages` took the largest `/Count` anywhere in the PDF, but `/Count` also
   appears in the outline tree, where it counts bookmarks — one per heading. A

@@ -35,6 +35,10 @@ FSA assessment grade preprocess \
 
 Extracts archives, strips junk and redundant nesting, and lays out one folder
 per trainee as `<SUBJECT>_<TYPE>_<STDID>`. Nothing in the source is modified.
+A repository's `.git` is kept: for a Git-workflow assessment the history is the
+evidence, and the working tree can contradict what was actually committed. Read
+it with read-only `git` commands (`log --graph --all`, `show`, `diff`) — that is
+reading evidence, not executing learner code.
 
 Read the report before continuing. Three things need a decision:
 

@@ -308,6 +308,30 @@ def test_preprocess_keeps_a_loose_file_and_a_folder(roster_csv, tmp_path):
     assert (out / "JPL_ASSIGNMENT_LinhTT127" / "Main.java").is_file()
 
 
+def test_preprocess_keeps_the_git_history_of_a_repository(roster_csv, tmp_path):
+    """A Git-workflow submission is graded from its history, not its working
+    tree: a conflict committed with its markers and fixed only in the working
+    tree looks resolved once `.git` is gone."""
+    src = tmp_path / "uploads"
+    src.mkdir()
+    archive = src / "jpl_assignment_01_PhuongBV3.zip"
+    with zipfile.ZipFile(archive, "w") as bundle:
+        bundle.writestr("submission/repo/.git/HEAD", "ref: refs/heads/main\n")
+        bundle.writestr("submission/repo/.git/refs/heads/feature-x", "0" * 40 + "\n")
+        bundle.writestr("submission/repo/src/app.js", "export {};\n")
+        bundle.writestr("submission/.DS_Store", "junk")
+
+    _preprocess(roster_csv, src)
+
+    folder = src / "_preprocessed" / "JPL_ASSIGNMENT_PhuongBV3"
+    # The repository root is where the nesting stops: `.git` is a sibling of
+    # `src`, so descending further would split the history from the tree.
+    assert (folder / ".git" / "HEAD").is_file()
+    assert (folder / ".git" / "refs" / "heads" / "feature-x").is_file()
+    assert (folder / "src" / "app.js").is_file()
+    assert not list(folder.rglob(".DS_Store"))
+
+
 @pytest.mark.skipif(
     not any(map(shutil.which, ("ditto", "unzip", "bsdtar"))),
     reason="no zip extractor on this machine",

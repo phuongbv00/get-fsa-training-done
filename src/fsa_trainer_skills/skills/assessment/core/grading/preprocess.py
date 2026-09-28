@@ -26,7 +26,11 @@ from fsa_trainer_skills.errors import MissingToolError
 from . import roster as roster_mod
 from .roster import Roster
 
-JUNK = {"__MACOSX", ".DS_Store", "Thumbs.db", ".git"}
+#: `.git` is deliberately not junk: for a Git-workflow assessment the history is
+#: the evidence — branches, commits, a conflict committed with its markers — and
+#: the working tree alone can say the opposite of what was committed. The cheat
+#: checks skip `.git` themselves.
+JUNK = {"__MACOSX", ".DS_Store", "Thumbs.db"}
 ARCHIVE_EXTENSIONS = {".zip", ".rar", ".7z", ".tar", ".gz", ".tgz", ".bz2", ".xz"}
 
 #: `.rar` is the one format with no pure-Python reader — it is proprietary and
