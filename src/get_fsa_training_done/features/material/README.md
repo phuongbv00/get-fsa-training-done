@@ -1,4 +1,4 @@
-# `material` — the `fsa-training-material` skill
+# `material` — writing and checking teaching material
 
 Write the teaching material a session plan calls for, and check that what the
 plan promises exists. The agent writes the content; the CLI checks the shape
@@ -8,13 +8,9 @@ maintained by hand.
 | | |
 | --- | --- |
 | Namespace | `material` |
-| Installed as | `fsa-training-material` |
+| Part of the skill | `get-fsa-training-done` |
 | Worker commands | `get-fsa-training-done material <verb>` |
-| Payload | [`payload/fsa-training-material/`](payload/fsa-training-material) |
-
-```bash
-get-fsa-training-done install --skill material --platform all
-```
+| Payload | [`references/material/`](../payload/get-fsa-training-done/references/material) |
 
 ## Artifacts
 
@@ -24,13 +20,19 @@ get-fsa-training-done install --skill material --platform all
 | Module handbook | `00_Study_Guide_Handbook.md` — index `00` is reserved |
 | Module appendix | `99_Appendix.md` — index `99` is reserved; its syllabus map is derived |
 | Lab guide | `<subject>_lab_NN.md` |
+| Group worksheet | `<subject>_lab_NN_worksheet.md` — a blank form beside a group lab |
 
 A lab guide is the **guided middle**: shorter than an assignment,
 step-numbered, and checkable by the learner without a marker. If it carries
-marks and a rubric it is an assignment, and it belongs to
-`fsa-training-assessment`.
+marks and a rubric it is an assignment, and it belongs to the assessment
+feature.
 
-## The seam with the other two skills
+Material is written to the trainee, never as trainer notes. Diagrams are
+`mermaid`; ER relationships state their cardinality in words (`MAT-D19`) and
+colours come from the theme (`MAT-D20`), so a diagram reads in light and dark
+mode alike.
+
+## The seam with the other two features
 
 A session row in a programme's plan names the file that serves it. That column
 is the contract:
@@ -40,8 +42,8 @@ is the contract:
 1,Relational Modelling,1,Quiz 1 — modelling scenarios (MCQ),DBF-K1,Test/Quiz,30,Blended,dbf_quiz_01.csv
 ```
 
-`fsa-training-program` writes the row. This skill produces `fef_lab_01.md`;
-`fsa-training-assessment` produces `dbf_quiz_01.csv`. `coverage` reports what is
+The program feature writes the row. This feature produces `fef_lab_01.md`; the
+assessment feature produces `dbf_quiz_01.csv`. `coverage` reports what is
 missing on this side and counts the rest as *owned by another skill* rather than
 as a gap — reporting a missing quiz here would send someone to write the wrong
 thing.
@@ -66,7 +68,7 @@ mean anything across a whole module.
 
 22 rules, `MAT-D*` for one document and `MAT-C*` against the session plan. Every
 finding names its rule, and
-[`references/structure.md`](payload/fsa-training-material/references/structure.md)
+[`references/material/structure.md`](../payload/get-fsa-training-done/references/material/structure.md)
 is **generated** from `core/grammar.py` and `core/rules.py` — prose describing a
 required section the checker does not enforce would calibrate the model to a
 constraint nothing holds it to.
@@ -130,23 +132,24 @@ None.
 ## Layout
 
 ```
-skills/material/
+features/material/
 ├── commands/            # verify, coverage, derive
-├── core/
-│   ├── grammar.py       # the templates — source for references/structure.md
-│   ├── rules.py         # the rulebook — same
-│   ├── notes.py         # headings, fences, links
-│   ├── checks.py        # MAT-D* rule bodies
-│   ├── coverage.py      # MAT-C*, the cross-skill half
-│   └── appendix.py      # the derived syllabus map
-└── payload/fsa-training-material/
-    ├── SKILL.md
-    └── references/
-        ├── structure.md # GENERATED
-        ├── conventions.md
-        ├── templates/
-        ├── examples/{mini,plan}/
-        └── workflows/{author,verify,coverage}/
+└── core/
+    ├── grammar.py       # the templates — source for structure.md
+    ├── rules.py         # the rulebook — same
+    ├── notes.py         # headings, fences, links
+    ├── checks.py        # MAT-D* rule bodies
+    ├── coverage.py      # MAT-C*, the cross-feature half
+    └── appendix.py      # the derived syllabus map
+
+payload/get-fsa-training-done/references/material/
+├── overview.md
+├── structure.md         # GENERATED
+├── conventions.md
+├── templates/
+├── examples/{mini,plan}/
+├── tasks/
+└── workflows/
 ```
 
 ## Development
@@ -158,7 +161,7 @@ python scripts/material/gen_structure_md.py       # after editing grammar.py or 
 CI runs it with `--check`.
 
 The clean example module lives in the payload
-([`references/examples/mini/`](payload/fsa-training-material/references/examples/mini)),
+([`references/material/examples/mini/`](../payload/get-fsa-training-done/references/material/examples/mini)),
 with the session plan that asks for it in `examples/plan/`. Consistency gates
 assert it verifies clean *and* covers its plan exactly, and that every shipped
 template would itself pass the checker — a skeleton the checker rejects teaches

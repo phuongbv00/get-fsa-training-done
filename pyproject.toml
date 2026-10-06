@@ -46,9 +46,8 @@ gftd = "get_fsa_training_done.cli:run"
 path = "src/get_fsa_training_done/__about__.py"
 
 [tool.hatch.build.targets.wheel]
-# Every skill lives inside this one package (including its payload data
-# files), so the default packages declaration already covers everything —
-# no force-include needed, and none is needed when a new skill registers.
+# The skill's payload is data inside this one package, so the default
+# packages declaration already covers everything — no force-include needed.
 packages = ["src/get_fsa_training_done"]
 
 [tool.hatch.build.targets.sdist]

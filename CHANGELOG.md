@@ -8,6 +8,22 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- **`assessment verify` checks the written form** of a quiz or theory exam
+  (`--brief`/`--rubric`), and `--answer-template` checks the file a candidate
+  submits, including that it does not repeat the questions.
+- **`assessment sandbox`** runs SQL, JUnit, pytest or a mock API's tests in a
+  disposable Docker container with no network, a read-only source and resource
+  limits. Docker is optional.
+- **`assessment grade merge-retake`** (cap, keep policy and voided retakes as
+  flags), **`grade quiz --html`** for Blooket leaderboard pastes, and
+  **`grade merge-quizzes`**.
+- **`material verify` rules `MAT-D19` and `MAT-D20`**: an ER diagram states its
+  cardinality in words, and diagrams take their colours from the theme.
+  `mermaid` is a known fence language, and a group lab's worksheet is
+  recognised.
+- **A capstone example programme**: a project module graded by three sprint
+  reviews and a final review.
+
 - **`fsa-training-program` (`program`) — design a training programme and export
   its workbooks.** Replaces a Node pipeline that lived in a separate repository
   and worked for exactly one cohort: it carried seven modules, 280 hours, 70
@@ -50,6 +66,25 @@ All notable changes to this project are documented here. The format follows
     renamed.
 
 ### Changed
+
+- **Renamed to `get-fsa-training-done`, and the three skills are one.** The
+  package, the pip and npm names, the CLI (with a short alias, `gftd`), the
+  environment variables and the install receipt take the new name; nothing
+  reads the old ones. `fsa-training-program`, `fsa-training-material` and
+  `fsa-training-assessment` install as one skill, `get-fsa-training-done`, with
+  one router, one version and one payload. The CLI namespaces are unchanged and
+  `--skill` is gone. Uninstall the old version with its own CLI first.
+- **The code is split into `lifecycle/` and `features/`**, and the payload into
+  `references/<feature>/` with `tasks/` and `workflows/`. Every task has the
+  same contract — Inputs, Produces, Steps, Done when, Hands off to — and the
+  router reaches each one directly, so a single step can run on its own.
+- **What the fsa-fr-java-web sessions settled is written into the tasks**:
+  exams stand alone in a fresh domain; about 80% is reachable from the labs and
+  20% discriminates, never labelled as such; briefs state goals and rubrics the
+  standards; written theory exams are interview questions with an answer
+  template that never repeats them; supplied files are proven before they are
+  handed out; material speaks to the trainee; shared writing and Vietnamese
+  conventions live once under `references/common/`.
 
 - **BREAKING: the skill is renamed `fsa-training-assessment`, under the
   `assessment` namespace** (was `fsa-assess` / `assess`), making room for a

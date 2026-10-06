@@ -1,4 +1,4 @@
-# `assessment` — the `fsa-training-assessment` skill
+# `assessment` — designing and grading assessments
 
 Design and grade FSA training assessments. The agent authors the content; the
 CLI does everything deterministic — deriving platform import files, checking
@@ -8,33 +8,31 @@ grading.
 | | |
 | --- | --- |
 | Namespace | `assessment` |
-| Installed as | `fsa-training-assessment` |
+| Part of the skill | `get-fsa-training-done` |
 | Worker commands | `get-fsa-training-done assessment <verb>` |
-| Payload | [`payload/fsa-training-assessment/`](payload/fsa-training-assessment) |
-
-```bash
-get-fsa-training-done install --skill assess --platform all
-```
+| Payload | [`references/assessment/`](../payload/get-fsa-training-done/references/assessment) |
 
 ## Assessment types
 
 | Type | Produces |
 | --- | --- |
-| `quiz` | master question CSV + Blooket import |
+| `quiz` | master question CSV + Blooket import, or a written quiz: brief + rubric + PDF |
 | `short_assignment` | learner brief + instructor rubric + PDF (1–2 days) |
 | `long_assignment` | learner brief + instructor rubric + PDF (3+ days) |
-| `theory_exam` | master question CSV + Coderbyte import |
+| `theory_exam` | interview questions: brief + rubric + answer template + PDF, or a master question CSV + Coderbyte import |
 | `practice_exam` | learner brief + instructor rubric + PDF (timed) |
 | `capstone_project` | topic brief + project spec + rubric + PDF |
 
-Each type has a design workflow the agent follows
-([`references/workflows/design/`](payload/fsa-training-assessment/references/workflows/design))
-and a matching verifier checklist
-([`references/verifiers/`](payload/fsa-training-assessment/references/verifiers)).
+Each type has a design workflow ([`workflows/design/`](../payload/get-fsa-training-done/references/assessment/workflows/design)),
+an ordered list of tasks ([`tasks/`](../payload/get-fsa-training-done/references/assessment/tasks)) the agent can also run one at
+a time, and a matching verifier checklist ([`verifiers/`](../payload/get-fsa-training-done/references/assessment/verifiers)).
+Exams stand alone in a fresh domain, put about 80% of the marks within reach of
+what the labs drilled, and ship supplied files only after they pass in the
+sandbox.
 
 ## Levels
 
-Every assessment is calibrated for exactly one **level**, a required Step 0
+Every assessment is calibrated for exactly one **level**, a required planning
 input. It sets the default Bloom mix, difficulty mix, duration, task count,
 how much of the specification is handed over, and how strict the rubric is.
 
@@ -56,7 +54,7 @@ probes how far. **`RE_SKILL`** is an experienced engineer arriving from a
 not assumed, so these lean on migration and integration framing and never
 reward knowing an idiom by heart.
 
-These are defaults, not rules. Step 0 confirms them with the user, and
+These are defaults, not rules. Planning confirms them with the user, and
 `verify` reports drift from the level default as a warning rather than an
 error.
 
@@ -104,7 +102,7 @@ question sets take `--master`, `--blooket`, `--coderbyte`, `--expect-count`,
 Passing `--level`/`--band` adds the calibration checks: the Bloom and
 difficulty mix of a question set, and the task count of a long-form
 assessment, are compared against that level's defaults. Drift is reported as a
-**warning, never an error** — Step 0 may legitimately override any default, so
+**warning, never an error** — planning may legitimately override any default, so
 the run still passes. One question of slack per bucket absorbs rounding. A
 level also supplies the right `--time-map` when you do not pass one, which
 matters for non-quiz formats: `UP_SKILL` and `RE_SKILL` expect 30/45/75
@@ -177,13 +175,16 @@ across machines, which Chrome never guaranteed.
 ### `grade` — the mechanical half
 
 No command here runs learner code, and scoring judgement stays with the model.
+What has to run goes through `sandbox`, below.
 
 | Subcommand | Does |
 | --- | --- |
 | `preprocess` | extract and normalise raw uploads against the roster |
 | `plan` | split preprocessed submissions into grading batches |
 | `aggregate` | roll per-submission score JSONs into one grade CSV |
-| `quiz` | score a quiz platform report workbook |
+| `merge-retake` | merge a first attempt with a retake: cap, keep policy, voided retakes |
+| `quiz` | score a quiz report workbook, or Blooket leaderboard HTML with `--questions` |
+| `merge-quizzes` | several quizzes side by side, in roster order |
 | `plagiarism` | similarity across submissions (**instructor-only**) |
 | `ai-cheat` | AI-authorship and shared-source signals (**instructor-only**) |
 
@@ -196,6 +197,20 @@ get-fsa-training-done assessment grade aggregate --scores ./scores --out grades.
 
 `plagiarism` and `ai-cheat` collect observable signals for a human to review.
 They prove nothing and must never change a grade on their own.
+
+### `sandbox` — run what is not ours, in Docker
+
+```bash
+get-fsa-training-done assessment sandbox check
+get-fsa-training-done assessment sandbox run --profile postgres --mount ./exam \
+  --init reference_schema.sql --init seed.sql -- psql -v ON_ERROR_STOP=1 -f seed_test.sql
+get-fsa-training-done assessment sandbox run --profile maven --mount ./starter --prefetch -- mvn test
+```
+
+Profiles: `postgres`, `maven`, `python`, `node`, pinned in `core/sandbox.py`.
+Every run has no network, a read-only copy of the source in a tmpfs, CPU,
+memory, process and time limits, and is removed afterwards. `--prefetch`
+fetches dependencies first with only the build tool's resolver running.
 
 ### `levels` — the calibration table
 
@@ -210,7 +225,7 @@ None, beyond the managed virtualenv `install` builds. `render` and
 `grade preprocess` used to need headless Chrome and a shell archive extractor;
 both now run in-process, on `xhtml2pdf` and the standard library plus `py7zr`.
 
-The one optional tool is a `.rar` extractor (`unar`, `7z`, or `bsdtar`). `.rar`
+Docker is optional: only `sandbox` needs it. The other optional tool is a `.rar` extractor (`unar`, `7z`, or `bsdtar`). `.rar`
 is proprietary and has no pure-Python reader, so a trainee who submits one needs
 one of those on `PATH` — every other format is read unaided.
 `get-fsa-training-done doctor` reports it as optional and does not fail without it.
@@ -218,25 +233,29 @@ one of those on `PATH` — every other format is read unaided.
 ## Layout
 
 ```
-skills/assessment/
-├── commands/            # CLI verbs: render, verify, emit, sprint-kit, grade, levels
-├── core/                # the logic behind them
-│   ├── levels.py        # calibration source of truth
-│   ├── emit/            # blooket, coderbyte, master
-│   ├── sprintkit.py     # capstone sprint gates and the learner pack
-│   └── verify/
-└── payload/fsa-training-assessment/  # what gets installed into the agent
-    ├── SKILL.md
-    └── references/
-        ├── levels.md    # GENERATED — see below
-        ├── workflows/{design,grade}/
-        └── verifiers/
+features/assessment/
+├── commands/            # CLI verbs: render, verify, emit, sprint-kit, grade, levels, sandbox
+└── core/                # the logic behind them
+    ├── emit/            # blooket, coderbyte, master
+    ├── grading/         # preprocess, aggregate, retake, quiz scores, cheat checks
+    ├── sandbox.py       # the Docker rules
+    ├── sprintkit.py     # capstone sprint gates and the learner pack
+    └── verify/          # long-form, question sets, answer templates, capstone
+
+payload/get-fsa-training-done/references/assessment/
+├── overview.md          # naming, language, standing rules
+├── levels.md            # GENERATED — see below
+├── tasks/{design,grade}/
+├── workflows/{design,grade}/
+└── verifiers/
 ```
+
+The level table itself is `features/common/levels.py`, shared with `program`.
 
 ## Development
 
-`payload/fsa-training-assessment/references/levels.md` is **generated** from
-`core/levels.py` — the model reads the Markdown, the CLI reads the Python, and
+`references/assessment/levels.md` is **generated** from
+`features/common/levels.py` — the model reads the Markdown, the CLI reads the Python, and
 writing both by hand would guarantee they drift. Edit the Python, then:
 
 ```bash
@@ -245,7 +264,7 @@ python scripts/assessment/gen_levels_md.py
 
 CI runs `--check` and fails when it is stale.
 
-Skill-specific tests live in `tests/features/assessment/`, with canonical fixtures in
+Feature tests live in `tests/features/assessment/`, with canonical fixtures in
 `tests/fixtures/assessment/` (master CSVs, derived import files, a brief/rubric
 pair). CI byte-compares `emit` output against those fixtures, so regenerate
 them deliberately — never to make a failing test pass.
