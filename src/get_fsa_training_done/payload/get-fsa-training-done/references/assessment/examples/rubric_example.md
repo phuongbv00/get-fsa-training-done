@@ -12,11 +12,11 @@
 
 ## 1. Grading Principle
 
-- Grade only observable evidence in the submitted files: source code, tests, configuration, README, sample data, and documented outputs.
+- Grade only observable evidence in the submitted files: source code, tests, configuration, and sample data.
 - Do not award points for checklist claims unless they are backed by verifiable artifacts.
-- Review the code and documentation as evidence; do not require executing the project to assign a score.
+- Read the code as evidence and never run it on the grading machine. Where a criterion needs behaviour shown, run the submission's own tests or demo through `FSA assessment sandbox`; the result confirms or refutes what reading found and never replaces it.
 - Correct mapping and persistence come first. A smaller correct app scores higher than a broad app with broken mappings, unsafe transactions, or unclear query behavior.
-- Hibernate/JPA understanding matters. The learner should be able to explain entity state, owning side, generated SQL, transaction boundaries, and fetch strategy decisions.
+- Hibernate/JPA understanding matters, and it shows in the code: entity state, owning side, transaction boundaries, and fetch strategy are visible in the mappings and services, not in prose about them.
 - Score each task on a 0-10 raw scale, fold that task's caps and deductions into the number, then apply the task weight.
 
 ---
@@ -30,7 +30,7 @@
 | T3 | Catalog, Member, Lending, and Return Flows | 20% | Catalog/member flows, transactional lending, return flow, availability protection, custom exceptions, service/repository boundaries |
 | T4 | JPQL, Named Queries, and Criteria API | 20% | Required JPQL queries, joins, ordering, pagination, named queries, Criteria dynamic search, DTO report projection, safe parameters |
 | T5 | Performance Optimization Evidence | 15% | Lazy/eager rationale, N+1 detection and fix, fetch join/batch/DTO use, first-level cache demo, optional second-level cache or justified decision |
-| T6 | README and Deliverable Quality | 10% | Build/run docs, README complete, sample data/seed, feature checklist, clean explainable code |
+| T6 | Code Quality & Deliverables | 10% | Sample data/seed, a runnable demo entry point, clean code, a complete and tidy archive |
 | | **Total** | **100%** | |
 
 `total = sum(task_score * weighted_number) / 100`, where each `task_score` is on a 0-10 raw scale with that task's caps and deductions already folded into it. Nothing is subtracted from the total afterwards.
@@ -49,8 +49,8 @@
 | Table and column mapping | 1.5 | Explicit `@Table`, `@Column`, nullability, length, uniqueness, precision where relevant; ISBN/email uniqueness enforced |
 | Type mapping quality | 1.0 | Uses `LocalDate`/`LocalDateTime`, `EnumType.STRING`, non-negative numeric fields, no inappropriate `double` for money if money is added |
 | Access strategy and encapsulation | 1.0 | Field access used consistently; domain state is protected from invalid public mutation |
-| Primary key strategy | 0.5 | `AUTO`, `IDENTITY`, or `SEQUENCE` selected intentionally and explained in README |
-| Bootstrap/run reliability | 1.0 | App startup and schema behavior are documented; SQL logging is available for development; `EntityManagerFactory` lifecycle is handled |
+| Primary key strategy | 0.5 | `AUTO`, `IDENTITY`, or `SEQUENCE` used consistently and matching the schema |
+| Bootstrap/run reliability | 1.0 | Configuration sets schema behavior explicitly; SQL logging can be switched on for development; `EntityManagerFactory` lifecycle is handled |
 | Jakarta/JPA consistency | 1.0 | No mixed `javax.persistence`/`jakarta.persistence` imports; no configuration mismatch visible in source/config |
 | **T1 raw score** | **10.0** | |
 
@@ -66,7 +66,7 @@
 | Bean Validation annotations | 1.5 | Uses `@NotNull`, `@NotBlank`, `@Size`, `@Email`, `@Positive`, `@PositiveOrZero` where appropriate |
 | Validation execution and messages | 1.0 | Invalid input is validated before persistence and produces readable messages without crashing |
 | Relationship safety in output | 0.5 | `toString`, logging, or DTO output avoids infinite recursion and excessive lazy loading |
-| Relationship evidence | 0.5 | README/demo evidence proves helper methods/cascade/orphan behavior |
+| Relationship evidence | 0.5 | A test or demo flow exercises helper methods and cascade/orphan behavior |
 | **T2 raw score** | **10.0** | |
 
 ### T3 - Catalog, Member, Lending, and Return Flows (20%)
@@ -94,32 +94,31 @@
 | Criteria API dynamic search | 2.0 | Optional filters for keyword/category/author/availability are composed correctly and safely |
 | DTO/report projections | 1.5 | Top borrowed books and/or loan status counts use DTO or scalar projection appropriately |
 | Query safety and placement | 1.0 | Parameters are bound; no string-concatenated user input; query methods live in repository/query layer |
-| Query evidence | 0.5 | README/demo shows expected query outputs |
+| Query evidence | 0.5 | A test or demo flow calls each required query |
 | **T4 raw score** | **10.0** | |
 
 ### T5 - Performance Optimization Evidence (15%)
 
 | Sub-criterion | Raw points | Full-mark evidence |
 |---|---:|---|
-| Lazy/eager rationale | 1.5 | Relationship fetch choices are intentional and explained; no blanket eager loading |
-| N+1 detection | 1.5 | README/log evidence identifies a concrete BookNest N+1 scenario |
+| Lazy/eager choices | 1.5 | Relationship fetch types are deliberate — lazy by default, eager only where always needed; no blanket eager loading |
+| N+1 detection | 1.5 | A test or demo with SQL logging exercises a concrete BookNest N+1 scenario and its query count |
 | N+1 fix | 2.0 | Uses fetch join, batch fetching, or DTO projection to reduce query count for that use case |
 | Efficient detail/list queries | 1.0 | Uses fetch join for details and pagination/DTOs for lists/reports where appropriate |
 | First-level cache demo | 1.5 | Demonstrates two same-id finds in one persistence context return the same managed instance or avoid duplicate SQL |
-| Second-level cache handling | 1.0 | Either configures cache for stable lookup data correctly or gives a technically sound reason not to enable it |
+| Second-level cache handling | 1.0 | Either configures the cache correctly for stable lookup data, or leaves it fully off — never half-configured |
 | Indexes/constraints for query fields | 1.0 | ISBN/email uniqueness and common filter fields are indexed or constrained where appropriate |
-| Performance explanation quality | 0.5 | README/code comments clearly explain generated SQL and why the optimization works |
+| Optimization evidence | 0.5 | A test or demo shows the query count before and after the fix |
 | **T5 raw score** | **10.0** | |
 
-### T6 - README and Deliverable Quality (10%)
+### T6 - Code Quality & Deliverables (10%)
 
 | Sub-criterion | Raw points | Full-mark evidence |
 |---|---:|---|
-| Build and run documentation | 2.0 | README gives setup/run commands that are consistent with the project structure |
-| README completeness | 3.0 | Setup/run, DB config, schema explanation, id strategy, performance note, feature checklist for T1-T6 |
-| Sample data/seed | 1.5 | Provides sample data or seed routine so graders can quickly review the app |
-| Code quality and explainability | 2.0 | Clean names, no dead/debug code, no raw types, learner can explain the implementation |
-| Deliverable completeness | 1.5 | Required deliverables are present and organized with no generated build output, local DB secrets, or unrelated large files |
+| Sample data/seed | 2.0 | A seed routine or script loads enough data for every flow and query to return results |
+| Demo entry point | 2.0 | A single main class or CLI runs the catalog, lending, return and report flows |
+| Code quality | 3.0 | Clean names, no dead or debug code, no raw types, no logic duplicated across layers |
+| Deliverable completeness | 3.0 | Required files present and organized; no generated build output, local DB files, secrets, or unrelated large files |
 | **T6 raw score** | **10.0** | |
 
 ---
@@ -140,7 +139,6 @@ Failures that leave no task evidenced at all.
 | Uses Spring/Spring Boot/Spring Data JPA to hide core Hibernate work | cap 7.0 |
 | Deliverables cannot be understood/reviewed from provided files | cap 4.0 |
 | Plagiarism copied from another learner | 0 for both parties |
-| Code the learner cannot explain in discussion/review | down to 0 on the task it affects |
 | Raw types or unchecked casts in meaningful code | -0.5 |
 | Leftover debug spam, `printStackTrace` in normal flow, commented-out dead code | -0.3 |
 
@@ -179,11 +177,10 @@ Failures that leave no task evidenced at all.
 |---|---:|
 | Blanket `FetchType.EAGER` used to avoid lazy loading errors | -0.7 |
 
-### T6 - README and Deliverable Quality
+### T6 - Code Quality & Deliverables
 
 | Trigger | Effect |
 |---|---:|
-| Incomplete README | -0.5 |
 | Missing required deliverables or project structure is difficult to review | -0.5 |
 | Provided files include generated build output, local database files with secrets, IDE-only generated noise, or unrelated large files | -0.3 |
 
@@ -195,8 +192,8 @@ Failures that leave no task evidenced at all.
 - **T2:** incorrect owning side, missing `mappedBy`, unsafe `CascadeType.ALL`, cascade remove on many-to-many, helper methods update only one side, validation annotations present but never executed.
 - **T3:** lending flow saves partial data on failure, no rollback path, available copies can become negative, return flow does not restore copies, CLI performs persistence logic directly.
 - **T4:** JPQL uses table/column names instead of entity/field names, user input is concatenated into queries, no pagination, Criteria query does not actually apply optional filters, report loads full entity graphs unnecessarily.
-- **T5:** all relationships are eager, N+1 is described only vaguely, optimization is claimed without query evidence, first-level cache demo uses different persistence contexts.
-- **T6:** README omits setup/database instructions, no sample data, generated output or local secrets are mixed into deliverables.
+- **T5:** all relationships are eager, no flow exercises the N+1 case, an optimization with no query-count evidence, a first-level cache demo that uses different persistence contexts.
+- **T6:** no sample data, no single entry point to run the flows, dead or debug code left in, generated output or local secrets in the archive.
 
 ---
 
@@ -209,7 +206,7 @@ Failures that leave no task evidenced at all.
 | T3 Catalog, Member, Lending, and Return Flows | | 20% | |
 | T4 JPQL, Named Queries, and Criteria API | | 20% | |
 | T5 Performance Optimization Evidence | | 15% | |
-| T6 README and Deliverable Quality | | 10% | |
+| T6 Code Quality & Deliverables | | 10% | |
 | **Total** | | **100%** | |
 
 Each task score already carries its own caps and deductions, so the weighted sum is the final score — there is nothing left to subtract.
