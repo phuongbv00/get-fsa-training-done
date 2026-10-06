@@ -1,3 +1,4 @@
-# Assess fixtures are byte-compared against `emit` output in CI — preserve
-# line endings exactly as committed (quiz_blooket.csv is CRLF by spec).
-tests/fixtures/assess/** -text
+# Test fixtures are compared byte for byte against generated output (the
+# Blooket import is CRLF on purpose, the Coderbyte JSON is LF). A checkout must
+# never rewrite their line endings, or the comparison fails on Windows only.
+tests/fixtures/** -text

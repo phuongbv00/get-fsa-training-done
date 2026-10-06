@@ -41,8 +41,12 @@ def enter(*groups: str, argv: list[str] | None = None, offline: bool = False) ->
     venv = bootstrap.ensure(*groups, offline=offline)
     target = stamp.venv_python(venv)
 
+    # Compare environments, not interpreters. A venv's `bin/python` is usually
+    # a symlink to the very interpreter that created it, so resolving both
+    # executables makes every venv look like the one we are already in, and
+    # the command then runs without the venv's libraries.
     try:
-        if Path(sys.executable).resolve() == target.resolve():
+        if Path(sys.prefix).resolve() == Path(venv).resolve():
             return
     except OSError:
         pass
