@@ -228,6 +228,45 @@ def test_another_skills_files_are_never_reported_missing(module, plan_path, caps
     assert payload["findings"] == []
 
 
+# --- Diagrams ------------------------------------------------------------
+
+
+def diagram(*lines: str) -> str:
+    return "```mermaid\n" + "\n".join(lines) + "\n```\n\n## 3. Keys"
+
+
+def test_a_mermaid_diagram_is_a_known_fence(fired, module, edit):
+    edit(module, NOTE, "## 3. Keys", diagram("sequenceDiagram", "  You->>DB: SELECT"))
+    assert fired(module) == set()
+
+
+def test_d19_an_er_relationship_without_cardinality_words_warns(fired, module, edit):
+    edit(module, NOTE, "## 3. Keys", diagram("erDiagram", "  CUSTOMER ||--o{ ORDER : places"))
+    assert "MAT-D19" in fired(module)
+
+
+def test_d19_an_er_relationship_labelled_with_its_cardinality_passes(fired, module, edit):
+    edit(module, NOTE, "## 3. Keys", diagram("erDiagram", '  CUSTOMER ||--o{ ORDER : "1-n places"'))
+    assert fired(module) == set()
+
+
+def test_d20_a_colour_fixed_in_a_diagram_warns(fired, module, edit):
+    edit(
+        module,
+        NOTE,
+        "## 3. Keys",
+        diagram("flowchart LR", "  A --> B", "  style A fill:#f9f,stroke:#333"),
+    )
+    assert "MAT-D20" in fired(module)
+
+
+def test_a_group_worksheet_beside_its_lab_is_not_a_document(fired, module):
+    (module / "dbf_lab_01_worksheet.md").write_text(
+        "# Lab 01 worksheet\n\n| Group | Answer |\n|---|---|\n", encoding="utf-8"
+    )
+    assert fired(module) == set()
+
+
 # --- Coverage of the rulebook --------------------------------------------
 
 

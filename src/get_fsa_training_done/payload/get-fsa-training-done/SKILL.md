@@ -81,14 +81,21 @@ Do not read routes you are not taking.
 
 ### Material — `references/material/overview.md`
 
-| Intent | Workflow |
+| Workflow | File |
 |---|---|
-| write a lecture note | `references/material/workflows/author/lecture.md` |
-| write a lab guide | `references/material/workflows/author/lab.md` |
-| write the module handbook | `references/material/workflows/author/handbook.md` |
-| write or refresh the module appendix | `references/material/workflows/author/appendix.md` |
-| read a verification report | `references/material/workflows/verify/report.md` |
-| find out what material is missing | `references/material/workflows/coverage/gaps.md` |
+| all the material a module's plan asks for | `references/material/workflows/module_pack.md` |
+| fill what the plan asks for and the folder lacks | `references/material/workflows/fill_gaps.md` |
+
+| Task | File |
+|---|---|
+| write a lecture note | `references/material/tasks/write_lecture.md` |
+| write a lab guide | `references/material/tasks/write_lab.md` |
+| write a group lab's worksheet | `references/material/tasks/write_worksheet.md` |
+| write the module handbook | `references/material/tasks/write_handbook.md` |
+| write or refresh the module appendix | `references/material/tasks/derive_appendix.md` |
+| find out what material is missing | `references/material/tasks/coverage.md` |
+| verify material, or read a verification report | `references/material/tasks/verify.md` |
+| review material before it is published | `references/material/tasks/review_for_trainee.md` |
 
 ### Assessment — `references/assessment/overview.md`
 

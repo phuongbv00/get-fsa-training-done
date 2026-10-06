@@ -165,6 +165,24 @@ RULES: tuple[Rule, ...] = (
         "states one cannot be checked against that.",
     ),
     Rule(
+        "MAT-D19",
+        "document",
+        WARNING,
+        "An ER diagram states each relationship's cardinality in words",
+        "Crow's-foot marks (`||--o{`) are read correctly only by someone who "
+        "already knows the notation, which is what the diagram is teaching. "
+        "A label beginning `1-1`, `1-n` or `n-n` says it plainly.",
+    ),
+    Rule(
+        "MAT-D20",
+        "document",
+        WARNING,
+        "A diagram takes its colours from the theme",
+        "The material is read in light and dark mode. A colour fixed in the "
+        "diagram is right in one and unreadable in the other, and it no longer "
+        "matches the module's other diagrams.",
+    ),
+    Rule(
         "MAT-C01",
         "coverage",
         ERROR,

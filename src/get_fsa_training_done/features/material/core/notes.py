@@ -9,7 +9,7 @@ answering them from a token stream would be more machinery for less clarity.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 from .grammar import FENCE_LANGUAGES
@@ -43,6 +43,8 @@ class Heading:
 class Fence:
     language: str
     line: int
+    #: The lines between the opening and closing fence.
+    body: tuple[str, ...] = ()
 
 
 @dataclass
@@ -91,14 +93,19 @@ def parse(path: Path) -> Note:
 
     note = Note(path=path, text=text, lines=lines)
     in_fence = False
+    body: list[str] = []
     for number, line in enumerate(lines, start=1):
         fence = FENCE.match(line)
         if fence:
             if not in_fence:
                 note.fences.append(Fence(language=fence.group(1), line=number))
+                body = []
+            else:
+                note.fences[-1] = replace(note.fences[-1], body=tuple(body))
             in_fence = not in_fence
             continue
         if in_fence:
+            body.append(line)
             continue
         heading = HEADING.match(line)
         if heading:

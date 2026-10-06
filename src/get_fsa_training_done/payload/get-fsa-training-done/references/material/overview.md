@@ -3,8 +3,10 @@
 Writes the teaching material a session plan calls for, and checks that what the
 plan promises exists.
 
-Read this before any material workflow or task: it holds the inputs to collect,
-the commands, and the rules every material workflow assumes.
+Read this before any material workflow or task: it holds the commands and the
+rules every one of them assumes. Each task lists its own inputs, and each
+document serves a session — find the row in the topic's ScheduleDetail CSV that
+names it before writing a line.
 
 ## What this feature does not own
 
@@ -16,30 +18,11 @@ otherwise.
 |---|---|
 | quiz questions, assignment briefs, exams, rubrics, grading | the assessment feature |
 | session plans, syllabi, schedules, module structure | the program feature |
-| lecture notes, handbooks, appendices, lab guides | this one |
+| lecture notes, handbooks, appendices, lab guides and their worksheets | this one |
 
 A lab guide is the guided middle: shorter than an assignment, step-numbered,
 checkable by the learner. If it carries marks and a rubric it is an assignment,
 and it belongs to the assessment feature. Say so rather than writing it here.
-
-## Step 0 — Collect inputs
-
-Ask only for what is missing, and batch the questions.
-
-| Key | Required for | Default |
-|---|---|---|
-| `materials_dir` | all | ask; never assume |
-| `schedule` | authoring, coverage | ask — the topic's ScheduleDetail CSV |
-| `syllabus` | objectives checks, the appendix | ask |
-| `document_kind` | authoring | infer from the request, then confirm |
-| `index` or `lab number` | authoring | derive from what is already in the folder |
-
-**A note serves a session.** Before writing, find the row in the session plan
-that names the file: it gives the objective codes, the minutes, and one line
-saying what happens. Write to that, and say so in the plan echo.
-
-Before writing anything, report the resolved **absolute** paths, the filename,
-and the session it serves. Wait for an explicit go-ahead.
 
 ## Commands
 
@@ -55,8 +38,11 @@ and the session it serves. Wait for an explicit go-ahead.
   session it serves is a note that session cannot deliver.
 - **The syllabus map is derived, never typed.** Its deep anchors break silently
   when a heading is renamed.
+- **Written for the trainee.** Direct, plain, and never trainer notes; see
+  `references/material/conventions.md` and `references/common/style.md`.
 - **English by default.** A translation is a separate file whose stem ends
   `_vn`, never a rewrite of the original — everything else links to the original.
+  Write it with `references/common/tasks/translate_vn.md`.
 - **Report measurements, not impressions.** "12 of 12 notes pass, 3 labs the
   plan names are missing" is a measurement.
 - **Do not invent work the plan did not ask for.** If a module needs a session

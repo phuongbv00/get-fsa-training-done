@@ -66,6 +66,9 @@ def run(args: argparse.Namespace) -> int:
 
     counted: dict[str, int] = {}
     for path in paths:
+        if not forced and grammar.WORKSHEET_FILENAME.match(path.name):
+            counted["worksheet"] = counted.get("worksheet", 0) + 1
+            continue
         template = forced or grammar.template_for(path.name)
         if template is None:
             report.error(

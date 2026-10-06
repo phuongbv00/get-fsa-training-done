@@ -95,7 +95,7 @@ The guided middle a session plan asks for and the corpus is missing: shorter tha
 
 Anything outside this set is reported as a warning rather than an error — a module may legitimately introduce a language.
 
-`bash`, `css`, `dockerfile`, `html`, `http`, `java`, `javascript`, `js`, `json`, `jsx`, `properties`, `python`, `sh`, `sql`, `text`, `ts`, `tsx`, `typescript`, `xml`, `yaml`, `yml`
+`bash`, `css`, `dockerfile`, `html`, `http`, `java`, `javascript`, `js`, `json`, `jsx`, `mermaid`, `properties`, `python`, `sh`, `sql`, `text`, `ts`, `tsx`, `typescript`, `xml`, `yaml`, `yml`
 
 
 ## Rules — one document
@@ -122,6 +122,8 @@ Applied to every file `verify` reads.
 | `MAT-D16` | warning | English unless the filename marks a translation |
 | `MAT-D17` | error | A lab guide has ordered steps and a checkable outcome |
 | `MAT-D18` | warning | A lab guide declares its duration |
+| `MAT-D19` | warning | An ER diagram states each relationship's cardinality in words |
+| `MAT-D20` | warning | A diagram takes its colours from the theme |
 
 ### `MAT-D01` — The filename follows the module's naming convention
 
@@ -195,6 +197,14 @@ A lab without steps is an assignment brief, and one without an acceptance list l
 
 The session plan allots it a number of minutes; a lab that never states one cannot be checked against that.
 
+### `MAT-D19` — An ER diagram states each relationship's cardinality in words
+
+Crow's-foot marks (`||--o{`) are read correctly only by someone who already knows the notation, which is what the diagram is teaching. A label beginning `1-1`, `1-n` or `n-n` says it plainly.
+
+### `MAT-D20` — A diagram takes its colours from the theme
+
+The material is read in light and dark mode. A colour fixed in the diagram is right in one and unreadable in the other, and it no longer matches the module's other diagrams.
+
 
 ## Rules — material against the session plan
 
@@ -225,4 +235,4 @@ A code the syllabus does not list is a typo or a missing objective.
 
 ---
 
-22 rules: 14 errors, 8 warnings.
+24 rules: 14 errors, 10 warnings.

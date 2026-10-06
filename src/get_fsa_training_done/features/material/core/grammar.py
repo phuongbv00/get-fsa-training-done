@@ -18,7 +18,8 @@ import re
 from dataclasses import dataclass, field
 
 #: Fence languages seen across the corpus. `text` is the workhorse for things
-#: that are not code at all — ASCII diagrams, console output, directory trees.
+#: that are not code at all — console output, directory trees, error text.
+#: Diagrams are `mermaid`, which the published site renders in both themes.
 FENCE_LANGUAGES = (
     "bash",
     "css",
@@ -30,6 +31,7 @@ FENCE_LANGUAGES = (
     "js",
     "json",
     "jsx",
+    "mermaid",
     "properties",
     "python",
     "sh",
@@ -50,6 +52,9 @@ APPENDIX_INDEX = "99"
 #: `NN_Topic_Name.md`, with an optional letter for an out-of-syllabus aside.
 NOTE_FILENAME = re.compile(r"^(\d{2})([a-z]?)_[A-Za-z0-9_&+-]+\.md$")
 LAB_FILENAME = re.compile(r"^[a-z0-9]+_lab_(\d{2})\.md$")
+#: The sheet a group fills in during a lab. It is a blank form, not teaching
+#: material, so no template applies to it.
+WORKSHEET_FILENAME = re.compile(r"^[a-z0-9]+_lab_\d{2}_worksheet(_vn)?\.md$")
 
 #: A translation, not a rewrite: English is the default for everything.
 TRANSLATION_SUFFIX = "_vn"
@@ -244,6 +249,7 @@ __all__ = [
     "LAB",
     "LAB_DURATION",
     "LAB_FILENAME",
+    "WORKSHEET_FILENAME",
     "NOTE_FILENAME",
     "OBJECTIVE_CODE",
     "TEMPLATES",

@@ -4,6 +4,14 @@
 to write inside them, and every rule here comes from the corpus rather than from
 taste.
 
+## Who is reading
+
+The trainee, working through the module alone. Address them directly — "you
+run", "your query returns" — and write what they need to understand and do.
+Never write the session as the instructor runs it ("ask the class", "spend ten
+minutes on"): material that reads like trainer notes is published to the wrong
+reader. Everything in `references/common/style.md` applies.
+
 ## Register
 
 Explain, then show. A concept section states the idea in prose, then a short
@@ -32,9 +40,29 @@ literal error message.
 
 ## Fences
 
-Always tagged. Use `text` for the blocks that are not code at all — ASCII
-diagrams, console output, directory trees, error text. That convention is what
-makes the tag meaningful for the blocks that *are* code.
+Always tagged. Use `text` for the blocks that are not code at all — console
+output, directory trees, error text. That convention is what makes the tag
+meaningful for the blocks that *are* code.
+
+## Diagrams
+
+Draw them in `mermaid`, never as ASCII art, and pick the diagram type for what
+it shows:
+
+- **A flow between parties** — a request and its response, a client and a
+  server, you and Git — is a `sequenceDiagram`.
+- **Structure** is a `flowchart` or a `classDiagram`; **history** is a
+  `gitGraph`.
+- **An ER diagram** labels every relationship with its cardinality in words,
+  first: `CUSTOMER ||--o{ ORDER : "1-n places"`. The crow's-foot marks alone
+  are the notation the trainee is still learning (`MAT-D19`).
+- **Colours come from the theme.** No `style`, `classDef` or `themeVariables`
+  colours: the material is read in light and dark mode, and a fixed colour is
+  unreadable in one of them (`MAT-D20`). Emphasis is a label or a subgraph.
+- **Changing a diagram's colours changes only its colours.** Keep its nodes,
+  edges and layout exactly as they were.
+- An entity is a *type*: a table's rows are its instances. Say which one a
+  diagram shows.
 
 ## A running domain
 
@@ -51,11 +79,19 @@ syllabus.
 
 English. A translation is a **separate file** whose stem ends `_vn`, never a
 rewrite of the original — everything else links to the original, so replacing it
-in place breaks those links and leaves half the module in one language.
+in place breaks those links and leaves half the module in one language. Write it
+with `references/common/tasks/translate_vn.md`.
+
+## Group labs
+
+A lab run by groups ships a worksheet beside it, `<subject>_lab_NN_worksheet.md`:
+the tables and headings each group fills in, drawn in advance, so session time
+goes into the work rather than into layout. The lab guide names it in
+`## Before you start`.
 
 ## What belongs elsewhere
 
-| Content | Skill |
+| Content | Feature |
 |---|---|
 | quiz questions, assignment briefs, exam papers, rubrics, grading | the assessment feature |
 | session plans, syllabi, schedules, the module's shape | the program feature |
