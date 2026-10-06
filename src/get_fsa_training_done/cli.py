@@ -13,7 +13,7 @@ from __future__ import annotations
 import argparse
 import sys
 
-from . import skills as skill_registry
+from . import features as skill_registry
 from .__about__ import CLI_NAME, __version__
 from .errors import FsaTrainerSkillsError
 
@@ -40,7 +40,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     subparsers = parser.add_subparsers(dest="command", required=True, metavar="<command>")
 
-    from .commands import doctor, env, install, status, uninstall, update
+    from .lifecycle.commands import doctor, env, install, status, uninstall, update
 
     for module in (install, update, uninstall, status, doctor, env):
         module.add_parser(subparsers)
@@ -63,7 +63,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command not in LIFECYCLE_COMMANDS:
         skill = skill_registry.get(args.command)
-        from .envmgr import reexec
+        from .lifecycle.envmgr import reexec
 
         reexec.enter(
             skill.dep_group,

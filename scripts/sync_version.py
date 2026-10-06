@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from get_fsa_training_done import skills as skill_registry  # noqa: E402
+from get_fsa_training_done import features as skill_registry  # noqa: E402
 
 ABOUT = ROOT / "src" / "get_fsa_training_done" / "__about__.py"
 PACKAGE_JSON = ROOT / "package.json"

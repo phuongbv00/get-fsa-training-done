@@ -23,7 +23,7 @@ No skill authors another's artifact. Each verifies its own half of the manifest 
 ```bash
 pip install -e .                          # dev install
 pytest                                    # run all tests
-pytest tests/skills/assessment/test_emit.py -q   # one file
+pytest tests/features/assessment/test_emit.py -q   # one file
 ruff check . && ruff format --check .     # lint (CI enforces both)
 python scripts/sync_version.py --check    # version consistency gate, every skill
 python scripts/assessment/gen_levels_md.py --check   # assess skill's levels.md gate
@@ -54,7 +54,7 @@ When iterating on worker commands locally, `get-fsa-training-done --no-venv <cmd
 Every `scripts/<skill>/gen_*.py` is covered by one globbed gate in `tests/test_consistency.py` and one loop in CI, so a new skill's generated reference is checked the day it lands.
 - `npm/python/` is a staged copy of `src/get_fsa_training_done` created by `npm/lib/prepack.js` (the npm package is a thin shim over the Python implementation). Regenerate it; never edit it.
 
-CI (`consistency` job and `tests/test_consistency.py`) fails on drift in any of these. The top-level `tests/test_consistency.py` holds cross-skill gates (payload validity against Codex's rules, no duplicate skill names/namespaces, version sync); assess-specific gates (every assessment type has a workflow and verifier, SKILL.md links every workflow file) live in `tests/skills/assessment/test_consistency.py`.
+CI (`consistency` job and `tests/test_consistency.py`) fails on drift in any of these. The top-level `tests/test_consistency.py` holds cross-skill gates (payload validity against Codex's rules, no duplicate skill names/namespaces, version sync); assess-specific gates (every assessment type has a workflow and verifier, SKILL.md links every workflow file) live in `tests/features/assessment/test_consistency.py`.
 
 ### Skill/CLI contract (program)
 
@@ -80,4 +80,4 @@ Platform import files are always *derived* from the master CSV (`get-fsa-trainin
 
 ## Tests
 
-An autouse fixture in `tests/conftest.py` redirects `CLAUDE_CONFIG_DIR`, `CODEX_HOME`, `GET_FSA_TRAINING_DONE_HOME`, and `XDG_CACHE_HOME` into a tmp dir — install tests create and delete skill folders, and this keeps them off the developer's real `~/.claude`. Keep any new test that touches install paths or the env cache under that isolation. `tests/test_install.py` parametrizes its whole lifecycle matrix over a `skill` fixture built from `skill_registry.all_skills()`, so a new skill gets the same coverage automatically. Skill-specific tests live under `tests/skills/<namespace>/`; `assessment`'s canonical fixtures live in `tests/fixtures/assessment/` (master CSVs, derived import files, the long-form brief/rubric pair) and CI byte-compares `emit` output against them.
+An autouse fixture in `tests/conftest.py` redirects `CLAUDE_CONFIG_DIR`, `CODEX_HOME`, `GET_FSA_TRAINING_DONE_HOME`, and `XDG_CACHE_HOME` into a tmp dir — install tests create and delete skill folders, and this keeps them off the developer's real `~/.claude`. Keep any new test that touches install paths or the env cache under that isolation. `tests/test_install.py` parametrizes its whole lifecycle matrix over a `skill` fixture built from `skill_registry.all_skills()`, so a new skill gets the same coverage automatically. Skill-specific tests live under `tests/features/<namespace>/`; `assessment`'s canonical fixtures live in `tests/fixtures/assessment/` (master CSVs, derived import files, the long-form brief/rubric pair) and CI byte-compares `emit` output against them.

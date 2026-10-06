@@ -49,13 +49,13 @@ jobs:
           import pathlib, sys, zipfile
 
           sys.path.insert(0, "src")
-          from get_fsa_training_done import skills as skill_registry
+          from get_fsa_training_done import features as skill_registry
 
           wheel = next(pathlib.Path("dist").glob("*.whl"))
           names = zipfile.ZipFile(wheel).namelist()
 
           required = [
-              f"get_fsa_training_done/skills/{skill.namespace}/payload/{skill.name}/SKILL.md"
+              f"get_fsa_training_done/features/{skill.namespace}/payload/{skill.name}/SKILL.md"
               for skill in skill_registry.all_skills()
           ]
           missing = [name for name in required if name not in names]

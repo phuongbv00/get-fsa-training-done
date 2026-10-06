@@ -10,7 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from .errors import FsaTrainerSkillsError
-from .skills import get as get_skill
+from .features import get as get_skill
 
 
 def skill_payload(namespace: str) -> Path:

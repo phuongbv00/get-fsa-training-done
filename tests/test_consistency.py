@@ -16,10 +16,10 @@ from pathlib import Path
 
 import pytest
 
-from get_fsa_training_done import skills as skill_registry
+from get_fsa_training_done import features as skill_registry
 from get_fsa_training_done.cli import LIFECYCLE_COMMANDS
-from get_fsa_training_done.platforms import registry
-from get_fsa_training_done.skillmeta import read_skill_frontmatter
+from get_fsa_training_done.lifecycle.platforms import registry
+from get_fsa_training_done.lifecycle.skillmeta import read_skill_frontmatter
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
