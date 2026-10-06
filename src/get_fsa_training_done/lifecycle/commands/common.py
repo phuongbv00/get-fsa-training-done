@@ -5,9 +5,8 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from ... import features as skill_registry
 from ...errors import FsaTrainerSkillsError, UsageError
-from ...skillkit import Skill
+from ...skill import SKILL, Skill
 from ..install.planner import ACTION_ORDER, Action, Plan
 from ..platforms import registry
 from ..platforms.base import Platform
@@ -35,11 +34,6 @@ def add_verbose(parser: argparse.ArgumentParser) -> None:
 def add_target_args(parser: argparse.ArgumentParser) -> None:
     add_verbose(parser)
     parser.add_argument(
-        "--skill",
-        default=skill_registry.ALL,
-        help=f"skill to target: {', '.join(skill_registry.names())}, or 'all' (default: all)",
-    )
-    parser.add_argument(
         "--platform",
         default="claude",
         help=f"target host: {', '.join(registry.names())}, or 'all' (default: claude)",
@@ -59,7 +53,7 @@ def add_target_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--name",
         default=None,
-        help="override the installed directory name (requires a single --skill)",
+        help="override the installed directory name",
     )
     parser.add_argument(
         "--project-root",
@@ -79,46 +73,13 @@ def add_target_args(parser: argparse.ArgumentParser) -> None:
 
 
 def resolve_skills(args: argparse.Namespace) -> list[Skill]:
-    """Expand `--skill` into concrete `Skill` objects, gating name/dir overrides."""
-    chosen = skill_registry.resolve(args.skill)
-    if getattr(args, "name", None) and len(chosen) != 1:
-        raise UsageError(
-            "--name requires a single --skill, not 'all'",
-            hint=f"pass --skill <one of: {', '.join(skill_registry.names())}>",
-        )
-    if getattr(args, "dir", None) and len(chosen) != 1:
-        raise UsageError("--dir requires a single --skill, not 'all'")
-    return chosen
+    """The skill to act on. There is one; the list keeps the commands' loops."""
+    return [SKILL]
 
 
 def project_root_of(args: argparse.Namespace) -> Path | None:
     raw = getattr(args, "project_root", None)
     return Path(raw).expanduser().resolve() if raw else None
-
-
-def clean_legacy_installs(
-    skill: Skill,
-    platform: Platform,
-    scope: str,
-    dest: Path,
-    args: argparse.Namespace,
-    label: str,
-) -> None:
-    """Clear installs left behind under a name this skill used to have.
-
-    Renaming a skill changes its install directory, so the old one is orphaned
-    — and an orphan is not inert: the host still loads it, so the agent sees two
-    skills claiming the same triggers. `--dir` and `--name` are skipped because
-    the caller has named an exact destination, and inferring siblings from that
-    would be guessing.
-    """
-    if getattr(args, "dir", None) or getattr(args, "name", None):
-        return
-    from ..install import legacy
-
-    for item in legacy.find(skill, platform, scope, project_root_of(args), current_dest=dest):
-        for line in legacy.clean(item, dry_run=bool(getattr(args, "dry_run", False))):
-            print(f"{label}: {line}")
 
 
 def resolve_targets(args: argparse.Namespace, skill: Skill) -> list[Target]:

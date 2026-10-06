@@ -19,9 +19,9 @@ from get_fsa_training_done.cli import main
 #: The clean programme ships *in the payload*, so the example the model reads
 #: and the fixture the tests trust are the same bytes. A consistency gate keeps
 #: it verifying clean; `tests/fixtures/program/` holds only broken variants.
-from get_fsa_training_done.features.program import SKILL
+from get_fsa_training_done.skill import SKILL
 
-MINI = SKILL.payload_dir / "references" / "examples" / "mini"
+MINI = SKILL.payload_dir / "references" / "program" / "examples" / "mini"
 
 
 @pytest.fixture(autouse=True)

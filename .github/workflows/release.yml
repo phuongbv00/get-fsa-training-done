@@ -42,26 +42,23 @@ jobs:
           python-version: "3.12"
       - run: pip install build
       - run: python -m build
-      - name: the wheel must contain every registered skill's payload
+      - name: the wheel must contain the skill payload
         run: |
           set -euo pipefail
           python - <<'PY'
           import pathlib, sys, zipfile
 
           sys.path.insert(0, "src")
-          from get_fsa_training_done import features as skill_registry
+          from get_fsa_training_done.skill import SKILL
 
           wheel = next(pathlib.Path("dist").glob("*.whl"))
           names = zipfile.ZipFile(wheel).namelist()
 
-          required = [
-              f"get_fsa_training_done/features/{skill.namespace}/payload/{skill.name}/SKILL.md"
-              for skill in skill_registry.all_skills()
-          ]
+          required = [f"get_fsa_training_done/payload/{SKILL.name}/SKILL.md"]
           missing = [name for name in required if name not in names]
           if missing:
               raise SystemExit(f"wheel is missing package data: {missing}")
-          print(f"{wheel.name}: {len(names)} files, {len(required)} skill payload(s) present")
+          print(f"{wheel.name}: {len(names)} files, skill payload present")
           PY
       - uses: pypa/gh-action-pypi-publish@release/v1
 

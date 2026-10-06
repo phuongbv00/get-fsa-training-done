@@ -8,14 +8,13 @@ from pathlib import Path
 
 from ...__about__ import __version__
 from ...errors import FsaTrainerSkillsError, UnmanagedDestinationError
-from ...skillkit import Skill
+from ...skill import Skill
 from ..install import fsops, planner
 from ..install import receipt as receipt_mod
 from ..install.planner import Action, Plan
 from ..platforms.base import Platform
 from .common import (
     add_target_args,
-    clean_legacy_installs,
     print_plan,
     resolve_skills,
     resolve_targets,
@@ -76,7 +75,6 @@ def _install_one(
     payload: Path,
 ) -> None:
     warn_unverified_scope(platform, scope)
-    clean_legacy_installs(skill, platform, scope, dest, args, f"{skill.name}: {platform.label}")
 
     existing = receipt_mod.read(dest)
     if existing is None and dest.exists() and any(dest.iterdir()):

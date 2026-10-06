@@ -22,7 +22,7 @@ jobs:
       - run: ruff format --check .
 
   consistency:
-    # The version lives in several files, and each skill's generated references
+    # The version lives in several files, and each feature's generated references
     # live in two — one for the CLI to execute, one for the model to read.
     # Drift is invisible at runtime, so it fails the build instead.
     runs-on: ubuntu-latest
@@ -32,7 +32,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: python scripts/sync_version.py --check
-      # Globbed, so a new skill's generated reference is covered the day it lands.
+      # Globbed, so a new generated reference is covered the day it lands.
       - run: |
           set -euo pipefail
           for generator in scripts/*/gen_*.py; do
@@ -56,12 +56,12 @@ jobs:
       - run: pip install -e . pytest
       # The workers run in the managed venv; the tests run here, so they need
       # the same libraries to exercise the real renderer and archive readers.
-      - run: pip install -r src/get_fsa_training_done/envmgr/requirements/core.txt
+      - run: pip install -r src/get_fsa_training_done/lifecycle/envmgr/requirements/core.txt
       - run: pytest -q
 
   install-round-trip:
     # Exercises the real lifecycle against a throwaway HOME, across every
-    # registered skill, and asserts the tree is byte-clean afterwards.
+    # platform, and asserts the tree is byte-clean afterwards.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

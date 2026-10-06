@@ -7,13 +7,12 @@ from pathlib import Path
 
 from ...__about__ import __version__
 from ...errors import FsaTrainerSkillsError, NotInstalledError
-from ...skillkit import Skill
+from ...skill import Skill
 from ..install import migrations, planner
 from ..install import receipt as receipt_mod
 from ..platforms.base import Platform
 from .common import (
     add_target_args,
-    clean_legacy_installs,
     print_plan,
     resolve_skills,
     resolve_targets,
@@ -82,10 +81,6 @@ def _update_one(
             f"{dest} is not managed by get-fsa-training-done",
             hint="run `get-fsa-training-done install` (add --force to adopt an existing directory)",
         )
-
-    if not args.check:
-        # --check writes nothing, so it must not clear anything either.
-        clean_legacy_installs(skill, platform, scope, dest, args, label)
 
     plan = planner.build_plan(dest, payload, existing, __version__)
     same_version = existing.version == __version__

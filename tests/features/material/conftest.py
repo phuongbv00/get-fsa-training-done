@@ -14,9 +14,9 @@ from pathlib import Path
 import pytest
 
 from get_fsa_training_done.cli import main
-from get_fsa_training_done.features.material import SKILL
+from get_fsa_training_done.skill import SKILL
 
-EXAMPLES = SKILL.payload_dir / "references" / "examples"
+EXAMPLES = SKILL.payload_dir / "references" / "material" / "examples"
 MINI = EXAMPLES / "mini"
 PLAN = EXAMPLES / "plan" / "AA_FR_TT_DBF_ScheduleDetail.csv"
 SYLLABUS = EXAMPLES / "plan" / "AA_FR_TT_DBF_Syllabus.md"

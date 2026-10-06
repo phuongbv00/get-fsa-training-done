@@ -3,12 +3,8 @@
 
 `src/get_fsa_training_done/__about__.py` is the single source of truth.
 `pyproject.toml` reads it directly through hatchling, but `package.json` and
-every registered skill's payload `VERSION` file cannot, so they are written
-here. `--check` runs in CI so drift fails the build instead of shipping.
-
-This iterates the skill registry rather than hardcoding one payload path, so
-adding a new skill needs no edit here — its `VERSION` file is picked up
-automatically the moment its package registers.
+the skill payload's `VERSION` file cannot, so they are written here. `--check`
+runs in CI so drift fails the build instead of shipping.
 """
 
 from __future__ import annotations
@@ -22,7 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from get_fsa_training_done import features as skill_registry  # noqa: E402
+from get_fsa_training_done.skill import SKILL  # noqa: E402
 
 ABOUT = ROOT / "src" / "get_fsa_training_done" / "__about__.py"
 PACKAGE_JSON = ROOT / "package.json"
@@ -53,7 +49,7 @@ def sync_package_json(version: str, *, check: bool) -> list[str]:
 
 def sync_payload_versions(version: str, *, check: bool) -> list[str]:
     problems: list[str] = []
-    for skill in skill_registry.all_skills():
+    for skill in (SKILL,):
         target = skill.payload_dir / "VERSION"
         current = target.read_text(encoding="utf-8").strip() if target.is_file() else ""
         if current == version:

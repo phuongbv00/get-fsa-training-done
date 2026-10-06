@@ -22,11 +22,10 @@ TARGET = (
     ROOT
     / "src"
     / "get_fsa_training_done"
-    / "features"
-    / "program"
     / "payload"
-    / "fsa-training-program"
+    / "get-fsa-training-done"
     / "references"
+    / "program"
     / "schemas.md"
 )
 

@@ -1,58 +1,31 @@
-"""Skill registry. A skill is a subpackage here exporting `SKILL: Skill`.
+"""The worker namespaces: `program`, `material` and `assessment`.
 
-Adding a skill means adding a subpackage — nothing here, in `cli.py`, or in
-any lifecycle command changes.
+Each feature package exports `NAMESPACE`, `add_parsers(subparsers)` and,
+optionally, `doctor_extra()`. Adding a feature means adding it to `FEATURES`.
 """
 
 from __future__ import annotations
 
-import importlib
-import pkgutil
+import argparse
 
-from ..errors import UsageError
-from ..skillkit import Skill
+from . import assessment, material, program
 
-ALL = "all"
-
-
-def _discover() -> dict[str, Skill]:
-    found: dict[str, Skill] = {}
-    for info in pkgutil.iter_modules(__path__):
-        if not info.ispkg or info.name.startswith("_"):
-            continue
-        module = importlib.import_module(f"{__name__}.{info.name}")
-        skill = getattr(module, "SKILL", None)
-        if not isinstance(skill, Skill):
-            continue
-        if skill.namespace in found:
-            raise ValueError(f"duplicate skill namespace {skill.namespace!r}")
-        found[skill.namespace] = skill
-    return found
+FEATURES = (program, material, assessment)
+NAMESPACES = tuple(feature.NAMESPACE for feature in FEATURES)
 
 
-_SKILLS = _discover()
+def add_parsers(subparsers: argparse._SubParsersAction) -> None:
+    for feature in FEATURES:
+        feature.add_parsers(subparsers)
 
 
-def all_skills() -> list[Skill]:
-    return list(_SKILLS.values())
+def doctor_extra() -> dict[str, str]:
+    extra: dict[str, str] = {}
+    for feature in FEATURES:
+        report = getattr(feature, "doctor_extra", None)
+        if report is not None:
+            extra.update(report())
+    return extra
 
 
-def names() -> list[str]:
-    return list(_SKILLS)
-
-
-def get(namespace: str) -> Skill:
-    try:
-        return _SKILLS[namespace]
-    except KeyError:
-        raise UsageError(
-            f"unknown skill {namespace!r}; choose from {', '.join(_SKILLS)} or {ALL!r}"
-        ) from None
-
-
-def resolve(namespace: str) -> list[Skill]:
-    """`'all'` expands to every skill; anything else is a single lookup."""
-    return list(_SKILLS.values()) if namespace == ALL else [get(namespace)]
-
-
-__all__ = ["ALL", "all_skills", "get", "names", "resolve"]
+__all__ = ["FEATURES", "NAMESPACES", "add_parsers", "doctor_extra"]

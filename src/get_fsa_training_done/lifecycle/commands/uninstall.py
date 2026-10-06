@@ -7,7 +7,7 @@ import shutil
 from pathlib import Path
 
 from ...errors import FsaTrainerSkillsError, UnmanagedDestinationError
-from ...skillkit import Skill
+from ...skill import Skill
 from ..install import receipt as receipt_mod
 from ..install import removal
 from ..platforms.base import Platform

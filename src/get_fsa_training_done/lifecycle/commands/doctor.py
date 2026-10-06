@@ -1,11 +1,11 @@
 """`get-fsa-training-done doctor` — is this machine able to run every workflow?
 
 Reports on shared prerequisites (the managed venv and the libraries in it),
-whatever each registered skill wants checked, and every skill's payload, which
+whatever each feature wants checked, and the skill's payload, which
 is validated against Codex's stricter rules regardless of which host it is
 installed for.
 
-No skill needs an external binary. The one optional one is a `.rar` extractor:
+No feature needs an external binary. The one optional one is a `.rar` extractor:
 `.rar` is proprietary and has no pure-Python reader, so a trainee who submits
 one needs a tool on PATH. Everything else — rendering, every other archive
 format — runs inside the managed environment.
@@ -18,8 +18,9 @@ import json
 import shutil
 import sys
 
-from ... import features as skill_registry
+from ... import features
 from ...__about__ import CLI_NAME, __version__
+from ...skill import SKILL
 from ..envmgr import bootstrap, stamp
 from ..platforms import registry
 
@@ -33,7 +34,7 @@ VENV_LIBRARIES = (("xhtml2pdf", "assessment render"), ("py7zr", "assessment grad
 def add_parser(subparsers: argparse._SubParsersAction) -> None:
     parser = subparsers.add_parser(
         "doctor",
-        help="check this machine for everything every skill's workflows need",
+        help="check this machine for everything the skill's workflows need",
     )
     parser.add_argument("--json", action="store_true", dest="as_json")
     parser.set_defaults(func=run)
@@ -45,19 +46,16 @@ def run(args: argparse.Namespace) -> int:
 
     extra: dict[str, str] = {}
     payloads: dict[str, dict] = {}
-    for skill in skill_registry.all_skills():
-        try:
-            problems = [str(p) for p in registry.get("codex").validate(skill.payload_dir)]
-        except Exception as exc:  # pragma: no cover - packaging failure
-            problems = [f"ERROR: payload unavailable: {exc}"]
-        payloads[skill.namespace] = {
-            "name": skill.name,
-            "path": str(skill.payload_dir),
-            "problems": problems,
-        }
-        extra.update(skill.doctor_extra())
-
-    superseded = _find_superseded()
+    try:
+        problems = [str(p) for p in registry.get("codex").validate(SKILL.payload_dir)]
+    except Exception as exc:  # pragma: no cover - packaging failure
+        problems = [f"ERROR: payload unavailable: {exc}"]
+    payloads[SKILL.name] = {
+        "name": SKILL.name,
+        "path": str(SKILL.payload_dir),
+        "problems": problems,
+    }
+    extra.update(features.doctor_extra())
     libraries = {module: _importable(module) for module, _ in VENV_LIBRARIES}
 
     report = {
@@ -74,7 +72,6 @@ def run(args: argparse.Namespace) -> int:
         "rar_tools": archives,
         "libraries": libraries,
         "payloads": payloads,
-        "superseded": superseded,
     }
 
     if args.as_json:
@@ -110,48 +107,7 @@ def run(args: argparse.Namespace) -> int:
         state = "valid" if not info["problems"] else "; ".join(info["problems"])
         print(f"  payload:{info['name']:<24} {state}")
 
-    for row in superseded:
-        print(f"  superseded       {row['previous_name']} at {row['dest']}")
-        print(
-            f"                   still loaded by {row['label']}; "
-            f"installing {row['skill']} clears it"
-        )
-
     return 0 if _healthy(report) else 1
-
-
-def _find_superseded() -> list[dict]:
-    """Installs left under a name a skill used to have.
-
-    Worth a line in `doctor` because the symptom is confusing rather than
-    loud: the host keeps loading the old copy, so the agent sees two skills
-    offering the same thing and picks unpredictably between them.
-    """
-    from ..install import legacy
-
-    found: list[dict] = []
-    for skill in skill_registry.all_skills():
-        if not skill.previous_names:
-            continue
-        for platform in registry.resolve(registry.ALL):
-            for scope in ("user", "project"):
-                if scope == "project" and not platform.project_subdir:
-                    continue
-                dest = platform.dest(scope, skill.name)
-                for item in legacy.find(skill, platform, scope, None, current_dest=dest):
-                    if any(row["dest"] == str(item.dest) for row in found):
-                        continue
-                    found.append(
-                        {
-                            "skill": skill.name,
-                            "skill_namespace": skill.namespace,
-                            "previous_name": item.name,
-                            "platform": platform.key,
-                            "label": platform.label,
-                            "dest": str(item.dest),
-                        }
-                    )
-    return found
 
 
 def _importable(module: str) -> bool:
