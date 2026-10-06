@@ -41,8 +41,8 @@ Do this once per session, before the first command, and call the result `FSA`.
 1. Read `.get-fsa-training-done-install.json` next to this `SKILL.md`; use its
    `cli.invocation` array, adding its `pythonpath` to `PYTHONPATH`.
 2. Otherwise try `get-fsa-training-done --version` on `PATH`.
-3. Otherwise stop and ask the user to run `pip install get-fsa-training-done` or
-   `npm install -g get-fsa-training-done`. Do not improvise a path to a script.
+3. Otherwise stop and ask the user to run `pip install get-fsa-training-done`.
+   Do not improvise a path to a script.
 
 A receipt written on another machine names an interpreter that does not exist
 here; when its invocation fails to run, fall through to option 2. If option 2

@@ -134,8 +134,8 @@ def cli_invocation() -> dict:
     """How to re-invoke this CLI later, from inside the installed skill.
 
     The interpreter path is absolute and `PYTHONPATH` names the directory the
-    package was imported from, so this works for pip, pipx, an editable
-    checkout, and the npm shim alike.
+    package was imported from, so this works for pip, pipx, and an editable
+    checkout alike.
     """
     from shutil import which
 

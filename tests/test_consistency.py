@@ -221,7 +221,6 @@ def test_the_router_names_the_real_cli_and_receipt():
     assert RECEIPT_NAME in section
     assert f"{CLI_NAME} --version" in section
     assert f"pip install {PACKAGE_NAME}" in section
-    assert f"npm install -g {PACKAGE_NAME}" in section
 
 
 TASK_SECTIONS = ("## Inputs", "## Produces", "## Steps", "## Done when", "## Hands off to")

@@ -92,21 +92,6 @@ jobs:
           get-fsa-training-done assessment verify --type quiz \
             --master tests/fixtures/assessment/question_set/quiz_master.csv --blooket /tmp/b.csv
 
-  npm-shim:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: "24"
-          package-manager-cache: false
-      - uses: actions/setup-python@v7
-        with:
-          python-version: "3.12"
-      - run: node npm/lib/prepack.js
-      - run: node npm/bin/get-fsa-training-done.js --version
-      - run: node npm/bin/get-fsa-training-done.js doctor --json
-
   render:
     # `render` needs no browser and no system fonts: it runs in the managed venv
     # and embeds its own faces. So this no longer skips itself when a runner

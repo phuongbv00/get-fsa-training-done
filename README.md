@@ -34,15 +34,8 @@ inputs first, echoes back the resolved paths, and waits for a go-ahead.
 pip install get-fsa-training-done
 ```
 
-or
-
-```bash
-npm install -g get-fsa-training-done
-```
-
-Both give you the `get-fsa-training-done` command and its short alias `gftd`.
-The npm package is a thin shim over the Python implementation, so it needs
-Python 3.12+ on `PATH`.
+This gives you the `get-fsa-training-done` command and its short alias `gftd`.
+It needs Python 3.12+.
 
 Then install the skill into your agent:
 
@@ -117,7 +110,7 @@ for generator in scripts/*/gen_*.py; do python "$generator" --check; done
 ```
 
 `src/get_fsa_training_done/__about__.py` holds the canonical version;
-`sync_version.py` propagates it to `package.json` and the payload's `VERSION`.
+`sync_version.py` propagates it to the payload's `VERSION`.
 
 ## Licence
 

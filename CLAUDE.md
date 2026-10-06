@@ -72,8 +72,7 @@ Writing rules that apply to every feature (plain words, digits, tone, the exampl
 - `references/assessment/levels.md` ← `features/common/levels.py`, by `scripts/assessment/gen_levels_md.py`.
 - `references/program/rules.md` ← `features/program/core/rules.py`, and `references/program/schemas.md` ← `core/schemas.py` + `core/schedule.py`, by `scripts/program/`.
 - `references/material/structure.md` ← `features/material/core/grammar.py` + `core/rules.py`, by `scripts/material/gen_structure_md.py`.
-- The version is canonical in `src/get_fsa_training_done/__about__.py`; `scripts/sync_version.py` propagates it to `package.json` and the payload's `VERSION`.
-- `npm/python/` is a staged copy of `src/get_fsa_training_done` created by `npm/lib/prepack.js`. Regenerate it; never edit it.
+- The version is canonical in `src/get_fsa_training_done/__about__.py`; `scripts/sync_version.py` propagates it to the payload's `VERSION`.
 
 Every `scripts/<feature>/gen_*.py` is covered by one globbed gate in `tests/test_consistency.py` and one loop in CI.
 

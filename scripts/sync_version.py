@@ -2,15 +2,14 @@
 """Propagate the canonical version out to the files that duplicate it.
 
 `src/get_fsa_training_done/__about__.py` is the single source of truth.
-`pyproject.toml` reads it directly through hatchling, but `package.json` and
-the skill payload's `VERSION` file cannot, so they are written here. `--check`
+`pyproject.toml` reads it directly through hatchling, but the skill payload's
+`VERSION` file cannot, so it is written here. `--check`
 runs in CI so drift fails the build instead of shipping.
 """
 
 from __future__ import annotations
 
 import argparse
-import json
 import re
 import sys
 from pathlib import Path
@@ -21,7 +20,6 @@ sys.path.insert(0, str(ROOT / "src"))
 from get_fsa_training_done.skill import SKILL  # noqa: E402
 
 ABOUT = ROOT / "src" / "get_fsa_training_done" / "__about__.py"
-PACKAGE_JSON = ROOT / "package.json"
 
 
 def canonical_version() -> str:
@@ -31,20 +29,6 @@ def canonical_version() -> str:
     if not match:
         raise SystemExit(f"ERROR: no __version__ found in {ABOUT}")
     return match.group(1)
-
-
-def sync_package_json(version: str, *, check: bool) -> list[str]:
-    text = PACKAGE_JSON.read_text(encoding="utf-8")
-    current = json.loads(text).get("version")
-    if current == version:
-        return []
-    if check:
-        return [f"package.json is {current}, expected {version}"]
-    PACKAGE_JSON.write_text(
-        re.sub(r'("version":\s*")[^"]+(")', rf"\g<1>{version}\g<2>", text, count=1),
-        encoding="utf-8",
-    )
-    return []
 
 
 def sync_payload_versions(version: str, *, check: bool) -> list[str]:
@@ -70,9 +54,7 @@ def main() -> int:
     args = parser.parse_args()
 
     version = canonical_version()
-    problems = sync_package_json(version, check=args.check) + sync_payload_versions(
-        version, check=args.check
-    )
+    problems = sync_payload_versions(version, check=args.check)
 
     if problems:
         for problem in problems:
