@@ -28,8 +28,21 @@ report.
    ```
 
    It extracts archives and strips junk and redundant nesting. A repository's
-   `.git` is kept: for a Git task the history is the evidence. Read it with
-   read-only commands (`git log --graph --all`, `git show`, `git diff`).
+   `.git` is kept: for a Git task the history is the evidence.
+
+   **A submitted `.git` is untrusted.** Its config can name programs git runs
+   on this machine — an external diff, a textconv filter, an fsmonitor hook, a
+   pager. Read history only between commits, never against the working tree,
+   and only with those switched off:
+
+   ```bash
+   git -c core.fsmonitor= -c core.hooksPath=/dev/null --no-pager log --graph --all --oneline --decorate
+   git -c core.fsmonitor= -c core.hooksPath=/dev/null --no-pager show --no-ext-diff --no-textconv <commit>
+   git -c core.fsmonitor= -c core.hooksPath=/dev/null --no-pager diff --no-ext-diff --no-textconv <commit> <commit>
+   ```
+
+   No `status`, `checkout`, `diff` against the working tree, or any command
+   that writes: those run the repository's filters and hooks.
 2. Resolve what the report flags:
    - **UNKNOWN-ID** — the filename matched no roster id; usually a renamed
      archive. Resolve by hand.

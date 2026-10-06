@@ -31,8 +31,12 @@ An exit code and the command's own output. Nothing is written anywhere.
    ```
 
    `--prefetch` fetches dependencies first, with only the build tool's resolver
-   running; the command itself always runs with no network. Postgres needs no
-   prefetch.
+   running; the command itself always runs with no network, on a read-only
+   filesystem with size-bounded scratch space. Postgres needs no prefetch.
+   The prefetch refuses what could run the project's code while online: a
+   Python requirement that is not a plain index package (`-e .`, a path, a
+   URL), and Maven build extensions. Say so to the user rather than working
+   around it.
 3. Read the output, not just the exit code. A suite that passes because it ran
    zero tests has proved nothing.
 
