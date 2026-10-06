@@ -31,9 +31,9 @@ TARGET = (
 
 HEADER = """# Levels
 
-Every assessment is calibrated for exactly one level. It is a required Step 0
-input, and it changes the Bloom mix, the difficulty mix, the duration, how much
-of the specification is handed over, and how strict the rubric is.
+Every assessment is calibrated for exactly one level. It is a required input
+when planning, and it changes the Bloom mix, the difficulty mix, the duration,
+how much of the specification is handed over, and how strict the rubric is.
 
 Two axes, because they answer different questions:
 
@@ -51,8 +51,8 @@ The level goes in the display code and a `Level:` banner line — **never in the
 filename stem**, which would break rubric discovery and the submission archive
 naming the grading pipeline depends on.
 
-> These are defaults. Confirm them with the user in Step 0 and adjust when the
-> subject warrants it; state any deviation in the plan echo.
+> These are defaults. Confirm them with the user when planning and adjust when
+> the subject warrants it; state any deviation in the plan echo.
 > `get-fsa-training-done assessment verify` reports drift from the level default
 > as a warning, not an error.
 

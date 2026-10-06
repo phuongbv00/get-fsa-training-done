@@ -17,7 +17,7 @@ Two axes, because they answer different questions:
 `CPL` and `FR` have no bands. `UP_SKILL` and `RE_SKILL` split into
 `junior`/`mid`/`senior`, giving eight calibration targets in all.
 
-The numbers here are defaults, not rules — Step 0 always lets the user override
+The numbers here are defaults, not rules — planning always lets the user override
 them, and `verify` reports drift from the level default as a warning rather
 than an error.
 """

@@ -26,8 +26,8 @@ It knows nothing about the directory structure it was installed into and
 assumes nothing about the project around it. **Every path it touches is one the
 user gave it.**
 
-> **Do not list, glob, read, or run anything until every required Step 0 value
-> has a confirmed value.** The only file you may read before that point is one
+> **Do not list, glob, read, or run anything until every input the route you
+> are taking lists has a confirmed value.** The only file you may read before that point is one
 > the user has just named in this conversation. Do not infer values from the
 > working directory, from folder names, or from files you happen to notice.
 
@@ -71,13 +71,26 @@ Do not read routes you are not taking.
 
 ### Program — `references/program/overview.md`
 
-| Intent | Workflow |
+| Workflow | File |
 |---|---|
-| author a programme and its schedules | `references/program/workflows/author/program.md` |
-| author a topic's syllabus and session plan | `references/program/workflows/author/topic.md` |
-| change a session plan and re-derive what follows | `references/program/workflows/author/revise.md` |
-| read a verification report | `references/program/workflows/verify/report.md` |
-| produce the vendor workbook | `references/program/workflows/export/workbooks.md` |
+| author a new programme and its schedules | `references/program/workflows/new_programme.md` |
+| author one topic's syllabus and session plan | `references/program/workflows/add_topic.md` |
+| change a session plan and re-derive what follows | `references/program/workflows/revise.md` |
+
+| Task | File |
+|---|---|
+| agree the module table and write the curriculum | `references/program/tasks/agree_module_table.md` |
+| derive the schedule CSV skeletons | `references/program/tasks/derive_skeleton.md` |
+| fill the master and detailed schedules, topics, outcome mapping | `references/program/tasks/fill_schedules.md` |
+| write a syllabus and its session plan | `references/program/tasks/write_syllabus.md` |
+| recompute a syllabus's time allocation | `references/program/tasks/derive_allocation.md` |
+| verify a programme, or read a verification report | `references/program/tasks/verify.md` |
+| change a session plan | `references/program/tasks/revise_cascade.md` |
+| export the vendor workbook | `references/program/tasks/export_workbook.md` |
+
+Reference material, read as a task points to it: `references/program/artifact_map.md`,
+`references/program/schemas.md`, `references/program/rules.md`, and the examples
+in `references/program/examples/`.
 
 ### Material — `references/material/overview.md`
 
@@ -147,6 +160,6 @@ Writing style for every feature: `references/common/style.md`; Vietnamese:
 
 ## Step 2 — Report back
 
-Each feature's overview says what its report contains. In every case: list
+Each feature's overview says what its report contains (§ Report back). In every case: list
 every file written with its full path, say which are learner-facing, and give
 the `FSA <feature> verify` result. Report measurements, not impressions.

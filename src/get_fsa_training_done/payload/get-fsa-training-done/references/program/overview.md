@@ -3,8 +3,8 @@
 Authors the structure of a training programme, checks that every artifact
 reconciles against the others, and exports the vendor workbooks.
 
-Read this before any program workflow or task: it holds the inputs to collect,
-the commands, and the rules every program workflow assumes.
+Read this before any program workflow or task: it holds the commands and the
+rules every one of them assumes. Each task lists its own inputs.
 
 ## What this feature does not own
 
@@ -21,23 +21,14 @@ A session's `Training Materials` cell names the file another feature produces.
 When a finding is really about a missing instrument or a missing lecture note,
 say so and name the feature that owns it rather than writing the file here.
 
-## Step 0 — Collect inputs
+## Never invent a programme constant
 
-Ask only for what is missing, and batch the questions.
-
-| Key | Required for | Default |
-|---|---|---|
-| `program_dir` | all | ask; never assume |
-| `program_code` | authoring | ask — the site, level, track and subject segments |
-| `program_title`, `role` | authoring a curriculum | ask |
-| `modules` | authoring a curriculum | ask: name, code, hours, days |
-| `creator`, `account`, `unit` | authoring a syllabus | ask |
-| `template_path` | export | ask; must be `.xlsx` |
-
-**Never invent a programme constant.** The module count, the hour and day
-totals, the minutes per training day, and the number of week and day columns are
-all *derived* from the sources. If one cannot be derived, the sources disagree —
-report that rather than picking a number.
+The module count, the hour and day totals, the minutes per training day, and
+the number of week and day columns are all *derived* from the sources. If one
+cannot be derived, the sources disagree — report that rather than picking a
+number. Policy is different: the pass mark, the first weekday, the creator and
+the assessment weights are confirmed with the user, and passed as flags where
+`verify` checks them.
 
 Before writing anything, echo the resolved **absolute** paths, every output
 filename, and the derived totals. Wait for an explicit go-ahead.
@@ -64,7 +55,7 @@ filename, and the derived totals. Wait for an explicit go-ahead.
   A session row names the file that serves it; producing that file is
   the assessment feature's or the material feature's job, not this one's.
 
-## Step 2 — Report back
+## Report back
 
 List every file written with its full path, the derived totals, and the
 `FSA program verify` result with its rule ids.

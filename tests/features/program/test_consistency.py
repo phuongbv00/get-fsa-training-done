@@ -44,3 +44,17 @@ def test_the_schedule_header_is_documented_verbatim():
     a file that fails PRG-S01."""
     text = payload_text("schemas.md")
     assert ",".join(schedule.SCHEDULE_HEADER) in text
+
+
+CAPSTONE = FEATURE / "examples" / "capstone" / "curriculum"
+
+
+def test_the_shipped_capstone_example_verifies_clean(fired):
+    """A project module graded by three sprint reviews and a final review.
+
+    Its one chapter spans the three sprints on purpose, which is the case
+    `--max-sessions-per-chapter inf` exists for; without it, that is the only
+    finding.
+    """
+    assert fired(CAPSTONE, "--max-sessions-per-chapter", "inf") == set()
+    assert fired(CAPSTONE) == {"PRG-S08"}

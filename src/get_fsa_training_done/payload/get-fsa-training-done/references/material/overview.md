@@ -49,7 +49,7 @@ and it belongs to the assessment feature. Say so rather than writing it here.
   that is not there, the session plan changes first, and that belongs to
   the program feature.
 
-## Step 2 — Report back
+## Report back
 
 List every file written with its full path and the session it serves, the
 `FSA material verify` result with its rule ids, and — when material was missing
