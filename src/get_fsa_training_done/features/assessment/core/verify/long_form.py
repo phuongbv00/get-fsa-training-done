@@ -407,7 +407,9 @@ def verify(
     if level is not None and brief_tasks and assessment_type not in UNCALIBRATED_TASK_COUNT_TYPES:
         calibration.check_task_count(len(brief_tasks), level, result)
 
-    for index, (brief_task, rubric_task) in enumerate(zip(brief_tasks, rubric_tasks), start=1):
+    for index, (brief_task, rubric_task) in enumerate(
+        zip(brief_tasks, rubric_tasks, strict=False), start=1
+    ):
         expected = f"T{index}"
         if brief_task["id"] != expected or rubric_task["id"] != expected:
             result.error(f"Task ids must be sequential; expected {expected}")

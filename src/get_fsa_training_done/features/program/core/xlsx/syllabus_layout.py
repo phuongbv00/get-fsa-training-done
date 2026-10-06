@@ -116,7 +116,7 @@ def write_schedule(sheet: Sheet, rows: list[dict[str, str]]) -> None:
     numeric = {"Session", "Duration (mins)"}
     for offset, record in enumerate(rows):
         target = FIRST_DATA_ROW + offset
-        for column, header in zip(columns, SCHEDULE_HEADER):
+        for column, header in zip(columns, SCHEDULE_HEADER, strict=False):
             value = record.get(header, "")
             ref = f"{column}{target}"
             if header in numeric:
@@ -236,6 +236,7 @@ def write_authors(package: XlsxPackage, sheet: Sheet, syllabus: Syllabus) -> Non
                 author.unit if author else "",
                 author.notes if author else "",
             ),
+            strict=False,
         ):
             sheet.set_text(f"{column}{row}", value)
 
@@ -245,6 +246,7 @@ def write_authors(package: XlsxPackage, sheet: Sheet, syllabus: Syllabus) -> Non
             for column, value in zip(
                 "BCDEF",
                 (change.date, change.changes, change.action, change.contents, change.version),
+                strict=False,
             ):
                 sheet.set_text(f"{column}{row}", value)
         else:

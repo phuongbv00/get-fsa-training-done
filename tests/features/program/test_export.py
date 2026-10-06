@@ -149,6 +149,7 @@ def test_the_time_allocation_stays_a_formula_matched_by_label(exported):
             "Test/Quiz",
             "Exam",
         ],
+        strict=False,
     ):
         formula = sheet.cell(f"D{row}").find(f"{ns}f")
         assert formula is not None, f"D{row} is not a formula"

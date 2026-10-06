@@ -120,7 +120,7 @@ def verify_coderbyte(path: Path, master: list[dict[str, str]], result: CheckResu
     if len(questions) != len(master):
         result.error(f"Coderbyte has {len(questions)} questions, master has {len(master)}")
 
-    for index, (row, question) in enumerate(zip(master, questions), start=1):
+    for index, (row, question) in enumerate(zip(master, questions, strict=False), start=1):
         if not isinstance(question, dict):
             result.error(f"Coderbyte question {index}: must be an object")
             continue
@@ -227,7 +227,7 @@ def verify_blooket(path: Path, master: list[dict[str, str]], result: CheckResult
     if len(data_rows) != len(master):
         result.error(f"Blooket has {len(data_rows)} rows, master has {len(master)}")
 
-    for index, (row_master, row) in enumerate(zip(master, data_rows), start=1):
+    for index, (row_master, row) in enumerate(zip(master, data_rows, strict=False), start=1):
         if len(row) != len(BLOOKET_COLUMNS):
             result.error(f"Blooket row {index}: expected {len(BLOOKET_COLUMNS)} columns")
             continue

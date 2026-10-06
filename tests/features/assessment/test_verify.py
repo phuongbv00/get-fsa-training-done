@@ -340,7 +340,7 @@ def test_level_calibration_is_silent_when_the_mix_matches(tmp_path, quiz_master_
     # CPL over 10 questions: Remember 3, Understand 4, Apply 3 / Easy 5, Medium 4, Hard 1.
     blooms = ["Remember"] * 3 + ["Understand"] * 4 + ["Apply"] * 3
     difficulties = ["Easy"] * 5 + ["Medium"] * 4 + ["Hard"]
-    master = build_master(tmp_path, quiz_master_rows, list(zip(blooms, difficulties)))
+    master = build_master(tmp_path, quiz_master_rows, list(zip(blooms, difficulties, strict=False)))
     result = verify_question_set(master, level=levels.resolve("CPL"))
     assert result.ok
     assert not any("mix differs" in warning for warning in result.warnings)
@@ -366,7 +366,7 @@ def test_one_question_of_drift_is_tolerated(tmp_path, quiz_master_rows):
     # within a single question of target, so nothing is worth saying.
     blooms = ["Remember"] * 4 + ["Understand"] * 3 + ["Apply"] * 3
     difficulties = ["Easy"] * 5 + ["Medium"] * 4 + ["Hard"]
-    master = build_master(tmp_path, quiz_master_rows, list(zip(blooms, difficulties)))
+    master = build_master(tmp_path, quiz_master_rows, list(zip(blooms, difficulties, strict=False)))
     result = verify_question_set(master, level=levels.resolve("CPL"))
     assert not any("mix differs" in warning for warning in result.warnings)
 

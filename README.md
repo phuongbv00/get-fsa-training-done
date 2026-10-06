@@ -42,7 +42,7 @@ npm install -g get-fsa-training-done
 
 Both give you the `get-fsa-training-done` command and its short alias `gftd`.
 The npm package is a thin shim over the Python implementation, so it needs
-Python 3.9+ on `PATH`.
+Python 3.10+ on `PATH`.
 
 Then install the skill into your agent:
 

@@ -162,7 +162,7 @@ def check_sprint_calendar(sprints: list[Sprint], result: CheckResult) -> None:
         if sprint.start and sprint.end and sprint.end < sprint.start:
             result.error(f"Sprint {sprint.number} ends ({sprint.end}) before it starts")
 
-    for earlier, later in zip(sprints, sprints[1:]):
+    for earlier, later in zip(sprints, sprints[1:], strict=False):
         if earlier.end and later.start and later.start <= earlier.end:
             result.error(
                 f"Sprint {later.number} starts {later.start}, on or before Sprint "

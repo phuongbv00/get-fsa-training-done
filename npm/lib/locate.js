@@ -12,7 +12,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
-const MIN_VERSION = [3, 9];
+const MIN_VERSION = [3, 10];
 const PACKAGE_NAME = 'get-fsa-training-done';
 
 function cacheFile() {

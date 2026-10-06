@@ -88,7 +88,7 @@ def verify(
                 f"Answer template has {len(template_tasks)} '## Task N - Name' headings, "
                 f"the brief has {len(brief_tasks)} tasks"
             )
-        for brief_task, template_task in zip(brief_tasks, template_tasks):
+        for brief_task, template_task in zip(brief_tasks, template_tasks, strict=False):
             if brief_task["id"] != template_task["id"] or normalize_name(
                 brief_task["name"]
             ) != normalize_name(template_task["name"]):

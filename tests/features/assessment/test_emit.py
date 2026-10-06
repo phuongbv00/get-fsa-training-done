@@ -51,7 +51,7 @@ def test_coderbyte_matches_real_export():
 def test_coderbyte_puts_the_correct_answer_first():
     questions = master.read(FIXTURES / "question_set" / "theory_master.csv")
     built = coderbyte.build(questions)
-    for question, entry in zip(questions, built["mc_questions"]):
+    for question, entry in zip(questions, built["mc_questions"], strict=False):
         if not question.is_multi:
             assert entry["answers"][0] == question.option(question.correct[0])
             assert "correctAnswers" not in entry
