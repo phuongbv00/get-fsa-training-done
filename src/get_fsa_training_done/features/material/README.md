@@ -88,7 +88,7 @@ objective codes against the syllabus, and that a material mentions the
 objectives its session claims.
 
 It reads the plan **by column name, tolerating any superset**, and deliberately
-does not enforce that CSV's schema — that is `program verify`'s job. Each skill
+does not enforce that CSV's schema — that is `program verify`'s job. Each feature
 checks only what it owns, so there is no shared constant to drift.
 
 ### `derive appendix` — the syllabus map

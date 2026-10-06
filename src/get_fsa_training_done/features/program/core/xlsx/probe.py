@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from get_fsa_training_done.errors import FsaTrainerSkillsError
+from get_fsa_training_done.errors import GftdError
 
 from .package import XlsxPackage
 
@@ -64,7 +64,7 @@ def probe(package: XlsxPackage, sheets: list[str], expectations: list[Expect]) -
 def require(package: XlsxPackage, sheets: list[str], expectations: list[Expect]) -> None:
     problems = probe(package, sheets, expectations)
     if problems:
-        raise FsaTrainerSkillsError(
+        raise GftdError(
             f"{package.path.name} is not the template this exporter was written for",
             hint="; ".join(problems[:5]),
         )

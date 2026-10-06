@@ -13,7 +13,7 @@ import zipfile
 import pytest
 
 from get_fsa_training_done.cli import main
-from get_fsa_training_done.errors import FsaTrainerSkillsError, UsageError
+from get_fsa_training_done.errors import GftdError, UsageError
 from get_fsa_training_done.features.program.core.xlsx import syllabus_layout as layout
 from get_fsa_training_done.features.program.core.xlsx.package import XlsxPackage
 
@@ -234,7 +234,7 @@ def test_a_plan_too_long_for_the_band_is_refused(mini, vendor_form, tmp_path, ed
     header, first = lines[0], lines[1]
     plan.write_text("\n".join([header] + [first] * (layout.MAX_DATA_ROWS + 1)) + "\n", "utf-8")
 
-    with pytest.raises(FsaTrainerSkillsError, match="band holds"):
+    with pytest.raises(GftdError, match="band holds"):
         main(
             [
                 "program",
@@ -281,7 +281,7 @@ def test_a_template_with_a_moved_anchor_is_refused(mini, vendor_form, tmp_path):
     package.write_sheet(layout.SYLLABUS_SHEET, sheet)
     package.save(broken)
 
-    with pytest.raises(FsaTrainerSkillsError) as raised:
+    with pytest.raises(GftdError) as raised:
         main(
             [
                 "program",

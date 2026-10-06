@@ -12,7 +12,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from get_fsa_training_done.errors import FsaTrainerSkillsError, UsageError
+from get_fsa_training_done.errors import GftdError, UsageError
 
 from ..core import csvio
 from ..core import program as program_mod
@@ -140,7 +140,7 @@ def run_skeleton(args: argparse.Namespace) -> int:
         name, build = skeleton.BUILDERS[kind]
         target = out_dir / f"{code}_{name}"
         if target.exists() and not args.force:
-            raise FsaTrainerSkillsError(
+            raise GftdError(
                 f"{target} already exists",
                 hint="pass --force to overwrite it",
             )

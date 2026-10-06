@@ -7,7 +7,7 @@ import shutil
 from pathlib import Path
 
 from ...__about__ import __version__
-from ...errors import FsaTrainerSkillsError, UnmanagedDestinationError
+from ...errors import GftdError, UnmanagedDestinationError
 from ...skill import Skill
 from ..install import fsops, planner
 from ..install import receipt as receipt_mod
@@ -53,7 +53,7 @@ def run(args: argparse.Namespace) -> int:
         for platform, scope, dest in resolve_targets(args, skill):
             try:
                 _install_one(skill, name, platform, scope, dest, args, skill.payload_dir)
-            except FsaTrainerSkillsError as exc:
+            except GftdError as exc:
                 failures += 1
                 print(f"ERROR: {skill.name}: {platform.label} ({scope}): {exc.message}")
                 if exc.hint:
@@ -218,7 +218,7 @@ def _prewarm(skills: list[Skill], args: argparse.Namespace) -> None:
     for group in sorted({skill.dep_group for skill in skills}):
         try:
             bootstrap.ensure(group, offline=args.offline)
-        except FsaTrainerSkillsError as exc:
+        except GftdError as exc:
             print(f"WARNING: could not pre-build the {group!r} environment: {exc.message}")
 
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from ...errors import FsaTrainerSkillsError, UsageError
+from ...errors import GftdError, UsageError
 from ...skill import SKILL, Skill
 from ..install.planner import ACTION_ORDER, Action, Plan
 from ..platforms import registry
@@ -132,7 +132,7 @@ def validate_payload_or_die(payload_dir: Path) -> None:
     for problem in problems:
         print(problem)
     if fatal:
-        raise FsaTrainerSkillsError(
+        raise GftdError(
             f"the bundled skill payload is invalid ({len(fatal)} error(s))",
             hint="this is a packaging bug; please report it",
         )

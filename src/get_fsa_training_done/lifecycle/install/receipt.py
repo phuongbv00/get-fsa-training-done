@@ -6,10 +6,10 @@ hand, synced to another machine, or when the user's cache was wiped. It is a
 dotfile at the payload root, which neither Claude Code nor Codex reads and which
 Codex's validator ignores.
 
-`cli.invocation` is the field that earns its keep: `npx get-fsa-training-done install`
-leaves nothing on `PATH`, so the skill would have no way to call back into the
-CLI afterwards. Recording an absolute, replayable invocation at install time
-means the skill never has to guess.
+`cli.invocation` is the field that earns its keep: a CLI installed into a
+virtualenv or run with `pipx run` may not be on the agent's `PATH`, so the skill
+would have no way to call back into it afterwards. Recording an absolute,
+replayable invocation at install time means the skill never has to guess.
 """
 
 from __future__ import annotations

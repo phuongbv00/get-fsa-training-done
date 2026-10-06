@@ -4,12 +4,12 @@ A code reads `SITE_LEVEL_TRACK_SUBJECT` — `HN_FR_JSKS_JAVA_WEB` is Hanoi,
 Fresher, the JS/KS track, Java web. A topic code is the programme code with its
 last segment replaced: `HN_FR_JSKS_DBF`.
 
-The second segment is a **level**, from the same vocabulary
-`fsa-training-assessment` calibrates against. That shared table is the reason
-`levels.py` sits beside `errors.py` rather than inside one skill: a programme
-declares the audience its codes claim, and an assessment calibrates for it, and
-the two must spell it the same way. The abbreviations below are this skill's
-own — a code segment is a filename convention, not part of the level table.
+The second segment is a **level**, from the same vocabulary the assessment
+feature calibrates against. That shared table is the reason `levels.py` lives
+in `features/common/` rather than inside one feature: a programme declares the
+audience its codes claim, and an assessment calibrates for it, and the two must
+spell it the same way. The abbreviations below are this feature's own — a code
+segment is a filename convention, not part of the level table.
 """
 
 from __future__ import annotations

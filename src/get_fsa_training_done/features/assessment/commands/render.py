@@ -9,7 +9,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from get_fsa_training_done.errors import FsaTrainerSkillsError, UsageError
+from get_fsa_training_done.errors import GftdError, UsageError
 
 from ..core import budget as budget_mod
 from ..core import html as html_mod
@@ -80,7 +80,7 @@ def run(args: argparse.Namespace) -> int:
         print("WARNING: could not determine the page count; budget not enforced")
         return 0
     if pages > limit:
-        raise FsaTrainerSkillsError(
+        raise GftdError(
             f"brief is {pages} A4 pages but the budget is {limit} (from {source_label})",
             hint=(
                 "cut content — restated context, paragraphs that could be bullets, "

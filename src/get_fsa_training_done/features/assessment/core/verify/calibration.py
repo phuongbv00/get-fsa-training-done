@@ -1,7 +1,7 @@
 """Compare an assessment's actual shape against its level's defaults.
 
-Every finding here is a **warning**, never an error. Step 0 lets the user
-override any level default, and `references/levels.md` says so explicitly, so
+Every finding here is a **warning**, never an error. Planning lets the user
+override any level default, and `references/assessment/levels.md` says so, so
 drift is worth reporting but never worth failing a run over.
 
 Only what is machine-countable lives here: the Bloom and difficulty mix of a

@@ -6,7 +6,7 @@ import argparse
 import shutil
 from pathlib import Path
 
-from ...errors import FsaTrainerSkillsError, UnmanagedDestinationError
+from ...errors import GftdError, UnmanagedDestinationError
 from ...skill import Skill
 from ..install import receipt as receipt_mod
 from ..install import removal
@@ -47,7 +47,7 @@ def run(args: argparse.Namespace) -> int:
             try:
                 if _uninstall_one(skill, platform, scope, dest, args):
                     removed_any = True
-            except FsaTrainerSkillsError as exc:
+            except GftdError as exc:
                 failures += 1
                 print(f"ERROR: {skill.name}: {platform.label} ({scope}): {exc.message}")
                 if exc.hint:

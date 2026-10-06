@@ -1,4 +1,4 @@
-# The one dependency group, shared by every skill.
+# The one dependency group, shared by every feature.
 #
 # The *package* still declares no runtime dependencies: `pip install
 # get-fsa-training-done` pulls nothing. These land in the managed venv instead,

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 
-class FsaTrainerSkillsError(Exception):
+class GftdError(Exception):
     """Base class. `cli.run` prints `ERROR: <msg>` and exits with `exit_code`."""
 
     exit_code = 1
@@ -14,37 +14,37 @@ class FsaTrainerSkillsError(Exception):
         self.hint = hint
 
 
-class UsageError(FsaTrainerSkillsError):
+class UsageError(GftdError):
     """Bad flags or a missing required argument."""
 
     exit_code = 2
 
 
-class NotInstalledError(FsaTrainerSkillsError):
+class NotInstalledError(GftdError):
     """No managed install found where one was expected."""
 
     exit_code = 3
 
 
-class UnmanagedDestinationError(FsaTrainerSkillsError):
+class UnmanagedDestinationError(GftdError):
     """Destination exists but carries no receipt (or someone else's)."""
 
     exit_code = 4
 
 
-class VerificationError(FsaTrainerSkillsError):
+class VerificationError(GftdError):
     """A `verify` run found structural problems."""
 
     exit_code = 1
 
 
-class EnvironmentError_(FsaTrainerSkillsError):
+class EnvironmentError_(GftdError):
     """The managed venv could not be created or provisioned."""
 
     exit_code = 5
 
 
-class MissingToolError(FsaTrainerSkillsError):
+class MissingToolError(GftdError):
     """A required external binary (Chrome, an archive extractor) is absent."""
 
     exit_code = 6

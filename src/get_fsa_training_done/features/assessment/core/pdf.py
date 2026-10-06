@@ -22,7 +22,7 @@ import logging
 import re
 from pathlib import Path
 
-from get_fsa_training_done.errors import FsaTrainerSkillsError
+from get_fsa_training_done.errors import GftdError
 
 FONT_DIR = Path(__file__).resolve().parent / "fonts"
 
@@ -56,7 +56,7 @@ def render_html(document: str, out_pdf: Path) -> int | None:
     try:
         from xhtml2pdf import pisa
     except ImportError as exc:  # pragma: no cover - the venv guarantees it
-        raise FsaTrainerSkillsError(
+        raise GftdError(
             "the PDF renderer is not available in this environment",
             hint="run `get-fsa-training-done install` to build the managed environment",
         ) from exc
@@ -78,11 +78,11 @@ def render_html(document: str, out_pdf: Path) -> int | None:
             )
     except Exception as exc:
         out_pdf.unlink(missing_ok=True)
-        raise FsaTrainerSkillsError(f"could not render the PDF: {exc}") from exc
+        raise GftdError(f"could not render the PDF: {exc}") from exc
 
     if status.err:
         out_pdf.unlink(missing_ok=True)
-        raise FsaTrainerSkillsError(f"the PDF renderer reported {status.err} error(s)")
+        raise GftdError(f"the PDF renderer reported {status.err} error(s)")
 
     return count_pages(out_pdf)
 

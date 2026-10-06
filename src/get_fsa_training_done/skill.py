@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .__about__ import PACKAGE_NAME
-from .errors import FsaTrainerSkillsError
+from .errors import GftdError
 
 
 @dataclass(frozen=True)
@@ -38,7 +38,7 @@ SKILL = Skill(
 def payload() -> Path:
     """The payload directory, refusing an installation that lost its data files."""
     if not (SKILL.payload_dir / "SKILL.md").is_file():
-        raise FsaTrainerSkillsError(
+        raise GftdError(
             f"the skill payload is missing from this installation ({SKILL.payload_dir})",
             hint="reinstall the package; the wheel may have been built without package data",
         )

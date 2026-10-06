@@ -1,6 +1,6 @@
 """`get-fsa-training-done material coverage` — does the material the plan asks for exist?
 
-The cross-skill check. A session plan's materials column names the file that
+The cross-feature check. A session plan's materials column names the file that
 serves each session; this reports both directions — what is promised and
 missing, and what is present and unscheduled.
 

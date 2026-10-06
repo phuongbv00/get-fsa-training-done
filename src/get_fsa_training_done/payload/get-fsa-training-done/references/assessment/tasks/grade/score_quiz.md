@@ -27,10 +27,13 @@ A CSV of `Std ID, score`.
    A quiz played in parts (a live game, then homework) is one run with one
    `--html` per part; a trainee's best attempt is kept. Different quizzes are
    different runs.
-2. The rule: `score = ceil(correct / max(questions, correct + incorrect) * 10, 1 dp)`.
-   A trainee who answered fewer questions than the quiz holds is scored out of
-   the quiz; one who answered more (game modes repeat questions) out of what
-   they answered.
+2. The rule, one decimal, rounded up: correct ÷ the questions the trainee was
+   set × 10. What counts as "set" differs by source:
+   - **workbook**: `max(answered, correct + incorrect) + unattempted`, all read
+     from the report;
+   - **leaderboard**: `max(questions, correct + incorrect)` — a trainee who
+     answered fewer than the quiz holds is scored out of the quiz, one who
+     answered more (game modes repeat questions) out of what they answered.
 3. Reconcile unmatched nicknames with `--list-unmatched`. Expected when the
    report covers several classes; otherwise each one is a real score being
    dropped — map it with `--alias` and run again.

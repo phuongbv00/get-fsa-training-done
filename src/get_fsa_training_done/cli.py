@@ -15,7 +15,7 @@ import sys
 
 from . import features
 from .__about__ import CLI_NAME, __version__
-from .errors import FsaTrainerSkillsError
+from .errors import GftdError
 from .skill import SKILL
 
 LIFECYCLE_COMMANDS = {"install", "update", "uninstall", "status", "doctor", "env"}
@@ -80,7 +80,7 @@ def run() -> None:
     """Console-script wrapper: turn our exceptions into tidy exits."""
     try:
         raise SystemExit(main())
-    except FsaTrainerSkillsError as exc:
+    except GftdError as exc:
         print(f"ERROR: {exc.message}", file=sys.stderr)
         if exc.hint:
             print(f"       {exc.hint}", file=sys.stderr)

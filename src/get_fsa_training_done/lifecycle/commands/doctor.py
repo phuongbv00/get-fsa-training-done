@@ -5,10 +5,11 @@ whatever each feature wants checked, and the skill's payload, which
 is validated against Codex's stricter rules regardless of which host it is
 installed for.
 
-No feature needs an external binary. The one optional one is a `.rar` extractor:
+No feature needs an external binary, and two are optional. A `.rar` extractor:
 `.rar` is proprietary and has no pure-Python reader, so a trainee who submits
-one needs a tool on PATH. Everything else — rendering, every other archive
-format — runs inside the managed environment.
+one needs a tool on PATH. And Docker, for `assessment sandbox`, which runs code
+that is not ours in a container. Everything else — rendering, every other
+archive format — runs inside the managed environment.
 """
 
 from __future__ import annotations

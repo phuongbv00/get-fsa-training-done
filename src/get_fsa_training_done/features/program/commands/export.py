@@ -16,7 +16,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from get_fsa_training_done.errors import FsaTrainerSkillsError, UsageError
+from get_fsa_training_done.errors import GftdError, UsageError
 from get_fsa_training_done.features.common.findings import Report
 
 from ..core import csvio
@@ -105,7 +105,7 @@ def run_syllabus(args: argparse.Namespace) -> int:
 
     rows = schedule_table.rows
     if len(rows) > layout.MAX_DATA_ROWS:
-        raise FsaTrainerSkillsError(
+        raise GftdError(
             f"{schedule_path.name} has {len(rows)} rows; the template's band holds "
             f"{layout.MAX_DATA_ROWS}",
             hint=(

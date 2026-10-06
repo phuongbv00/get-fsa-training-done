@@ -1,13 +1,13 @@
 """Findings, carrying the rule that produced them.
 
-Shared, beside `errors.py` and `levels.py`, because two skills check many
-artifacts in one run: a programme spans seven topics, a module spans a dozen
-lecture notes. The assessment skill's `CheckResult` collects bare strings, which
-is right when a run checks a single artifact; here a finding has to name *where*
-it was found and *which rule* fired, so a failure is a lookup in that skill's
-generated rule reference rather than a paragraph to interpret.
+Shared, beside `levels.py`, because two features check many artifacts in one
+run: a programme spans seven topics, a module spans a dozen lecture notes. The
+assessment feature's `CheckResult` collects bare strings, which is right when a
+run checks a single artifact; here a finding has to name *where* it was found
+and *which rule* fired, so a failure is a lookup in that feature's generated
+rule reference rather than a paragraph to interpret.
 
-The rule ids are not shared — each skill owns its own vocabulary and its own
+The rule ids are not shared — each feature owns its own vocabulary and its own
 generated reference. Only the shape of a finding is common.
 """
 

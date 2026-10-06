@@ -6,7 +6,7 @@ import argparse
 from pathlib import Path
 
 from ...__about__ import __version__
-from ...errors import FsaTrainerSkillsError, NotInstalledError
+from ...errors import GftdError, NotInstalledError
 from ...skill import Skill
 from ..install import migrations, planner
 from ..install import receipt as receipt_mod
@@ -58,7 +58,7 @@ def run(args: argparse.Namespace) -> int:
                 outdated = _update_one(skill, platform, scope, dest, args, payload)
                 if args.check and outdated:
                     exit_code = 1
-            except FsaTrainerSkillsError as exc:
+            except GftdError as exc:
                 exit_code = max(exit_code, exc.exit_code)
                 print(f"ERROR: {skill.name}: {platform.label} ({scope}): {exc.message}")
                 if exc.hint:

@@ -4,7 +4,7 @@ As in the programme skill: every finding names its rule, and
 `references/structure.md` is generated from the same table the checker executes.
 
 `MAT-D*` read one document. `MAT-C*` compare a module's materials against the
-session plan that asks for them — the cross-skill half.
+session plan that asks for them — the cross-feature half.
 """
 
 from __future__ import annotations

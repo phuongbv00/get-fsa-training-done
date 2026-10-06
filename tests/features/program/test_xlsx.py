@@ -14,7 +14,7 @@ import zipfile
 
 import pytest
 
-from get_fsa_training_done.errors import FsaTrainerSkillsError, UsageError
+from get_fsa_training_done.errors import GftdError, UsageError
 from get_fsa_training_done.features.program.core.xlsx import probe as probe_mod
 from get_fsa_training_done.features.program.core.xlsx import refs
 from get_fsa_training_done.features.program.core.xlsx.package import XlsxPackage
@@ -315,7 +315,7 @@ def test_the_probe_names_the_cell_that_disagreed(synthetic_xlsx):
     """The point is the diagnosis, not the refusal: a writer addressing a moved
     anchor does not fail, it writes the right value into the wrong cell."""
     package = XlsxPackage(synthetic_xlsx)
-    with pytest.raises(FsaTrainerSkillsError) as raised:
+    with pytest.raises(GftdError) as raised:
         probe_mod.require(package, [SYLLABUS], [probe_mod.Expect(SYLLABUS, "A2", "99")])
     assert "A2" in raised.value.hint
     assert "'99'" in raised.value.hint
@@ -323,7 +323,7 @@ def test_the_probe_names_the_cell_that_disagreed(synthetic_xlsx):
 
 def test_the_probe_reports_a_missing_sheet(synthetic_xlsx):
     package = XlsxPackage(synthetic_xlsx)
-    with pytest.raises(FsaTrainerSkillsError) as raised:
+    with pytest.raises(GftdError) as raised:
         probe_mod.require(package, ["Nope"], [])
     assert "missing sheet" in raised.value.hint
 

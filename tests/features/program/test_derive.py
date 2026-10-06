@@ -11,7 +11,7 @@ from __future__ import annotations
 import pytest
 
 from get_fsa_training_done.cli import main
-from get_fsa_training_done.errors import FsaTrainerSkillsError, UsageError
+from get_fsa_training_done.errors import GftdError, UsageError
 from get_fsa_training_done.features.program.core import csvio
 from get_fsa_training_done.features.program.core import program as program_mod
 from get_fsa_training_done.features.program.core.derive import allocation, skeleton
@@ -225,6 +225,6 @@ def test_skeleton_refuses_to_overwrite_without_force(mini, tmp_path):
         "topic-list",
     ]
     assert main(argv) == 0
-    with pytest.raises(FsaTrainerSkillsError, match="already exists"):
+    with pytest.raises(GftdError, match="already exists"):
         main(argv)
     assert main([*argv, "--force"]) == 0
