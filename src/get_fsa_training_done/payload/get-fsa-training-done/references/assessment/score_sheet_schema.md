@@ -37,10 +37,11 @@ Invariants:
 
 ### Comments are learner-facing
 
-One or two sentences per task, in English, addressed to the learner. They must
-never leak how the grading was done — no "could not run it", no "static review
-only", no weighted subtotals, no cap arithmetic, and never a suspicion about
-copying or AI use. Those belong in the instructor-only cheat check, which is
+One or two sentences per task, addressed to the learner, in the language the
+user asked for (English by default; for Vietnamese see
+`references/common/language_vn.md`). They must never leak how the grading
+was done — no "could not run it", no "static review only", no weighted
+subtotals, no cap arithmetic, and never a suspicion about copying or AI use. Those belong in the instructor-only cheat check, which is
 walled off from grades entirely.
 
 ## Aggregated grade CSV

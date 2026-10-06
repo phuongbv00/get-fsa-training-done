@@ -1,68 +1,34 @@
 # Workflow — long assignment (3+ days)
 
-Multi-day work built over several sittings. Everything from
-`short_assignment.md` applies; this file covers only what differs.
+Multi-day work built over several sittings.
 
-**Produces:** `<stem>.md`, `<stem>_rubric.md`, `<stem>.pdf`
+**Produces:** `<stem>.md`, `<stem>_rubric.md`, `<stem>.pdf`, and any supplied files.
 
-Read `references/assessment/workflows/design/short_assignment.md` first for the brief and
-rubric shape, then apply the differences below.
+| Step | Task | For a long assignment |
+|---|---|---|
+| 1 | `references/assessment/tasks/design/plan_scope.md` | scope by the level's `duration_factor`, below |
+| 2 | `references/assessment/tasks/design/write_brief.md` | `Code: <LEVEL>_<SUBJ>_LA_<seq>`; Duration in days or weeks; tasks as milestones, below |
+| 3 | `references/assessment/tasks/design/write_rubric.md` | the level's rubric posture |
+| 4 | `references/assessment/tasks/design/build_fixtures.md` | a mock API or starter the assignment depends on; it must run on its own, with tests |
+| 5 | `references/assessment/tasks/design/render_pdf.md` | no page budget; past three pages, cut |
+| 6 | `references/assessment/tasks/design/verify.md` | `--type long_assignment`; verifier `references/assessment/verifiers/long_assignment.md` |
 
-## What changes
+## What is particular to a long assignment
 
-### Banner and code
+**Tasks are milestones.** Order them so they build in sequence, each leaving
+something that runs: a trainee two-thirds through has a working subset, not a
+half-wired whole. "Task 3 depends on the schema from Task 1" is structure; "aim
+to finish Task 1 by day two" is strategy, and belongs nowhere.
 
-`Code: <LEVEL>_<SUBJ>_LA_<seq>`, and `Duration:` is expressed in days or weeks
-("5 days", "2 weeks").
+**Self-contained.** If the assignment calls an API, supply one the trainee can
+run locally rather than depending on another assignment's server.
 
-### No page budget
+**A repository deliverable is allowed**, with the FPT account in its name (see
+`references/assessment/grading_contract.md`), and a migration or seed script
+beside the source. Still no README or write-up about the code.
 
-The two-pages-per-hour rule exists because a trainee reads an exam brief inside
-the exam. Over several days that constraint is meaningless, so `FSA assessment render`
-reports the page count and enforces nothing.
-
-That removes the pressure that keeps a brief short, so hold the line yourself:
-the brief is still a specification, not a tutorial. If it runs past three pages,
-you are probably explaining how instead of stating what.
-
-### Tasks become milestones
-
-Order the tasks so they can be built in sequence, each leaving something that
-runs. A trainee who gets two-thirds of the way through should have a working
-subset, not a half-wired whole. Say so in the task order; do not add a schedule.
-
-Still no advice about pacing. "Task 3 depends on the schema from Task 1" is
-structure; "aim to finish Task 1 by day two" is strategy, and belongs nowhere.
-
-### A larger deliverable set is allowed
-
-Multi-day work can reasonably ask for a repository rather than an archive, and
-for a migration or seed script alongside the source. It still must not ask for
-written explanation — the no-README rule holds, for the same reason.
-
-If the deliverable is a repository, the FPT account goes in its name (see
-`references/assessment/grading_contract.md`).
-
-### Scope, by level
-
-The level's `duration_factor` in `references/assessment/levels.md` scales the baseline you
-would set for a fresher. Take the task count from the level's range, and let the
-extra days buy *depth* — more demanding correctness, harder edge cases, real
-failure modes — rather than more features. A long assignment that is just a
-short one with six more CRUD endpoints tests stamina, not skill.
-
-## Verify
-
-```bash
-FSA assessment render "<output_dir>/<stem>.md"
-FSA assessment verify --type long_assignment \
-  --brief  "<output_dir>/<stem>.md" \
-  --rubric "<output_dir>/<stem>_rubric.md" \
-  --pdf    "<output_dir>/<stem>.pdf" \
-  --level  "<LEVEL>"
-```
-
-`--level` takes the band with it for the banded levels — `UP_SKILL:mid`,
-`RE_SKILL:senior` — and the level alone for `CPL` and `FR`.
-
-Then run `references/assessment/verifiers/long_assignment.md`.
+**Scope, by level.** The level's `duration_factor` in
+`references/assessment/levels.md` scales the baseline for a fresher. Let the
+extra days buy *depth* — harder edge cases, real failure modes — rather than
+more features. A long assignment that is a short one with six more CRUD
+endpoints tests stamina, not skill.

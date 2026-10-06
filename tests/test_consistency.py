@@ -226,3 +226,40 @@ def test_the_router_names_the_real_cli_and_receipt():
     assert f"{CLI_NAME} --version" in section
     assert f"pip install {PACKAGE_NAME}" in section
     assert f"npm install -g {PACKAGE_NAME}" in section
+
+
+TASK_SECTIONS = ("## Inputs", "## Produces", "## Steps", "## Done when", "## Hands off to")
+
+
+def _task_files():
+    return sorted((SKILL.payload_dir / "references").rglob("tasks/**/*.md"))
+
+
+def test_there_are_task_blocks():
+    assert _task_files()
+
+
+def test_the_router_links_every_task_file():
+    """A task runs on its own when the user asks for one step, so the router
+    must be able to reach it directly, not only through a workflow."""
+    router = ROUTER.read_text(encoding="utf-8")
+    unreachable = [
+        path.relative_to(SKILL.payload_dir).as_posix()
+        for path in _task_files()
+        if path.relative_to(SKILL.payload_dir).as_posix() not in router
+    ]
+    assert unreachable == []
+
+
+def test_every_task_follows_the_task_contract():
+    """Every block says what it needs, what it makes, and how to tell it is
+    done; that is what lets it run alone or inside any workflow."""
+    broken = []
+    for path in _task_files():
+        text = path.read_text(encoding="utf-8")
+        if not text.startswith("# Task — "):
+            broken.append(f"{path.name}: title")
+        positions = [text.find(section) for section in TASK_SECTIONS]
+        if -1 in positions or positions != sorted(positions):
+            broken.append(f"{path.name}: sections")
+    assert broken == []

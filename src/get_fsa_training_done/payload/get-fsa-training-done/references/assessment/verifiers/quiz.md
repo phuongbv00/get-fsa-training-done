@@ -1,7 +1,8 @@
 # Quiz Verifier Agent
 
-Use this verifier after generating or editing a `quiz` master CSV and import
-file(s).
+Use this verifier after generating or editing a `quiz`: a multiple-choice master
+CSV and its import file, or a written quiz's brief and rubric. Check the section
+for the form being verified.
 
 ## Inputs
 
@@ -50,6 +51,17 @@ Check both structure and content:
   questions genuinely sit where their labels claim. A question labelled Apply
   that a candidate can answer from a definition mis-calibrates the set, because
   the counts were checked against the target and now describe something untrue.
+
+## Written form
+
+Inputs are the brief, the rubric, the PDF, the structural verifier output, and
+the scope. Check:
+
+- The Problem Statement presents one concrete artifact to critique, and every
+  task asks one diagnostic question about it.
+- Each task is answerable in 2-4 sentences, and the paper fits its duration.
+- Task titles name the claim under test without giving away the verdict.
+- The rubric gives, per task, the points a correct diagnosis covers.
 
 ## Output
 

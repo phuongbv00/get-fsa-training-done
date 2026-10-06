@@ -58,9 +58,16 @@ namespace resolves to nothing.
 
 ## Step 1 — Route
 
-Decide the feature from the request, then read that feature's overview — it
-holds the Step 0 inputs, the commands, and the standing rules — and then
-**exactly one** workflow file. Do not read the others.
+Decide the feature from the request, then read that feature's overview — its
+naming, language and standing rules — and then **one route**:
+
+- a **workflow** when the user wants the whole job ("ra đề practice exam",
+  "chấm bài exam"). A workflow is an ordered list of tasks; read each task file
+  when you reach it.
+- a **task** when the user wants one step ("render lại PDF", "thêm bản tiếng
+  Việt", "gộp điểm thi lại"). A task lists its own inputs and runs on its own.
+
+Do not read routes you are not taking.
 
 ### Program — `references/program/overview.md`
 
@@ -85,17 +92,51 @@ holds the Step 0 inputs, the commands, and the standing rules — and then
 
 ### Assessment — `references/assessment/overview.md`
 
-| Intent | Type | Workflow | Verifier prompt |
+| Workflow | Type | File | Verifier prompt |
 |---|---|---|---|
-| design | `quiz` | `references/assessment/workflows/design/quiz.md` | `references/assessment/verifiers/quiz.md` |
+| design | `quiz` (multiple choice or written) | `references/assessment/workflows/design/quiz.md` | `references/assessment/verifiers/quiz.md` |
 | design | `short_assignment` | `references/assessment/workflows/design/short_assignment.md` | `references/assessment/verifiers/short_assignment.md` |
 | design | `long_assignment` | `references/assessment/workflows/design/long_assignment.md` | `references/assessment/verifiers/long_assignment.md` |
-| design | `theory_exam` | `references/assessment/workflows/design/theory_exam.md` | `references/assessment/verifiers/theory_exam.md` |
+| design | `theory_exam` (written or multiple choice) | `references/assessment/workflows/design/theory_exam.md` | `references/assessment/verifiers/theory_exam.md` |
 | design | `practice_exam` | `references/assessment/workflows/design/practice_exam.md` | `references/assessment/verifiers/practice_exam.md` |
 | design | `capstone_project` | `references/assessment/workflows/design/capstone_project.md` | `references/assessment/verifiers/capstone_project.md` |
 | grade | assignments and exams | `references/assessment/workflows/grade/submissions.md` | — |
-| grade | quiz report | `references/assessment/workflows/grade/quiz_report.md` | — |
+| grade | a retake, merged with the first attempt | `references/assessment/workflows/grade/retake.md` | — |
+| grade | quiz scores | `references/assessment/workflows/grade/quiz_report.md` | — |
 | grade | copying / AI authorship | `references/assessment/workflows/grade/cheat_check.md` | — |
+
+| Task | File |
+|---|---|
+| plan an assessment and confirm it | `references/assessment/tasks/design/plan_scope.md` |
+| write or revise a brief | `references/assessment/tasks/design/write_brief.md` |
+| write or revise a rubric | `references/assessment/tasks/design/write_rubric.md` |
+| write multiple-choice questions | `references/assessment/tasks/design/author_mcq.md` |
+| write open-ended or interview questions | `references/assessment/tasks/design/author_oe_questions.md` |
+| write an answer template or worksheet | `references/assessment/tasks/design/write_answer_template.md` |
+| build supplied files: seed data, a git repo, a starter, a mock API | `references/assessment/tasks/design/build_fixtures.md` |
+| emit Blooket or Coderbyte import files | `references/assessment/tasks/design/emit_imports.md` |
+| render a brief to PDF | `references/assessment/tasks/design/render_pdf.md` |
+| verify an assessment | `references/assessment/tasks/design/verify.md` |
+| preprocess submissions | `references/assessment/tasks/grade/preprocess.md` |
+| plan grading batches | `references/assessment/tasks/grade/plan_batches.md` |
+| score submissions against a rubric | `references/assessment/tasks/grade/score_submissions.md` |
+| aggregate score sheets into a grade CSV | `references/assessment/tasks/grade/aggregate.md` |
+| merge a retake with the first attempt | `references/assessment/tasks/grade/merge_retake.md` |
+| score a quiz report or Blooket leaderboard | `references/assessment/tasks/grade/score_quiz.md` |
+| put several quizzes in one table | `references/assessment/tasks/grade/merge_quizzes.md` |
+| write a short remark per trainee | `references/assessment/tasks/grade/learner_remarks.md` |
+| check similarity between submissions | `references/assessment/tasks/grade/similarity.md` |
+| collect AI-authorship signals | `references/assessment/tasks/grade/ai_signals.md` |
+
+### Common — any feature
+
+| Task | File |
+|---|---|
+| add a Vietnamese version of a finished file | `references/common/tasks/translate_vn.md` |
+| run SQL, unit tests or a mock API's tests in Docker | `references/common/tasks/run_in_sandbox.md` |
+
+Writing style for every feature: `references/common/style.md`; Vietnamese:
+`references/common/language_vn.md`.
 
 ## Step 2 — Report back
 

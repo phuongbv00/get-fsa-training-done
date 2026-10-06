@@ -1,66 +1,33 @@
 # Workflow — theory exam
 
-A graded written exam, not a live game. Everything from `quiz.md` applies to the
-master CSV; this file covers what differs.
+A graded, timed exam on concepts, in one of two forms. Confirm the form in
+planning. Either way it is pure theory and stands alone: no shared domain with
+the practice exam, no reference to labs or assignments.
 
-**Produces:** `<stem>.csv` (instructor-only master), `<stem>_coderbyte.json`
+| Form | What the candidate does | Produces |
+|---|---|---|
+| `oe` | answers interview questions in writing | `<stem>.md`, `<stem>_rubric.md`, `<stem>_answer_template.md`, `<stem>.pdf` |
+| `mcq` | answers multiple choice on Coderbyte | `<stem>.csv` (instructor-only master), `<stem>_coderbyte.json` |
 
-Read `references/assessment/workflows/design/quiz.md` first for the master CSV rules, then
-apply the differences below.
+## Written — interview questions
 
-## What changes
+| Step | Task | For a theory exam |
+|---|---|---|
+| 1 | `references/assessment/tasks/design/plan_scope.md` | default 20 questions, 4 tasks of 5, 25% each, 60 minutes |
+| 2 | `references/assessment/tasks/design/write_brief.md` | `Code: <LEVEL>_<SUBJ>_TE_<seq>`; Topics may list the outcome codes; deliverable: the completed template, renamed `<subj>_t_exam_<seq>_<fpt_account>.md`, nothing else |
+| 3 | `references/assessment/tasks/design/author_oe_questions.md` | § Theory exam — interview questions |
+| 4 | `references/assessment/tasks/design/write_rubric.md` | one row per question; a bare definition earns at most half the row |
+| 5 | `references/assessment/tasks/design/write_answer_template.md` | headings and `**Qn.**` slots only, never the questions |
+| 6 | `references/assessment/tasks/design/render_pdf.md` | 60 minutes is a 2-page budget |
+| 7 | `references/assessment/tasks/design/verify.md` | `--type theory_exam --brief ... --rubric ... --answer-template ... --pdf ...`; verifier `references/assessment/verifiers/theory_exam.md` |
+| 8 | `references/common/tasks/translate_vn.md` | only on request: the brief and the answer template |
 
-### Timing
+## Multiple choice
 
-A theory exam gives real thinking time. Take the time map from the level's
-non-quiz timings in `references/assessment/levels.md` — typically Easy 30s, Medium 45s,
-Hard 75s — not the quiz's 5/10/20, which exist for a live buzzer format.
-
-### Question depth
-
-Because the marks count, questions have to discriminate rather than merely
-cover. Apply the level's Bloom mix strictly: at `UP_SKILL` and above, most
-questions are Apply and Analyze, which means scenario stems — a situation, a
-symptom, a decision — rather than definition recall.
-
-A recall question dressed in a scenario is still a recall question. If the
-candidate can answer without reading the scenario, it is not an Apply question.
-
-### Delivery format
-
-```bash
-FSA assessment emit coderbyte --master "<output_dir>/<stem>.csv" \
-                   -o       "<output_dir>/<stem>_coderbyte.json"
-```
-
-Coderbyte marks answers by *position*, and **index 0 is always correct** —
-whether or not it appears in `correctAnswers`. The vendor template shows this in
-its own answer text: `correctAnswers: ["2", "3"]` over answers
-`["I am correct", "Wrong 2", "Will be correct", "Will be correct"]` means 0, 2
-and 3 are correct, not just 2 and 3.
-
-So `correctAnswers` *adds to* index 0 rather than replacing it. The emitter
-therefore always puts a correct option first, and for a multi-answer question
-lists every correct index — which means `"0"` is always among them.
-
-Never hand-write this file. Listing the real answer indices while leaving a
-wrong option at index 0 marks that wrong option correct, the import accepts it
-without complaint, and the first sign of trouble is candidates scoring on an
-answer that was never right.
-
-`references/assessment/coderbyte_mc_import_template.json` shows the shapes.
-
-## Verify
-
-```bash
-FSA assessment verify --type theory_exam \
-  --master    "<output_dir>/<stem>.csv" \
-  --coderbyte "<output_dir>/<stem>_coderbyte.json" \
-  --level     "<LEVEL>"
-```
-
-`--level` (`UP_SKILL:mid` for a banded level) supplies the non-quiz time map
-and checks the Bloom and difficulty mix against the level as a warning. Pass
-`--time-map` only when the confirmed map differs from the level's.
-
-Then run `references/assessment/verifiers/theory_exam.md`.
+| Step | Task | For a theory exam |
+|---|---|---|
+| 1 | `references/assessment/tasks/design/plan_scope.md` | the level's non-quiz time map (typically Easy 30s, Medium 45s, Hard 75s) |
+| 2 | `references/assessment/tasks/design/author_mcq.md` | apply the level's Bloom mix strictly: scenario stems, not recall |
+| 3 | `references/assessment/tasks/design/emit_imports.md` | `emit coderbyte`; index 0 is always correct |
+| 4 | `references/assessment/tasks/design/verify.md` | `--type theory_exam --master ... --coderbyte ...`; verifier `references/assessment/verifiers/theory_exam.md` |
+| 5 | `references/common/tasks/translate_vn.md` | only on request: `_vn` master, emitted to `_vn_coderbyte.json` |

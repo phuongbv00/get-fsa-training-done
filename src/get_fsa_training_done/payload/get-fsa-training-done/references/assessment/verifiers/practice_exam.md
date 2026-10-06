@@ -7,6 +7,8 @@ rubric.
 
 - Learner exam brief path.
 - Instructor rubric path.
+- Supplied files and worksheets, and their sandbox results.
+- The module's labs and assignments, to judge the 80/20 split.
 - Confirmed generation plan, including the confirmed **level** and band.
 - `references/assessment/levels.md`, for that level's expected calibration.
 - Structural verifier output.
@@ -33,11 +35,25 @@ Check both structure and content:
   any that leaked upward, and flag prose that should have been bullets.
 - **No resource/AI policy in the brief** — exam conditions are communicated
   outside it. Flag any such line unless the plan says the user asked for one.
-- **No written deliverable.** Flag any required `README.md`, state map, design
-  rationale, or "explain your choice" bullet — this exam assesses code only.
-  Confirm no rubric criterion depends on prose the learner must write, and that
-  removing one did not leave a per-task raw-point table off 10.0. A README
-  belonging to a *provided* artifact is fine.
+- **No write-up about the code.** Flag any required `README.md`, state map or
+  "explain your design" bullet. Writing is a deliverable only when the writing
+  *is* the assessed task — an analysis of a query plan, a set of user stories —
+  and then it is filled into a supplied worksheet. A README belonging to a
+  *provided* artifact is fine.
+- **Stands alone.** No reference to a lab or an assignment, and a domain none of
+  them used.
+- **80/20.** About 80% of the marks are reachable by a trainee who did the labs
+  and assignments; about 20% discriminates the top band. The brief never labels
+  that part as hard, a bonus or optional, and never states its separate weight;
+  the rubric states where the line falls. Flag a paper where the hard part is
+  most of the marks, or absent.
+- **Goals in the brief, standards in the rubric.** Flag a brief that hands over
+  a template the task is meant to test (an "As a ... I want ..." pattern, a
+  sample WBS row).
+- **Supplied files work.** Every runnable fixture has a passing sandbox result,
+  every figure the rubric quotes from seed data is asserted by the seed test,
+  and no instructor-only file (reference schema, seed test) is among what the
+  trainee receives.
 - **No advice, tips, or exam strategy.** Flag "do this task first", "if time
   runs short…", self-scoring guides, or any other coaching on how to approach
   the exam. The brief states the work; task order and time budgeting are the
@@ -60,8 +76,9 @@ Check both structure and content:
 - Per-task constraints match module coverage and do not require frameworks or
   libraries that hide the learning objective.
 - Rubric task ids and weights match the brief exactly.
-- Rubric criteria are observable from submitted files and do not require
-  hidden execution unless the exam explicitly includes runnable evidence.
+- Rubric criteria are observable from submitted files. A behaviour check names
+  the supplied test it runs in the sandbox, and reading remains the primary
+  evidence.
 - Caps reflect exam-critical failures such as missing runnable source, missing
   required persistence/configuration, or no end-to-end flow, and each sits under
   the task whose raw score it bounds rather than over the final total.

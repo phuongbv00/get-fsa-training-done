@@ -13,7 +13,8 @@ generator so a team reads the wording the rubric grades against.
 
 ## 1. Collect the extra inputs
 
-Beyond Step 0, a capstone needs decisions that nothing else does:
+Run `references/assessment/tasks/design/plan_scope.md`. Beyond its inputs, a
+capstone needs decisions that nothing else does:
 
 | Input | Notes |
 |---|---|
@@ -75,6 +76,11 @@ Weights sum to 100%. Source code carries the largest share; the individual
 contribution needs enough weight to matter. T6 aggregates the sprint checkpoint
 scores and only exists when the spec runs two or more sprints — a single-sprint
 capstone drops it and reweights.
+
+Work is incremental: requirements, design and code all grow every sprint, and
+each sprint review looks at that sprint's increment. The sprint table below says
+when each deliverable's *final* version is due, not when work on it starts —
+nobody finishes all the analysis in sprint 1.
 
 Diagrams are **diagram-as-code** (`.drawio`, Mermaid, dbdiagram.io, PlantUML).
 Exported images are not accepted, and that belongs in the deliverable bullet.
@@ -151,8 +157,11 @@ Drive folder. Copy it from `references/assessment/sprint_checkpoint_template.md`
 
 ## 6. Render and verify
 
+Run `references/assessment/tasks/design/render_pdf.md` on the brief — there is
+no page budget, since the duration is in weeks, but the PDF is what gets handed
+out — then `references/assessment/tasks/design/verify.md` with the spec as well:
+
 ```bash
-FSA assessment render "<output_dir>/<stem>.md"
 FSA assessment verify --type capstone_project \
   --brief  "<output_dir>/<stem>.md" \
   --spec   "<output_dir>/<stem>_spec.md" \
@@ -161,12 +170,4 @@ FSA assessment verify --type capstone_project \
   --level  "<LEVEL>"
 ```
 
-`--level` takes the band with it for the banded levels — `UP_SKILL:mid`,
-`RE_SKILL:senior` — and the level alone for `CPL` and `FR`.
-
-There is no page budget — the duration is measured in weeks — but the render
-still produces the PDF that gets handed out.
-
-## 7. Verifier agent
-
-Run `references/assessment/verifiers/capstone_project.md`.
+The verifier prompt is `references/assessment/verifiers/capstone_project.md`.

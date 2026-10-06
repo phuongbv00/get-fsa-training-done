@@ -1,75 +1,39 @@
 # Workflow — practice exam
 
-Timed, sat in one sitting. Everything from `short_assignment.md` applies; this
-file covers only what differs.
+A timed build, sat in one sitting with no internet and no AI. Those conditions
+are announced outside the paper, never printed in it, but the design assumes
+them.
 
-**Produces:** `<stem>.md`, `<stem>_rubric.md`, `<stem>.pdf`
+**Produces:** `<stem>.md`, `<stem>_rubric.md`, `<stem>.pdf`, and any supplied
+files and worksheets.
 
-Read `references/assessment/workflows/design/short_assignment.md` first for the brief and
-rubric shape, then apply the differences below.
+| Step | Task | For a practice exam |
+|---|---|---|
+| 1 | `references/assessment/tasks/design/plan_scope.md` | read what the labs and assignments drilled; pick a fresh domain |
+| 2 | `references/assessment/tasks/design/write_brief.md` | `Code: <LEVEL>_<SUBJ>_PE_<seq>`, wall-clock Duration; the 80/20 rule; feasibility, below |
+| 3 | `references/assessment/tasks/design/write_rubric.md` | caps for missing foundations; state the 80/20 line |
+| 4 | `references/assessment/tasks/design/write_answer_template.md` | when a task's output is writing or a table: a worksheet with the tables drawn |
+| 5 | `references/assessment/tasks/design/build_fixtures.md` | seed data and its test, a git repository, a starter — each proven in the sandbox |
+| 6 | `references/assessment/tasks/design/render_pdf.md` | **binding** budget: 2 A4 pages per hour |
+| 7 | `references/assessment/tasks/design/verify.md` | `--type practice_exam`; verifier `references/assessment/verifiers/practice_exam.md`, which asks for a per-task minute budget |
+| 8 | `references/common/tasks/translate_vn.md` | only on request: brief and worksheets, same page budget |
 
-## What changes
+## What is particular to a practice exam
 
-### Banner and code
+**Feasibility is the design problem.** Everything asked for must be buildable,
+by this level of candidate, in the stated time, from memory, on a machine with
+no scaffolding beyond what is supplied. Budget each task in minutes and check
+they sum to well under the duration: reading, thinking, setting up and checking
+come out of the same time as building. When it does not fit, cut a whole task
+rather than thinning every task.
 
-`Code: <LEVEL>_<SUBJ>_PE_<seq>`, and `Duration:` is wall-clock ("2 hours").
+**Familiar shape, new domain.** A trainee who did the assignment seriously
+should recognise every kind of task; only the domain and the details are new.
 
-### The page budget is binding
+**Bullets first.** There is no time to parse prose under exam conditions. One
+paragraph per task, at most, for the rule that carries its difficulty.
 
-Two A4 pages per hour, floor of two. A two-hour exam gets four pages. This is
-the constraint that matters most here, because reading time comes out of working
-time: a brief the candidate cannot absorb and act on inside the slot is a defect
-however good its content is.
-
-`FSA assessment render` fails the build when it overruns. Cut content — do not shrink the
-font or the margins.
-
-### Feasibility is the design problem
-
-Everything asked for has to be buildable, by this level of candidate, inside the
-stated time, on a machine with no prepared scaffolding. Before finalising,
-budget the tasks in minutes and check they sum to less than the duration with
-room to spare. A candidate reads, thinks, sets up, builds, and checks; only the
-building part is what you estimated.
-
-When it does not fit, cut a whole task rather than thinning every task. Five
-shallow tasks assess less than three real ones.
-
-### Task shape
-
-Prose-heavy tasks are the most common failure in exam briefs specifically,
-because there is no time to parse them. Lead with bullets, always. Reserve the
-one paragraph per task for the rule that carries the real difficulty.
-
-### Caps carry more weight
-
-In the rubric, a missing foundation should cap that task's raw score rather than
-deducting from it — under time pressure candidates skip foundations first, and
-a cap is what stops a broken-but-broad submission outscoring a correct narrow
-one. Apply the level's rubric posture from `references/assessment/levels.md`.
-
-## Verify
-
-```bash
-FSA assessment render "<output_dir>/<stem>.md"
-FSA assessment verify --type practice_exam \
-  --brief  "<output_dir>/<stem>.md" \
-  --rubric "<output_dir>/<stem>_rubric.md" \
-  --pdf    "<output_dir>/<stem>.pdf" \
-  --level  "<LEVEL>"
-```
-
-`--level` takes the band with it for the banded levels — `UP_SKILL:mid`,
-`RE_SKILL:senior` — and the level alone for `CPL` and `FR`.
-
-Then run `references/assessment/verifiers/practice_exam.md`, which additionally asks for a
-realistic per-task minute budget.
-
-## Translated variant
-
-Only if the user explicitly asks. `<stem>_<lang>.md` — `_vn` for Vietnamese —
-with bilingual `##` headings, and code, identifiers, HTTP status codes, and
-framework terms left in English. Render it too, with `FSA assessment render --lang vi`,
-and hold it to the same budget.
-**Never** produce a translated rubric: `verify` and the grading pipeline parse
-the rubric's headings, so the instructor rubric stays English.
+**Supply what is not being tested.** Seed data when the task is the queries, a
+repository with its history when the task is resolving a conflict, tables
+already drawn when the task is the analysis. What is supplied is cited inside
+the task that uses it.

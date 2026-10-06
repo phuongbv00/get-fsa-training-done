@@ -1,7 +1,8 @@
 # Theory Exam Verifier Agent
 
-Use this verifier after generating or editing a `theory_exam` master CSV and
-import file(s).
+Use this verifier after generating or editing a `theory_exam`: a multiple-choice
+master CSV and its import file, or a written exam's brief, rubric and answer
+template. Check the section for the form being verified.
 
 ## Inputs
 
@@ -20,8 +21,9 @@ Check both structure and content:
 - Actual question count, Bloom distribution, unit distribution, difficulty
   distribution, answer option count, and time limits match the confirmed plan.
 - Each question has at least 4 plausible answer options.
-- Time limits use the confirmed mapping, defaulting to Easy = 5, Medium = 10,
-  Hard = 20 seconds.
+- Time limits use the confirmed mapping, defaulting to the level's non-quiz map
+  (typically Easy = 30, Medium = 45, Hard = 75 seconds) — not the quiz's 5/10/20,
+  which exist for a live game.
 - Coderbyte JSON follows the template: top-level `mc_questions`, correct answer
   first for single-answer questions, and `correctAnswers`/`allRequired` for
   multi-answer questions.
@@ -51,6 +53,28 @@ Check both structure and content:
   questions genuinely sit where their labels claim. A question labelled Apply
   that a candidate can answer from a definition mis-calibrates the set, because
   the counts were checked against the target and now describe something untrue.
+
+## Written form
+
+Inputs are the brief, the rubric, the answer template, the PDF, the structural
+verifier output, and the scope. Check:
+
+- Each question is asked the way an interviewer asks it: short, naming the
+  subject, without listing the points of a good answer. Those points are in the
+  rubric row instead.
+- The paper is pure theory and stands alone: no running domain shared with the
+  practice exam, no reference to a lab or an assignment, no "write the query
+  that ..." task.
+- Questions that can be reasoned about are posed that way (predict and explain
+  two queries' results) rather than as recall.
+- The wording is plain and unambiguous for a trainee reading a second language,
+  numbers are digits, and the Vietnamese version (if any) never says "của bạn".
+- Every rubric row lists the points a strong answer covers, and a bare
+  definition is capped at half the row.
+- The answer template has the task headings and `**Qn.**` slots only, and none
+  of the question text.
+- The question count fits the duration: about 3 minutes per question at the
+  default 20 in 60 minutes.
 
 ## Output
 

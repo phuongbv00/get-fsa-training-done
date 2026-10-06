@@ -18,13 +18,20 @@ and every row becomes an entry in each submission's score sheet:
 | names match the brief exactly | the grader cross-checks brief against rubric |
 | every sub-criterion table sums to 10.0 | task scores are on a 0-10 raw scale |
 
-## 2. Criteria must be checkable without running anything
+## 2. Criteria are settled by reading the submission
 
-Grading reads the submitted files as evidence and **never executes learner
-code**. Phrase every full-mark description as something observable: a file that
-exists, a query that has a particular shape, a class that uses a particular
-mechanism. "Works correctly" is not checkable; "every user-supplied value is
-bound through a PreparedStatement, with no string-concatenated SQL" is.
+Grading reads the submitted files as evidence and **never runs learner code on
+the grading machine**. Phrase every full-mark description as something
+observable: a file that exists, a query that has a particular shape, a class
+that uses a particular mechanism. "Works correctly" is not checkable; "every
+user-supplied value is bound through a PreparedStatement, with no
+string-concatenated SQL" is.
+
+When behaviour has to be shown, name the check: "the supplied `seed_test.sql`
+passes against the submitted `schema.sql`", "the supplied tests pass". The
+grader runs it through `FSA assessment sandbox`, in a container with no network,
+and the result sits beside what reading found. Reading stays the primary
+evidence: a submission that fails to build is still scored for what it contains.
 
 The brief may state only the outcome while the rubric names the mechanism — see
 `levels.md`, where how much the brief may give away depends on the level. When
