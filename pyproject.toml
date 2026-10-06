@@ -12,7 +12,7 @@ license = { text = "MIT" }
 authors = [{ name = "Phuong Bui" }]
 keywords = ["assessment", "curriculum", "grading", "claude-code", "codex", "agent-skill"]
 classifiers = [
-  "Development Status :: 3 - Alpha",
+  "Development Status :: 5 - Production/Stable",
   "Environment :: Console",
   "Intended Audience :: Education",
   "License :: OSI Approved :: MIT License",
@@ -57,7 +57,6 @@ include = [
   "/scripts",
   "/npm",
   "/README.md",
-  "/CHANGELOG.md",
   "/LICENSE",
 ]
 

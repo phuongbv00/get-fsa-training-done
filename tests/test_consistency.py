@@ -155,10 +155,8 @@ def test_no_feature_shells_out_to_an_external_binary():
 
 
 # The rename to get-fsa-training-done was a clean break: nothing reads the old
-# package, CLI, env var or receipt names. Only the changelog, which is history,
-# may still say them.
+# package, CLI, env var or receipt names, and no tracked file mentions them.
 OLD_NAMES = ("fsa-trainer" + "-skills", "fsa_trainer" + "_skills", "FSA_TRAINER" + "_SKILLS")
-OLD_NAME_ALLOWED = {"CHANGELOG.md"}
 
 
 def test_old_project_name_is_gone():
@@ -167,8 +165,6 @@ def test_old_project_name_is_gone():
     ).stdout.split()
     offenders = []
     for name in tracked:
-        if name in OLD_NAME_ALLOWED:
-            continue
         path = ROOT / name
         try:
             text = path.read_text(encoding="utf-8")
