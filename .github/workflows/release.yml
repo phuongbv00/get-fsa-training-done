@@ -63,12 +63,13 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@release/v1
 
   npm:
-    # Trusted publishing: npm exchanges this job's OIDC token for a one-off
-    # publish credential, so no long-lived token is stored once the package is
-    # set up on npmjs.com (Settings > Trusted publisher: this repository,
-    # workflow `release.yml`, environment `release`). A package that does not
-    # exist yet cannot have a trusted publisher, so the very first publish
-    # uses the NPM_TOKEN secret instead; delete the secret after it.
+    # Trusted publishing only: npm exchanges this job's OIDC token for a
+    # one-off publish credential, so no npm token is stored anywhere. Set up
+    # once on npmjs.com, under the package's Settings > Trusted publisher:
+    # GitHub Actions, this repository, workflow `release.yml`, environment
+    # `release`. A trusted publisher can only be added to a package that
+    # exists, so the very first version is published by hand; this job then
+    # sees it on the registry and skips rather than failing the release.
     needs: guard
     runs-on: ubuntu-latest
     environment: release
@@ -85,10 +86,18 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - run: npm --version
-      - run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - id: published
+        name: is this version already on the registry?
+        run: |
+          set -euo pipefail
+          name=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+          if npm view "$name@$version" version >/dev/null 2>&1; then
+            echo "$name@$version is already published; skipping"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.published.outputs.skip != 'true'
+        run: npm publish --provenance --access public
 
   github-release:
     needs: [pypi, npm]
