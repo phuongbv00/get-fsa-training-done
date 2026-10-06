@@ -60,14 +60,18 @@ class Profile:
 PROFILES: dict[str, Profile] = {
     "postgres": Profile(
         image="postgres:16-alpine",
+        # The entrypoint runs initdb behind a temporary server on the same
+        # socket, then stops it and starts the real one. Waiting for a
+        # connection alone can catch the temporary server, and the init files
+        # then die mid-run when it stops — so wait for the entrypoint to say
+        # initialisation is over before waiting for the real server.
         setup=(
             "docker-entrypoint.sh postgres >/tmp/postgres.log 2>&1 &\n"
-            "for _ in $(seq 1 120); do pg_isready -q && break; sleep 0.5; done\n"
-            "pg_isready -q || { cat /tmp/postgres.log; exit 1; }\n"
-            # The entrypoint restarts the server once after initdb; wait until
-            # the restarted one accepts a query, not just a connection.
-            "for _ in $(seq 1 120); do psql -q -c 'select 1' >/dev/null 2>&1 && break; "
-            "sleep 0.5; done"
+            "for _ in $(seq 1 240); do "
+            "grep -q 'init process complete' /tmp/postgres.log && break; sleep 0.5; done\n"
+            "for _ in $(seq 1 240); do psql -q -c 'select 1' >/dev/null 2>&1 && break; "
+            "sleep 0.5; done\n"
+            "psql -q -c 'select 1' >/dev/null 2>&1 || { cat /tmp/postgres.log; exit 1; }"
         ),
         init='psql -v ON_ERROR_STOP=1 -q -f "{file}"',
         env={
