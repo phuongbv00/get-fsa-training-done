@@ -121,9 +121,7 @@ def write(dest: Path, receipt: Receipt) -> None:
 
 
 def utc_now() -> str:
-    return (
-        _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
-    )
+    return _dt.datetime.now(_dt.UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def installed_by() -> str:
