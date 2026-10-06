@@ -1,6 +1,11 @@
 """Score a quiz platform's participant report.
 
-The workbook's second sheet is the participant summary. Scoring is:
+Two sources. The report workbook's second sheet is the participant summary.
+The Blooket leaderboard, copied from the browser as HTML, gives each player's
+correct and incorrect counts but no question total, so `questions` supplies it:
+a player who answered fewer questions than the quiz holds is scored out of the
+quiz, and one who answered more (game modes repeat questions) is scored out of
+what they answered. Both reduce to the same rule:
 
     expected_total = max(answered, correct + incorrect) + unattempted
     score = ceil(correct / expected_total * 10, 1 decimal)
@@ -11,6 +16,9 @@ trainee from being scored out of fewer questions than they actually saw.
 
 The XLSX reader is hand-rolled over `zipfile` + `ElementTree` rather than
 openpyxl, which keeps the whole grading pipeline dependency-free.
+
+A trainee can appear more than once — a live game and a homework run of the same
+quiz, or two reports pasted in parts. Their best attempt is kept.
 """
 
 from __future__ import annotations
@@ -161,7 +169,65 @@ def _round_up(value: float) -> float:
     return math.ceil((value * 10) - 1e-12) / 10
 
 
-def score(rows: list[list[str]], roster: Roster | None) -> QuizResult:
+#: Blooket's class names carry a build hash (`ColumnTemplates_student__eQ3gW`),
+#: so only their stable prefixes are matched.
+_PLAYER = re.compile(r'class="[^"]*ColumnTemplates_student__[^"]*"[^>]*>([^<]+)<')
+_BAR_TEXT = re.compile(r'class="[^"]*_barText__[^"]*"[^>]*>\s*([\d,]+)\s*<')
+_CORRECT_BAR = "_correctAnswersBar__"
+_ICON = re.compile(r"<svg\b.*?</svg>", re.DOTALL)
+LEADERBOARD_HEADERS = ["Nickname", "Qs Answered", "Correct", "Incorrect", "Unattempted"]
+
+
+def read_leaderboard(path: Path, questions: int) -> list[list[str]]:
+    """A Blooket leaderboard paste as report rows, so `score` can treat both alike.
+
+    Each player's block holds their name, then an accuracy bar with the correct
+    count inside the green part and the incorrect count after it. A player with
+    no wrong answers, or no right ones, has only one number, and which one it
+    is depends on whether the green bar is there.
+    """
+    if questions < 1:
+        raise UsageError("--questions must be the number of questions in the quiz")
+    if not path.is_file():
+        raise UsageError(f"leaderboard paste not found: {path}")
+    # The bar labels carry an icon before the count; drop the icons so the
+    # count is the label's first text.
+    html = _ICON.sub("", path.read_text(encoding="utf-8"))
+    players = list(_PLAYER.finditer(html))
+    if not players:
+        raise UsageError(
+            f"{path} holds no Blooket leaderboard players",
+            hint="copy the leaderboard element's outer HTML from the report page",
+        )
+    rows = [list(LEADERBOARD_HEADERS)]
+    for index, player in enumerate(players):
+        end = players[index + 1].start() if index + 1 < len(players) else len(html)
+        block = html[player.end() : end]
+        numbers = [int(n.replace(",", "")) for n in _BAR_TEXT.findall(block)]
+        if len(numbers) >= 2:
+            correct, incorrect = numbers[0], numbers[1]
+        elif len(numbers) == 1:
+            correct, incorrect = (numbers[0], 0) if _CORRECT_BAR in block else (0, numbers[0])
+        else:
+            correct, incorrect = 0, 0
+        answered = correct + incorrect
+        rows.append(
+            [
+                player.group(1).strip(),
+                str(answered),
+                str(correct),
+                str(incorrect),
+                str(max(0, questions - answered)),
+            ]
+        )
+    return rows
+
+
+def score(
+    rows: list[list[str]],
+    roster: Roster | None,
+    aliases: dict[str, str] | None = None,
+) -> QuizResult:
     if not rows:
         raise UsageError("quiz report sheet is empty")
 
@@ -175,11 +241,15 @@ def score(rows: list[list[str]], roster: Roster | None) -> QuizResult:
     def cell(row: list[str], index: int) -> str:
         return row[index] if index < len(row) else ""
 
+    aliases = {key.strip().lower(): value.strip() for key, value in (aliases or {}).items()}
     result = QuizResult(rows=[["Std ID", "score"]])
+    best: dict[str, float] = {}
+    order: list[str] = []
     for row in rows[1:]:
         nickname = cell(row, nickname_at).strip()
         if not nickname:
             continue
+        nickname = aliases.get(nickname.lower(), nickname)
 
         if roster is not None:
             trainee = roster.get(nickname)
@@ -187,10 +257,12 @@ def score(rows: list[list[str]], roster: Roster | None) -> QuizResult:
                 # Report it rather than dropping it silently: a trainee who
                 # typed their nickname loosely still sat the quiz, and someone
                 # has to reconcile it by hand.
-                result.unmatched.append(nickname)
+                if nickname not in result.unmatched:
+                    result.unmatched.append(nickname)
                 continue
             if trainee.dropped:
-                result.dropped.append(trainee.std_id)
+                if trainee.std_id not in result.dropped:
+                    result.dropped.append(trainee.std_id)
                 continue
             nickname = trainee.std_id
 
@@ -205,8 +277,14 @@ def score(rows: list[list[str]], roster: Roster | None) -> QuizResult:
             if expected_total == 0
             else _round_up(min(10.0, max(0.0, correct / expected_total * 10)))
         )
-        result.rows.append([nickname, f"{value:.1f}"])
+        key = nickname.lower()
+        if key not in best:
+            order.append(nickname)
+            best[key] = value
+        else:
+            best[key] = max(best[key], value)
 
+    result.rows += [[nickname, f"{best[nickname.lower()]:.1f}"] for nickname in order]
     return result
 
 

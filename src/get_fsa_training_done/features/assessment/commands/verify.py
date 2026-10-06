@@ -13,7 +13,9 @@ from ..core.verify import (
     CAPSTONE_TYPES,
     LONG_FORM_TYPES,
     QUESTION_SET_TYPES,
+    WRITTEN_TYPES,
     CheckResult,
+    answer_template,
     long_form,
     question_set,
 )
@@ -32,16 +34,21 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
     )
     parser.add_argument("--type", required=True, choices=list(ALL_TYPES))
 
-    long_form_group = parser.add_argument_group("long-form (assignments, exams, capstone)")
+    long_form_group = parser.add_argument_group(
+        "long-form (assignments, exams, capstone, and written quizzes and theory exams)"
+    )
     long_form_group.add_argument("--brief", help="learner brief markdown")
     long_form_group.add_argument("--rubric", help="instructor rubric markdown")
+    long_form_group.add_argument(
+        "--answer-template", help="the template the candidate fills in and submits"
+    )
     long_form_group.add_argument("--pdf", help="rendered brief PDF, for the page-budget check")
     long_form_group.add_argument("--spec", help="capstone project spec markdown")
     long_form_group.add_argument(
         "--max-pages", type=int, help="override the duration-derived page budget"
     )
 
-    question_group = parser.add_argument_group("question sets (quiz, theory exam)")
+    question_group = parser.add_argument_group("question sets (multiple-choice quiz, theory exam)")
     question_group.add_argument("--master", help="master question CSV")
     question_group.add_argument("--blooket", help="generated Blooket CSV")
     question_group.add_argument("--coderbyte", help="generated Coderbyte JSON")
@@ -91,11 +98,28 @@ def resolve_time_map(
     return dict(DEFAULT_TIME_MAP)
 
 
+def written(args: argparse.Namespace) -> bool:
+    """Is a quiz or theory exam being checked in its written form?
+
+    The type alone cannot say: both forms exist, and the files given are what
+    tell them apart. Giving both is ambiguous rather than a request for both.
+    """
+    if args.type not in WRITTEN_TYPES:
+        return False
+    long_form_given = bool(args.brief or args.rubric or args.answer_template)
+    if long_form_given and args.master:
+        raise UsageError(
+            f"{args.type}: give --master for the multiple-choice form, or --brief and "
+            "--rubric for the written form, not both"
+        )
+    return long_form_given
+
+
 def run(args: argparse.Namespace) -> int:
     result = CheckResult()
     level = resolve_level(args)
 
-    if args.type in LONG_FORM_TYPES or args.type in CAPSTONE_TYPES:
+    if args.type in LONG_FORM_TYPES or args.type in CAPSTONE_TYPES or written(args):
         long_form.verify(
             assessment_type=args.type,
             brief_path=args.brief,
@@ -105,6 +129,13 @@ def run(args: argparse.Namespace) -> int:
             result=result,
             level=level,
         )
+        if args.answer_template and args.brief:
+            answer_template.verify(
+                assessment_type=args.type,
+                brief_path=args.brief,
+                template_path=args.answer_template,
+                result=result,
+            )
         if args.type in CAPSTONE_TYPES:
             from ..core.verify import capstone
 

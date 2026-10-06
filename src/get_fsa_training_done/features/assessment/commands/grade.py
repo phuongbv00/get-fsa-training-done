@@ -1,8 +1,9 @@
 """`get-fsa-training-done assessment grade` — the mechanical half of grading.
 
-Extraction, batching, aggregation, quiz arithmetic, and the instructor-only
-cheat checks. The judgement — reading a submission against a rubric and deciding
-a score — stays with the model, and no command here executes learner code.
+Extraction, batching, aggregation, retake merges, quiz arithmetic, and the
+instructor-only cheat checks. The judgement — reading a submission against a
+rubric and deciding a score — stays with the model, and no command here executes
+learner code; `assessment sandbox` is where that happens, in a container.
 
 Every path is an argument. Nothing is inferred from the working directory.
 """
@@ -23,6 +24,8 @@ batches_mod = grading.batches
 plagiarism_mod = grading.plagiarism
 preprocess_mod = grading.preprocess
 quiz_mod = grading.quiz_scores
+quiz_merge_mod = grading.quiz_merge
+retake_mod = grading.retake
 roster_mod = grading.roster
 
 
@@ -68,8 +71,67 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
     )
     agg.set_defaults(func=run_aggregate)
 
-    quiz = sub.add_parser("quiz", help="score a quiz platform report")
-    quiz.add_argument("--xlsx", required=True, help="quiz report workbook")
+    retake = sub.add_parser(
+        "merge-retake",
+        help="merge a first-attempt grade CSV with a retake's",
+        description=(
+            "Keep one result per trainee. The retake total is capped, the higher "
+            "effective total wins by default, and a voided retake leaves the first "
+            "attempt standing. The attempt kept supplies the task scores and comment."
+        ),
+    )
+    retake.add_argument("--first", required=True, help="first-attempt grade CSV")
+    retake.add_argument("--retake", required=True, help="retake grade CSV")
+    retake.add_argument("--out", required=True, help="merged grade CSV to write")
+    retake.add_argument("--roster", help="roster CSV, for row order and names")
+    retake.add_argument(
+        "--cap",
+        type=float,
+        default=retake_mod.DEFAULT_CAP,
+        help=f"most a retake can earn (default: {retake_mod.DEFAULT_CAP:g})",
+    )
+    retake.add_argument(
+        "--keep",
+        choices=retake_mod.KEEP_POLICIES,
+        default="higher",
+        help="keep the higher effective total, or always the retake (default: higher)",
+    )
+    retake.add_argument(
+        "--void-ids",
+        nargs="*",
+        default=[],
+        metavar="STD_ID",
+        help="trainees whose retake was cancelled; their first attempt stands",
+    )
+    retake.add_argument(
+        "--cap-note",
+        default=retake_mod.DEFAULT_CAP_NOTE,
+        help="comment added when the cap applies; {cap} is replaced (write it in the "
+        "comment language)",
+    )
+    retake.set_defaults(func=run_merge_retake)
+
+    quiz = sub.add_parser("quiz", help="score a quiz platform report or leaderboard")
+    source = quiz.add_mutually_exclusive_group(required=True)
+    source.add_argument("--xlsx", help="quiz report workbook")
+    source.add_argument(
+        "--html",
+        action="append",
+        help="Blooket leaderboard HTML copied from the report page; repeat for parts "
+        "of the same quiz (a trainee's best attempt is kept)",
+    )
+    quiz.add_argument(
+        "--questions",
+        type=int,
+        help="number of questions in the quiz; required with --html",
+    )
+    quiz.add_argument(
+        "--alias",
+        action="append",
+        default=[],
+        metavar="NICK=STD_ID",
+        help="map a nickname the roster cannot match to a roster id (repeatable)",
+    )
     quiz.add_argument("--out", required=True, help="score CSV to write")
     quiz.add_argument("--roster", help="roster CSV, to map nicknames and drop leavers")
     quiz.add_argument("--converted-csv", help="also write the raw sheet as CSV")
@@ -80,6 +142,20 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
         help="list every nickname that is not on the roster, however many there are",
     )
     quiz.set_defaults(func=run_quiz)
+
+    merge = sub.add_parser(
+        "merge-quizzes", help="put several quiz score CSVs side by side, by roster"
+    )
+    merge.add_argument(
+        "--quiz",
+        action="append",
+        required=True,
+        metavar="LABEL=CSV",
+        help="a `grade quiz` output and the column label for it (repeatable, in order)",
+    )
+    merge.add_argument("--roster", required=True, help="roster CSV")
+    merge.add_argument("--out", required=True, help="CSV to write")
+    merge.set_defaults(func=run_merge_quizzes)
 
     plag = sub.add_parser("plagiarism", help="similarity across submissions (instructor-only)")
     plag.add_argument("--preprocessed", required=True)
@@ -201,18 +277,38 @@ def run_aggregate(args: argparse.Namespace) -> int:
     return 0
 
 
+def _aliases(values: list[str]) -> dict[str, str]:
+    aliases: dict[str, str] = {}
+    for value in values:
+        nickname, sep, std_id = value.partition("=")
+        if not sep or not nickname.strip() or not std_id.strip():
+            raise UsageError(f"--alias takes NICK=STD_ID, got {value!r}")
+        aliases[nickname.strip()] = std_id.strip()
+    return aliases
+
+
 def run_quiz(args: argparse.Namespace) -> int:
-    xlsx = Path(args.xlsx).expanduser()
     out = Path(args.out).expanduser()
-    rows = quiz_mod.read_sheet(xlsx, args.sheet_index)
+    if args.html:
+        if not args.questions:
+            raise UsageError(
+                "--html needs --questions: a leaderboard does not say how many the quiz has"
+            )
+        rows = [list(quiz_mod.LEADERBOARD_HEADERS)]
+        for path in args.html:
+            rows += quiz_mod.read_leaderboard(Path(path).expanduser(), args.questions)[1:]
+        label = "leaderboard rows"
+    else:
+        rows = quiz_mod.read_sheet(Path(args.xlsx).expanduser(), args.sheet_index)
+        label = f"sheet {args.sheet_index}"
 
     if args.converted_csv:
         converted = Path(args.converted_csv).expanduser()
         quiz_mod.write_csv(converted, rows)
-        print(f"Converted sheet {args.sheet_index} -> {converted}")
+        print(f"Converted {label} -> {converted}")
 
     roster = _roster(args.roster)
-    result = quiz_mod.score(rows, roster)
+    result = quiz_mod.score(rows, roster, _aliases(args.alias))
     quiz_mod.write_csv(out, result.rows)
 
     if result.dropped:
@@ -239,6 +335,40 @@ def run_quiz(args: argparse.Namespace) -> int:
         )
 
     print(f"Wrote {result.scored} score row(s) -> {out}")
+    return 0
+
+
+def run_merge_retake(args: argparse.Namespace) -> int:
+    out = Path(args.out).expanduser()
+    merged = retake_mod.merge(
+        retake_mod.read(Path(args.first).expanduser()),
+        retake_mod.read(Path(args.retake).expanduser()),
+        cap=args.cap,
+        keep=args.keep,
+        void=args.void_ids,
+        cap_note=args.cap_note,
+        roster=_roster(args.roster),
+    )
+    retake_mod.write(merged, out)
+    print(f"Retake kept for {len(merged.from_retake)} trainee(s)")
+    if merged.capped:
+        print(f"Capped at {args.cap:g}: {', '.join(merged.capped)}")
+    if merged.voided:
+        print(f"Retake voided, first attempt kept: {', '.join(merged.voided)}")
+    for note in merged.notes:
+        print(f"NOTE: {note}")
+    print(f"Wrote {len(merged.rows)} row(s) -> {out}")
+    return 0
+
+
+def run_merge_quizzes(args: argparse.Namespace) -> int:
+    out = Path(args.out).expanduser()
+    roster = roster_mod.load(Path(args.roster).expanduser())
+    merged = quiz_merge_mod.merge(quiz_merge_mod.parse_inputs(args.quiz), roster)
+    quiz_merge_mod.write(merged, out)
+    for label, ids in merged.unknown.items():
+        print(f"NOTE: {label} has {len(ids)} id(s) not active on the roster: {', '.join(ids)}")
+    print(f"Wrote {len(merged.rows)} row(s) -> {out}")
     return 0
 
 

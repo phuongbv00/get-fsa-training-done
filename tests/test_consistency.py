@@ -121,10 +121,14 @@ def test_payload_commands_name_a_real_cli_path():
     assert offenders == []
 
 
-#: The one place a feature may reach for an external binary. `.rar` is
-#: proprietary and has no pure-Python reader, so it is allow-listed by path
-#: rather than by convention.
-BINARY_ALLOWLIST = {"assessment/core/grading/preprocess.py"}
+#: The only places a feature may reach for an external binary, both optional
+#: and allow-listed by path rather than by convention. `.rar` is proprietary
+#: and has no pure-Python reader. Docker is the sandbox that runs code which is
+#: not ours — a seed script, a submission's tests — so it cannot be in-process.
+BINARY_ALLOWLIST = {
+    "assessment/core/grading/preprocess.py",
+    "assessment/core/sandbox.py",
+}
 
 
 def test_no_feature_shells_out_to_an_external_binary():

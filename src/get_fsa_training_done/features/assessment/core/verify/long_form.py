@@ -71,6 +71,11 @@ MAX_PARAGRAPH_WORDS = 70
 #: warning nobody can act on.
 FIXED_TASK_LIST_TYPES = ("capstone_project",)
 
+#: Written question sets (an open-ended quiz or theory exam) group questions
+#: into tasks by topic, so their task count follows the topics, not the level's
+#: suggested range for build work.
+UNCALIBRATED_TASK_COUNT_TYPES = FIXED_TASK_LIST_TYPES + ("quiz", "theory_exam")
+
 _BRIEF_TASK = re.compile(
     r"^###\s+Task\s+(\d+)\s+[-–—]\s+(.+?)\s+\((\d+)%\)\s*$",
     re.MULTILINE,
@@ -399,7 +404,7 @@ def verify(
             f"Task count mismatch: brief has {len(brief_tasks)}, rubric has {len(rubric_tasks)}"
         )
 
-    if level is not None and brief_tasks and assessment_type not in FIXED_TASK_LIST_TYPES:
+    if level is not None and brief_tasks and assessment_type not in UNCALIBRATED_TASK_COUNT_TYPES:
         calibration.check_task_count(len(brief_tasks), level, result)
 
     for index, (brief_task, rubric_task) in enumerate(zip(brief_tasks, rubric_tasks), start=1):
