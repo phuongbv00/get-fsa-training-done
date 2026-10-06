@@ -1,6 +1,6 @@
 {
   "name": "get-fsa-training-done",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "One agent skill, and the CLI behind it, for getting FSA training done: programmes, teaching material and assessments. Installs into Claude Code and Codex.",
   "license": "MIT",
   "bin": {

@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.0.0] — 2026-10-06
+
 ### Added
 
 - **`assessment verify` checks the written form** of a quiz or theory exam
@@ -73,7 +75,7 @@ All notable changes to this project are documented here. The format follows
   reads the old ones. `fsa-training-program`, `fsa-training-material` and
   `fsa-training-assessment` install as one skill, `get-fsa-training-done`, with
   one router, one version and one payload. The CLI namespaces are unchanged and
-  `--skill` is gone. Uninstall the old version with its own CLI first.
+  `--skill` is gone.
 - **The code is split into `lifecycle/` and `features/`**, and the payload into
   `references/<feature>/` with `tasks/` and `workflows/`. Every task has the
   same contract — Inputs, Produces, Steps, Done when, Hands off to — and the

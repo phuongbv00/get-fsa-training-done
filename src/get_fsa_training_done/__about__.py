@@ -5,7 +5,7 @@
 payload's `VERSION` file.
 """
 
-__version__ = "0.2.0"
+__version__ = "1.0.0"
 
 PACKAGE_NAME = "get-fsa-training-done"
 CLI_NAME = "get-fsa-training-done"

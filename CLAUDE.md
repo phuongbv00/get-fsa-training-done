@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **The skill** — installed as `get-fsa-training-done`, defined in `src/get_fsa_training_done/skill.py`, with its payload at `src/get_fsa_training_done/payload/get-fsa-training-done/`. It has three **features** dividing one job: `program` (curriculum, schedules, syllabi, vendor workbooks), `material` (lecture notes, handbooks, lab guides and worksheets), and `assessment` (quizzes, assignments, exams, capstones, grading).
 - **The CLI** — `get-fsa-training-done`, with the alias `gftd`. Lifecycle commands (`install`, `update`, `uninstall`, `status`, `doctor`, `env`) act on the one skill; each feature's worker commands live under its namespace: `get-fsa-training-done <namespace> <verb>` (e.g. `get-fsa-training-done assessment render`).
 
-The project was renamed from an earlier package that shipped three separate skills (see the README's upgrade note). The rename was a clean break, and `tests/test_consistency.py` keeps the old names out of everything but `CHANGELOG.md` and `README.md`.
+The project was renamed from an earlier package that shipped three separate skills. The rename was a clean break, and `tests/test_consistency.py` keeps the old names out of everything but `CHANGELOG.md`.
 
 ## How the three features relate
 

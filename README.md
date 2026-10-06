@@ -64,21 +64,6 @@ get-fsa-training-done install --platform all
 Add `--dry-run` to any of `install`, `update`, or `uninstall` to see the exact
 file-by-file plan without touching anything.
 
-### Upgrading from fsa-trainer-skills
-
-This project was `fsa-trainer-skills`, which installed three skills
-(`fsa-training-program`, `fsa-training-material`, `fsa-training-assessment`).
-The rename is a clean break: nothing reads the old names. Remove the old
-install with the old CLI first, then install this one:
-
-```bash
-fsa-trainer-skills uninstall --platform all
-```
-
-```bash
-pip uninstall fsa-trainer-skills
-```
-
 ## Dependencies
 
 Installing the package pulls nothing: `dependencies = []` is deliberate, so the
