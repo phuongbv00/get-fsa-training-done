@@ -1,4 +1,4 @@
-"""`get-fsa-training-done assessment levels` — print the calibration table the workflows
+"""`gftd assessment levels` — print the calibration table the workflows
 read from."""
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-"""`get-fsa-training-done assessment verify` — structural checks on generated
+"""`gftd assessment verify` — structural checks on generated
 assessment artifacts."""
 
 from __future__ import annotations

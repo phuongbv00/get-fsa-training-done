@@ -1,4 +1,4 @@
-"""`get-fsa-training-done assessment render` — export a learner brief to a print-ready PDF.
+"""`gftd assessment render` — export a learner brief to a print-ready PDF.
 
 Only briefs. Rubrics are instructor-only and must never be handed out as a PDF
 alongside the brief, so this command refuses one unless explicitly overridden.

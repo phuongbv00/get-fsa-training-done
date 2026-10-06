@@ -1,4 +1,4 @@
-"""`get-fsa-training-done env` — inspect, build, or delete the managed virtualenvs."""
+"""`gftd env` — inspect, build, or delete the managed virtualenvs."""
 
 from __future__ import annotations
 

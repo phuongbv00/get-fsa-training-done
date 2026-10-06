@@ -1,4 +1,4 @@
-"""`get-fsa-training-done program verify` — does this programme reconcile?
+"""`gftd program verify` — does this programme reconcile?
 
 Reads a programme directory and reports every place its artifacts disagree.
 Each finding names the rule that produced it, so a failure is a lookup in

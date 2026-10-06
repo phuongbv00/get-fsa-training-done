@@ -1,4 +1,4 @@
-"""`get-fsa-training-done doctor` — is this machine able to run every workflow?
+"""`gftd doctor` — is this machine able to run every workflow?
 
 Reports on shared prerequisites (the managed venv and the libraries in it),
 whatever each feature wants checked, and the skill's payload, which
@@ -85,7 +85,7 @@ def run(args: argparse.Namespace) -> int:
         state = "installed" if libraries[module] else f"MISSING — `{used_by}` needs it"
         print(f"  lib:{module:<13} {state}")
     if not all(libraries.values()):
-        print("                   run `get-fsa-training-done install` to build the environment")
+        print("                   run `gftd install` to build the environment")
 
     for key, value in sorted(extra.items()):
         print(f"  {key:<16} {value or 'not found'}")

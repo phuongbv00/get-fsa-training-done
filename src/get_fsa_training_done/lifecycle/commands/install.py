@@ -1,4 +1,4 @@
-"""`get-fsa-training-done install` — materialise a skill payload into a host."""
+"""`gftd install` — materialise a skill payload into a host."""
 
 from __future__ import annotations
 

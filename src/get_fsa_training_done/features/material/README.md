@@ -9,7 +9,7 @@ maintained by hand.
 | --- | --- |
 | Namespace | `material` |
 | Part of the skill | `get-fsa-training-done` |
-| Worker commands | `get-fsa-training-done material <verb>` |
+| Worker commands | `gftd material <verb>` |
 | Payload | [`references/material/`](../payload/get-fsa-training-done/references/material) |
 
 ## Artifacts
@@ -53,8 +53,8 @@ thing.
 ### `verify` — is the document well formed?
 
 ```bash
-get-fsa-training-done material verify "training_program/10. RE/Lectures"
-get-fsa-training-done material verify dbf_lab_01.md --type lab
+gftd material verify "training_program/10. RE/Lectures"
+gftd material verify dbf_lab_01.md --type lab
 ```
 
 Structural only: whether a note *teaches* well is the model's judgement. What
@@ -76,7 +76,7 @@ constraint nothing holds it to.
 ### `coverage` — does what the plan asks for exist?
 
 ```bash
-get-fsa-training-done material coverage \
+gftd material coverage \
   --schedule HN_FR_JSKS_FEF_ScheduleDetail.csv \
   --dir "training_program/5. FEF/Lectures" \
   --syllabus HN_FR_JSKS_FEF_Syllabus.md
@@ -94,7 +94,7 @@ checks only what it owns, so there is no shared constant to drift.
 ### `derive appendix` — the syllabus map
 
 ```bash
-get-fsa-training-done material derive appendix \
+gftd material derive appendix \
   --syllabus TOPIC_Syllabus.md --dir ./Lectures --appendix 99_Appendix.md --write
 ```
 

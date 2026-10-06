@@ -1,4 +1,4 @@
-"""`get-fsa-training-done status` — where the skill is installed, and whether it drifted."""
+"""`gftd status` — where the skill is installed, and whether it drifted."""
 
 from __future__ import annotations
 
@@ -58,7 +58,7 @@ def run(args: argparse.Namespace) -> int:
     print(f"\n{skill.name}")
     if not rows:
         print("  No installs found.")
-        print("\nRun `get-fsa-training-done install --platform all` to install.")
+        print("\nRun `gftd install --platform all` to install.")
         return 0
     for row in rows:
         marker = "  " if row["current"] else "! "
@@ -67,7 +67,7 @@ def run(args: argparse.Namespace) -> int:
         if row["drift"]:
             print(f"      {row['drift']} file(s) differ from what was installed")
         if not row["current"] and row["version"] != "unmanaged":
-            print(f"      update available: {__version__}  (run `get-fsa-training-done update`)")
+            print(f"      update available: {__version__}  (run `gftd update`)")
         if row["version"] == "unmanaged":
             print("      no receipt — not installed by get-fsa-training-done")
     return 0

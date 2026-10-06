@@ -76,20 +76,20 @@ jobs:
           GET_FSA_TRAINING_DONE_HOME: ${{ runner.temp }}/home/cache
         run: |
           set -euo pipefail
-          get-fsa-training-done install --platform all --dry-run
-          get-fsa-training-done install --platform all
-          get-fsa-training-done status --json
-          get-fsa-training-done update --check
-          get-fsa-training-done uninstall --platform all
+          gftd install --platform all --dry-run
+          gftd install --platform all
+          gftd status --json
+          gftd update --check
+          gftd uninstall --platform all
           test -z "$(find "$CLAUDE_CONFIG_DIR" "$CODEX_HOME" -type f 2>/dev/null)" \
             || { echo "uninstall left files behind"; find "$CLAUDE_CONFIG_DIR" "$CODEX_HOME" -type f; exit 1; }
       - name: emit and verify against the shipped fixtures
         run: |
           set -euo pipefail
-          get-fsa-training-done assessment emit blooket \
+          gftd assessment emit blooket \
             --master tests/fixtures/assessment/question_set/quiz_master.csv -o /tmp/b.csv
           cmp /tmp/b.csv tests/fixtures/assessment/question_set/quiz_blooket.csv
-          get-fsa-training-done assessment verify --type quiz \
+          gftd assessment verify --type quiz \
             --master tests/fixtures/assessment/question_set/quiz_master.csv --blooket /tmp/b.csv
 
   render:
@@ -107,13 +107,13 @@ jobs:
         run: |
           set -euo pipefail
           cp tests/fixtures/assessment/long_form/sbf_practice_exam_02.md /tmp/brief.md
-          get-fsa-training-done assessment render /tmp/brief.md
+          gftd assessment render /tmp/brief.md
       - name: a Vietnamese brief keeps its diacritics
         # The reason the fonts are embedded. Chrome used to resolve these from
         # the host, so this would have depended on the runner's font packages.
         run: |
           set -euo pipefail
           printf '# \u0110\u1ec1 b\u00e0i\n\nN\u1ed9p b\u00e0i d\u01b0\u1edbi d\u1ea1ng `m\u00e3_s\u1ed1.zip`.\n' > /tmp/vn.md
-          get-fsa-training-done assessment render /tmp/vn.md --lang vi -o /tmp/vn.pdf
+          gftd assessment render /tmp/vn.md --lang vi -o /tmp/vn.pdf
           pip install pypdf
           python -c 'from pypdf import PdfReader; t="\n".join(p.extract_text() for p in PdfReader("/tmp/vn.pdf").pages); assert all(f in t for f in ("\u0110\u1ec1 b\u00e0i","N\u1ed9p","m\u00e3_s\u1ed1")), t; assert "\x00" not in t, "missing glyph"; print("Vietnamese round-trip OK")'

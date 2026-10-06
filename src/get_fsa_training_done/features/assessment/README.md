@@ -9,7 +9,7 @@ grading.
 | --- | --- |
 | Namespace | `assessment` |
 | Part of the skill | `get-fsa-training-done` |
-| Worker commands | `get-fsa-training-done assessment <verb>` |
+| Worker commands | `gftd assessment <verb>` |
 | Payload | [`references/assessment/`](../payload/get-fsa-training-done/references/assessment) |
 
 ## Assessment types
@@ -59,8 +59,8 @@ These are defaults, not rules. Planning confirms them with the user, and
 error.
 
 ```bash
-get-fsa-training-done assessment levels show
-get-fsa-training-done assessment levels show --level UP_SKILL --band mid --count 40
+gftd assessment levels show
+gftd assessment levels show --level UP_SKILL --band mid --count 40
 ```
 
 Percentages become whole questions by largest remainder, so counts always sum
@@ -74,8 +74,8 @@ Platform import files are always *derived* from the master CSV, never written
 by hand, so they cannot drift from the answer key.
 
 ```bash
-get-fsa-training-done assessment emit blooket --master jpl_quiz_03.csv
-get-fsa-training-done assessment emit coderbyte --master jpl_theory_01.csv -o custom.json
+gftd assessment emit blooket --master jpl_quiz_03.csv
+gftd assessment emit coderbyte --master jpl_theory_01.csv -o custom.json
 ```
 
 Formats are `blooket` (→ `_blooket.csv`) and `coderbyte` (→ `_coderbyte.json`).
@@ -88,10 +88,10 @@ bytes survive a platform import. Whether the questions are any *good* is the
 verifier agent's job.
 
 ```bash
-get-fsa-training-done assessment verify --type quiz \
+gftd assessment verify --type quiz \
   --master jpl_quiz_03.csv --blooket jpl_quiz_03_blooket.csv
 
-get-fsa-training-done assessment verify --type long_assignment \
+gftd assessment verify --type long_assignment \
   --brief brief.md --rubric rubric.md --pdf brief.pdf --level UP_SKILL --band mid
 ```
 
@@ -117,7 +117,7 @@ for the same reason import files are derived from the master: written by hand,
 the deadline in the spec and the deadline in the handout drift within a week.
 
 ```bash
-get-fsa-training-done assessment sprint-kit --spec jpl_capstone_project_01_spec.md \
+gftd assessment sprint-kit --spec jpl_capstone_project_01_spec.md \
   --drive-root MKP-F26 --lang en --update-spec
 ```
 
@@ -156,7 +156,7 @@ ends up in the same shared folder. Its template is in the payload, at
 ### `render` — brief to PDF
 
 ```bash
-get-fsa-training-done assessment render brief.md -o brief.pdf
+gftd assessment render brief.md -o brief.pdf
 ```
 
 Renders an A4 PDF and checks it against a page budget derived from the brief's
@@ -189,10 +189,10 @@ What has to run goes through `sandbox`, below.
 | `ai-cheat` | AI-authorship and shared-source signals (**instructor-only**) |
 
 ```bash
-get-fsa-training-done assessment grade preprocess \
+gftd assessment grade preprocess \
   --roster roster.csv --src ./uploads --subject JPL --type ASSIGNMENT
 
-get-fsa-training-done assessment grade aggregate --scores ./scores --out grades.csv
+gftd assessment grade aggregate --scores ./scores --out grades.csv
 ```
 
 `plagiarism` and `ai-cheat` collect observable signals for a human to review.
@@ -201,10 +201,10 @@ They prove nothing and must never change a grade on their own.
 ### `sandbox` — run what is not ours, in Docker
 
 ```bash
-get-fsa-training-done assessment sandbox check
-get-fsa-training-done assessment sandbox run --profile postgres --mount ./exam \
+gftd assessment sandbox check
+gftd assessment sandbox run --profile postgres --mount ./exam \
   --init reference_schema.sql --init seed.sql -- psql -v ON_ERROR_STOP=1 -f seed_test.sql
-get-fsa-training-done assessment sandbox run --profile maven --mount ./starter --prefetch -- mvn test
+gftd assessment sandbox run --profile maven --mount ./starter --prefetch -- mvn test
 ```
 
 Profiles: `postgres`, `maven`, `python`, `node`, pinned in `core/sandbox.py`.
@@ -215,8 +215,8 @@ fetches dependencies first with only the build tool's resolver running.
 ### `levels` — the calibration table
 
 ```bash
-get-fsa-training-done assessment levels show --level RE_SKILL --band senior
-get-fsa-training-done assessment levels show --json
+gftd assessment levels show --level RE_SKILL --band senior
+gftd assessment levels show --json
 ```
 
 ## Prerequisites
@@ -228,7 +228,7 @@ both now run in-process, on `xhtml2pdf` and the standard library plus `py7zr`.
 Docker is optional: only `sandbox` needs it. The other optional tool is a `.rar` extractor (`unar`, `7z`, or `bsdtar`). `.rar`
 is proprietary and has no pure-Python reader, so a trainee who submits one needs
 one of those on `PATH` — every other format is read unaided.
-`get-fsa-training-done doctor` reports it as optional and does not fail without it.
+`gftd doctor` reports it as optional and does not fail without it.
 
 ## Layout
 

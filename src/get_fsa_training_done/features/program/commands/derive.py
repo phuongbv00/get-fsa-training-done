@@ -1,4 +1,4 @@
-"""`get-fsa-training-done program derive` — compute what must not be typed.
+"""`gftd program derive` — compute what must not be typed.
 
 Two targets, both the same idea as the assessment skill's `emit`: a table that
 summarises another file is derived from it, so the two cannot drift.

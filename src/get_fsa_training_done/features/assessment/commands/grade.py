@@ -1,4 +1,4 @@
-"""`get-fsa-training-done assessment grade` — the mechanical half of grading.
+"""`gftd assessment grade` — the mechanical half of grading.
 
 Extraction, batching, aggregation, retake merges, quiz arithmetic, and the
 instructor-only cheat checks. The judgement — reading a submission against a

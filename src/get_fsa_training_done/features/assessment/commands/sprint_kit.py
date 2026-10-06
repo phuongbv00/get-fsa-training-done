@@ -1,4 +1,4 @@
-"""`get-fsa-training-done assessment sprint-kit` — the learner-facing sprint pack.
+"""`gftd assessment sprint-kit` — the learner-facing sprint pack.
 
 Same contract as `emit`: the spec is the single source, and everything a team
 receives is derived from it. Hand-writing the handout puts the sprint calendar

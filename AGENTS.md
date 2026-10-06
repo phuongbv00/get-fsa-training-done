@@ -7,7 +7,7 @@ Guidance for coding agents (Codex, Claude Code, and others) working in this repo
 `get-fsa-training-done` ships **one agent skill** and the CLI behind it, and the two must stay in sync:
 
 - **The skill** — installed as `get-fsa-training-done`, defined in `src/get_fsa_training_done/skill.py`, with its payload at `src/get_fsa_training_done/payload/get-fsa-training-done/`. It has three **features** dividing one job: `program` (curriculum, schedules, syllabi, vendor workbooks), `material` (lecture notes, handbooks, lab guides and worksheets), and `assessment` (quizzes, assignments, exams, capstones, grading).
-- **The CLI** — `get-fsa-training-done`, with the alias `gftd`. Lifecycle commands (`install`, `update`, `uninstall`, `status`, `doctor`, `env`) act on the one skill; each feature's worker commands live under its namespace: `get-fsa-training-done <namespace> <verb>` (e.g. `get-fsa-training-done assessment render`).
+- **The CLI** — `get-fsa-training-done`, with the alias `gftd`. Lifecycle commands (`install`, `update`, `uninstall`, `status`, `doctor`, `env`) act on the one skill; each feature's worker commands live under its namespace: `gftd <namespace> <verb>` (e.g. `gftd assessment render`).
 
 The project was renamed from an earlier package that shipped three separate skills. The rename was a clean break, and `tests/test_consistency.py` keeps the old names out of every tracked file.
 
@@ -31,7 +31,7 @@ python scripts/sync_version.py --check    # version consistency gate
 for g in scripts/*/gen_*.py; do python "$g" --check; done   # generated references
 ```
 
-When iterating on worker commands locally, `get-fsa-training-done --no-venv <cmd>` (or `GET_FSA_TRAINING_DONE_NO_VENV=1`) runs in the current interpreter instead of re-execing into the managed venv.
+When iterating on worker commands locally, `gftd --no-venv <cmd>` (or `GET_FSA_TRAINING_DONE_NO_VENV=1`) runs in the current interpreter instead of re-execing into the managed venv.
 
 ## Architecture
 

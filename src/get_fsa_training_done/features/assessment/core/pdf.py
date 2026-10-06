@@ -58,7 +58,7 @@ def render_html(document: str, out_pdf: Path) -> int | None:
     except ImportError as exc:  # pragma: no cover - the venv guarantees it
         raise GftdError(
             "the PDF renderer is not available in this environment",
-            hint="run `get-fsa-training-done install` to build the managed environment",
+            hint="run `gftd install` to build the managed environment",
         ) from exc
 
     # xhtml2pdf logs every print-CSS property it does not implement. We know

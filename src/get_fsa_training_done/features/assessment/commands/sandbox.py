@@ -1,4 +1,4 @@
-"""`get-fsa-training-done assessment sandbox` — run a testable artifact in Docker.
+"""`gftd assessment sandbox` — run a testable artifact in Docker.
 
 The rules the run is held to (no network, read-only source, bounded, removed
 afterwards) are in `core/sandbox.py`, so no workflow has to remember them.

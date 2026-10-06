@@ -1,4 +1,4 @@
-"""`get-fsa-training-done material verify` — is this teaching material well formed?
+"""`gftd material verify` — is this teaching material well formed?
 
 Structural only. Whether a note *teaches* well is a judgement the model makes;
 what this checks is the shape everything downstream depends on — the title, the

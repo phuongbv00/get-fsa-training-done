@@ -1,4 +1,4 @@
-"""`get-fsa-training-done uninstall` — remove exactly what was written, and nothing else."""
+"""`gftd uninstall` — remove exactly what was written, and nothing else."""
 
 from __future__ import annotations
 

@@ -1,11 +1,11 @@
-"""`get-fsa-training-done material coverage` — does the material the plan asks for exist?
+"""`gftd material coverage` — does the material the plan asks for exist?
 
 The cross-feature check. A session plan's materials column names the file that
 serves each session; this reports both directions — what is promised and
 missing, and what is present and unscheduled.
 
 It reads the plan by column name and does not enforce its schema. That belongs
-to `get-fsa-training-done program verify`, and duplicating it here would give two
+to `gftd program verify`, and duplicating it here would give two
 skills two opinions about one file.
 """
 

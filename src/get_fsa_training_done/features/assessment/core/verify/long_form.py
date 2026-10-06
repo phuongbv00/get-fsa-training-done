@@ -271,7 +271,7 @@ def check_page_budget(
     if pdf_path is None:
         result.warn(
             f"Page budget is {limit} A4 pages but no --pdf was given; "
-            "render the brief with `get-fsa-training-done assessment render` and re-check"
+            "render the brief with `gftd assessment render` and re-check"
         )
         return
 

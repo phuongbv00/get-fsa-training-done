@@ -3,7 +3,7 @@
 Lifecycle commands (`install`, `update`, `uninstall`, `status`, `doctor`,
 `env`) run in whatever interpreter invoked them — they must work before any
 environment exists. Every feature's worker commands (reached under
-`get-fsa-training-done <namespace> <verb>`) re-exec into the skill's managed
+`gftd <namespace> <verb>`) re-exec into the skill's managed
 virtualenv first, so they always run against the same pinned dependencies
 regardless of how the CLI itself was installed.
 """
@@ -14,7 +14,7 @@ import argparse
 import sys
 
 from . import features
-from .__about__ import CLI_NAME, __version__
+from .__about__ import CLI_NAME, SHORT_NAME, __version__
 from .errors import GftdError
 from .skill import SKILL
 
@@ -23,7 +23,7 @@ LIFECYCLE_COMMANDS = {"install", "update", "uninstall", "status", "doctor", "env
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog=CLI_NAME,
+        prog=SHORT_NAME,
         description=(
             "Install the get-fsa-training-done agent skill in Claude Code and Codex, "
             "and run its program, material and assessment commands."

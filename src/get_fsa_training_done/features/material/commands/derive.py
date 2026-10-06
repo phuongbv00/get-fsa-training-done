@@ -1,4 +1,4 @@
-"""`get-fsa-training-done material derive` — compute the appendix's syllabus map.
+"""`gftd material derive` — compute the appendix's syllabus map.
 
 The map is a transcription of the topic outline with a link into the note that
 covers each item. Its deep anchors are the only ones in the corpus, so a renamed

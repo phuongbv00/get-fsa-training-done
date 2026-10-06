@@ -116,7 +116,7 @@ def extract(archive: Path, dest: Path) -> tuple[bool, str]:
             except ImportError as exc:  # pragma: no cover - the venv guarantees it
                 raise MissingToolError(
                     "the .7z reader is not available in this environment",
-                    hint="run `get-fsa-training-done install` to build the managed environment",
+                    hint="run `gftd install` to build the managed environment",
                 ) from exc
             with py7zr.SevenZipFile(archive) as bundle:
                 bundle.extract(path=dest, targets=_safe_members(bundle.getnames(), dest))

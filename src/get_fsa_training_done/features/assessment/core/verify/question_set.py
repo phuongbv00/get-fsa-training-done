@@ -1,6 +1,6 @@
 """Master CSV verification, plus regression checks on the derived import files.
 
-Since `get-fsa-training-done assessment emit` now generates the Blooket CSV and Coderbyte JSON from
+Since `gftd assessment emit` now generates the Blooket CSV and Coderbyte JSON from
 the master, the checks against those files are cheap regression tests rather
 than the correctness safety-net they used to be. They stay because a
 hand-edited import file is exactly the kind of thing that silently diverges.

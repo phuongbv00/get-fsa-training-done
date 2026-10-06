@@ -9,7 +9,7 @@ reconciling the numbers, and editing the workbook.
 | --- | --- |
 | Namespace | `program` |
 | Part of the skill | `get-fsa-training-done` |
-| Worker commands | `get-fsa-training-done program <verb>` |
+| Worker commands | `gftd program <verb>` |
 | Payload | [`references/program/`](../payload/get-fsa-training-done/references/program) |
 
 ## What it owns
@@ -48,8 +48,8 @@ number to pick.
 ### `verify` — does it reconcile?
 
 ```bash
-get-fsa-training-done program verify --program-dir ./docs/HN_FR_JSKS_JAVA_WEB
-get-fsa-training-done program verify --program-dir . --topic HN_FR_JSKS_DBF --json
+gftd program verify --program-dir ./docs/HN_FR_JSKS_JAVA_WEB
+gftd program verify --program-dir . --topic HN_FR_JSKS_DBF --json
 ```
 
 36 rules across three scopes — `PRG-P*` the programme files, `PRG-S*` one topic,
@@ -69,8 +69,8 @@ Policy that is genuinely a judgement call is a flag, not an assumption:
 ### `derive` — what must not be typed twice
 
 ```bash
-get-fsa-training-done program derive allocation --schedule plan.csv --syllabus s.md --write
-get-fsa-training-done program derive skeleton --curriculum c.md --out-dir .
+gftd program derive allocation --schedule plan.csv --syllabus s.md --write
+gftd program derive skeleton --curriculum c.md --out-dir .
 ```
 
 `allocation` recomputes a syllabus's §8 Time Allocation from its session plan;
@@ -83,7 +83,7 @@ that summarises another file drifts from it the moment it is written by hand.
 ### `export` — fill the vendor workbook
 
 ```bash
-get-fsa-training-done program export syllabus \
+gftd program export syllabus \
   --template Template_Import_Syllabus.xlsx --syllabus s.md -o DBF_Syllabus.xlsx
 ```
 

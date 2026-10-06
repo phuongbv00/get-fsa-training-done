@@ -1,4 +1,4 @@
-"""`get-fsa-training-done assessment emit` — derive delivery artifacts from the master question CSV.
+"""`gftd assessment emit` — derive delivery artifacts from the master question CSV.
 
 The model authors one file. Everything a platform actually imports is generated
 from it, so the import files cannot drift from the answer key, and the format

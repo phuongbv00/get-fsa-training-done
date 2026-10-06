@@ -34,25 +34,26 @@ inputs first, echoes back the resolved paths, and waits for a go-ahead.
 pip install get-fsa-training-done
 ```
 
-This gives you the `get-fsa-training-done` command and its short alias `gftd`.
+This gives you the `gftd` command, which every example below uses; it is also
+installed under its full name, `get-fsa-training-done`.
 It needs Python 3.12+.
 
 Then install the skill into your agent:
 
 ```bash
-get-fsa-training-done install --platform all
+gftd install --platform all
 ```
 
 | Command | Effect |
 | --- | --- |
-| `get-fsa-training-done install --platform claude --scope user` | `~/.claude/skills/get-fsa-training-done` |
-| `get-fsa-training-done install --platform claude --scope project` | `./.claude/skills/get-fsa-training-done` |
-| `get-fsa-training-done install --platform codex --scope user` | `~/.codex/skills/get-fsa-training-done` |
-| `get-fsa-training-done install --platform codex --scope project` | `./.codex/skills/get-fsa-training-done` |
-| `get-fsa-training-done update` | upgrade in place, preserving files you edited |
-| `get-fsa-training-done uninstall --platform all` | remove exactly what was installed |
-| `get-fsa-training-done status` | what is installed where, and whether it drifted |
-| `get-fsa-training-done doctor` | check this machine for the skill's prerequisites |
+| `gftd install --platform claude --scope user` | `~/.claude/skills/get-fsa-training-done` |
+| `gftd install --platform claude --scope project` | `./.claude/skills/get-fsa-training-done` |
+| `gftd install --platform codex --scope user` | `~/.codex/skills/get-fsa-training-done` |
+| `gftd install --platform codex --scope project` | `./.codex/skills/get-fsa-training-done` |
+| `gftd update` | upgrade in place, preserving files you edited |
+| `gftd uninstall --platform all` | remove exactly what was installed |
+| `gftd status` | what is installed where, and whether it drifted |
+| `gftd doctor` | check this machine for the skill's prerequisites |
 
 Add `--dry-run` to any of `install`, `update`, or `uninstall` to see the exact
 file-by-file plan without touching anything.
@@ -69,7 +70,7 @@ need live in the **managed virtualenv** instead — declared once in
 | `xhtml2pdf` | `assessment render`, for the brief PDF |
 | `py7zr` | `assessment grade preprocess`, for `.7z` submissions |
 
-`get-fsa-training-done install` builds that environment, so the first install
+`gftd install` builds that environment, so the first install
 needs a network and everything after it does not — which is the property that
 matters on an exam machine.
 

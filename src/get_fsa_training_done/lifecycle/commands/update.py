@@ -1,4 +1,4 @@
-"""`get-fsa-training-done update` — version-aware upgrade of an installed skill."""
+"""`gftd update` — version-aware upgrade of an installed skill."""
 
 from __future__ import annotations
 
@@ -77,7 +77,7 @@ def _update_one(
     if existing is None:
         raise NotInstalledError(
             f"{dest} is not managed by get-fsa-training-done",
-            hint="run `get-fsa-training-done install` (add --force to adopt an existing directory)",
+            hint="run `gftd install` (add --force to adopt an existing directory)",
         )
 
     plan = planner.build_plan(dest, payload, existing, __version__)

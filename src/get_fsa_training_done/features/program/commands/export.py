@@ -1,4 +1,4 @@
-"""`get-fsa-training-done program export` — fill the vendor workbook.
+"""`gftd program export` — fill the vendor workbook.
 
 The template is edited, not rebuilt: its sheets are rewritten in place and every
 other part of the package is copied through untouched, so the form keeps its
