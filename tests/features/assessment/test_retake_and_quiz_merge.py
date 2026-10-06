@@ -92,6 +92,11 @@ def test_an_alias_maps_a_loose_nickname(tmp_path, roster_csv):
     assert result.unmatched == []
 
 
+def test_names_are_read_as_text_not_markup(tmp_path):
+    path = leaderboard(tmp_path, "q.html", [player("O&#39;Neil &amp; co", 10, 0)])
+    assert quiz_scores.read_leaderboard(path, 10)[1][0] == "O'Neil & co"
+
+
 def test_html_without_questions_is_refused(tmp_path):
     path = leaderboard(tmp_path, "q.html", [player("PhuongBV3", 1, 1)])
     argv = ["--no-venv", "assessment", "grade", "quiz", "--html", str(path)]
@@ -168,6 +173,23 @@ def test_a_voided_retake_keeps_the_first_attempt(attempts):
     merged = retake.merge(*attempts, void=["anhpq54"])
     assert by_id(merged)["AnhPQ54"][2:] == ["T1: first", "3", "3", "3"]
     assert merged.voided == ["AnhPQ54"]
+
+
+def test_a_voided_retake_with_no_first_attempt_leaves_an_empty_row(tmp_path):
+    first = retake.read(grades(tmp_path, "f.csv", [["PhuongBV3", "", "", "4", "4", "4"]]))
+    second = retake.read(
+        grades(
+            tmp_path,
+            "r.csv",
+            [
+                ["PhuongBV3", "", "", "9", "9", "9"],
+                ["LinhTT127", "Tran Thi Linh", "x", "9", "9", "9"],
+            ],
+        )
+    )
+    merged = retake.merge(first, second, void=["LinhTT127"])
+    assert by_id(merged)["LinhTT127"] == ["LinhTT127", "Tran Thi Linh", "", "", "", ""]
+    assert merged.voided == ["LinhTT127"]
 
 
 def test_the_policy_is_flags(attempts):

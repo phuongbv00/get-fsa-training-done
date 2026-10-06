@@ -44,7 +44,7 @@ is the contract:
 
 The program feature writes the row. This feature produces `fef_lab_01.md`; the
 assessment feature produces `dbf_quiz_01.csv`. `coverage` reports what is
-missing on this side and counts the rest as *owned by another skill* rather than
+missing on this side and counts the rest as *owned by another feature* rather than
 as a gap — reporting a missing quiz here would send someone to write the wrong
 thing.
 

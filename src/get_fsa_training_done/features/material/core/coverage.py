@@ -1,11 +1,11 @@
 """Comparing a module's materials against the session plan that asks for them.
 
-This is where the three skills meet. A session row names the file that serves
-it, so the plan is a manifest: `program` writes the row, and this checks that
-the half belonging to teaching material actually exists.
+This is where the three features meet. A session row names the file that
+serves it, so the plan is a manifest: `program` writes the row, and this checks
+that the half belonging to teaching material actually exists.
 
 The plan is read **by column name, tolerating any superset**, and its schema is
-deliberately not enforced here — that is `program verify`'s job. Each skill
+deliberately not enforced here — that is `program verify`'s job. Each feature
 checks only what it owns, so there is no shared constant to drift and no second
 copy of the rulebook.
 """
@@ -20,7 +20,7 @@ from pathlib import Path
 from get_fsa_training_done.errors import UsageError
 from get_fsa_training_done.features.common.findings import Report
 
-from .grammar import OBJECTIVE_CODE
+from .grammar import LAB_FILENAME, OBJECTIVE_CODE, WORKSHEET_FILENAME
 
 MATERIALS_COLUMN = "Training Materials / Logistics & General Notes"
 OBJECTIVES_COLUMN = "Learning Objectives"
@@ -29,9 +29,10 @@ CONTENT_COLUMN = "Content"
 #: A materials cell is prose that names files: "dbf_assignment_01.md and rubric".
 FILENAME = re.compile(r"\b[\w.-]+\.(?:md|csv|json|xlsx|pdf)\b")
 
-#: Which skill owns a named file, by the shape of its name.
+#: Which feature owns a named file, by the shape of its name.
 MATERIAL_KINDS = (
     re.compile(r"_lab_\d+\.md$"),
+    WORKSHEET_FILENAME,
     re.compile(r"_lecture_\d+\.md$"),
     re.compile(r"^\d{2}[a-z]?_.+\.md$"),
 )
@@ -52,7 +53,7 @@ class Demand:
 
 
 def owns(filename: str) -> bool:
-    """Is this a file this skill is responsible for producing?"""
+    """Is this a file this feature is responsible for producing?"""
     if any(pattern.search(filename) for pattern in ASSESSMENT_KINDS):
         return False
     return any(pattern.search(filename) for pattern in MATERIAL_KINDS)
@@ -110,7 +111,16 @@ def check(
             + (f" — {demand.content[:60]}" if demand.content else ""),
         )
 
-    unused = sorted(present - wanted)
+    # A worksheet serves its lab: in use whenever the lab beside it is.
+    unused = sorted(
+        filename
+        for filename in present - wanted
+        if not (
+            WORKSHEET_FILENAME.match(filename)
+            and _lab_of(filename) in present
+            and LAB_FILENAME.match(_lab_of(filename))
+        )
+    )
     for filename in unused:
         report.warn("MAT-C02", where, f"{filename} is not used by any session")
 
@@ -130,8 +140,13 @@ def check(
         "present": len(wanted & present),
         "missing": len(missing),
         "unused": len(unused),
-        "owned by another skill": len(others),
+        "owned by another feature": len(others),
     }
+
+
+def _lab_of(worksheet: str) -> str:
+    """`dbf_lab_01_worksheet_vn.md` serves `dbf_lab_01.md`."""
+    return re.sub(r"_worksheet(_vn)?\.md$", ".md", worksheet)
 
 
 def check_objectives(demands: list[Demand], directory: Path, report: Report) -> None:

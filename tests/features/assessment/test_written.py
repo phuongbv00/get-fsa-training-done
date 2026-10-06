@@ -60,6 +60,21 @@ def test_the_real_written_artifacts_pass(assessment_type, stem):
     assert not any("tasks;" in warning for warning in result.warnings)
 
 
+def test_a_translated_brief_is_checked_against_the_english_rubric(tmp_path):
+    vn = tmp_path / "jcf_theory_exam_01_vn.md"
+    vn.write_text(THEORY.read_text(encoding="utf-8"), encoding="utf-8")
+    result = CheckResult()
+    long_form.verify(
+        assessment_type="theory_exam",
+        brief_path=str(vn),
+        rubric_path=str(THEORY_RUBRIC),
+        pdf_path=None,
+        max_pages=10,
+        result=result,
+    )
+    assert result.errors == []
+
+
 def test_the_real_answer_template_passes():
     result = check_template(THEORY, TEMPLATE)
     assert result.errors == [] and result.warnings == []
@@ -83,7 +98,7 @@ def test_a_template_missing_a_question_slot_fails(tmp_path):
     short = tmp_path / TEMPLATE.name
     short.write_text(TEMPLATE.read_text(encoding="utf-8").replace("**Q20.**", ""), encoding="utf-8")
     result = check_template(THEORY, short)
-    assert any("slots for" in error for error in result.errors)
+    assert any("T4 has slots" in error for error in result.errors)
 
 
 def test_a_template_with_a_renamed_task_fails(tmp_path):
@@ -110,7 +125,52 @@ def test_a_theory_template_needs_the_candidate_line(tmp_path):
 
 def test_a_translated_template_keeps_vn_last():
     brief = THEORY.with_name("jcf_theory_exam_01_vn.md")
-    assert "jcf_theory_exam_01_answer_template_vn.md" in answer_template.expected_name(brief)
+    good = THEORY.with_name("jcf_theory_exam_01_answer_template_vn.md")
+    bad = THEORY.with_name("jcf_theory_exam_01_vn_answer_template.md")
+    assert answer_template.name_matches(brief, good, "theory_exam")
+    assert not answer_template.name_matches(brief, bad, "theory_exam")
+
+
+def test_slots_out_of_order_fail(tmp_path):
+    swapped = tmp_path / TEMPLATE.name
+    text = TEMPLATE.read_text(encoding="utf-8")
+    swapped.write_text(
+        text.replace("**Q1.**", "**QX.**")
+        .replace("**Q2.**", "**Q1.**")
+        .replace("**QX.**", "**Q2.**"),
+        encoding="utf-8",
+    )
+    result = check_template(THEORY, swapped)
+    assert any("T1 has slots Q2, Q1" in error for error in result.errors)
+
+
+def test_every_slot_under_the_last_task_fails(tmp_path):
+    """The old check compared one set of numbers for the whole file."""
+    import re
+
+    text = TEMPLATE.read_text(encoding="utf-8")
+    slots = re.findall(r"\*\*Q\d+\.\*\*\n\n<your answer>\n\n", text)
+    stripped = re.sub(r"\*\*Q\d+\.\*\*\n\n<your answer>\n\n", "", text)
+    moved = tmp_path / TEMPLATE.name
+    moved.write_text(stripped.rstrip() + "\n\n" + "".join(slots), encoding="utf-8")
+    assert check_template(THEORY, moved).errors
+
+
+def test_a_practice_exam_worksheet_may_serve_one_task(tmp_path):
+    brief = FIXTURES / "long_form" / "sbf_practice_exam_02.md"
+    task_two = next(
+        line
+        for line in brief.read_text(encoding="utf-8").splitlines()
+        if line.startswith("### Task 2 ")
+    )
+    name = task_two.removeprefix("### ").rsplit(" (", 1)[0]
+    sheet = tmp_path / "sbf_practice_exam_02_design_template.md"
+    sheet.write_text(f"# Worksheet\n\n## {name}\n\n| A | B |\n|---|---|\n", encoding="utf-8")
+    result = check_template(brief, sheet, assessment_type="practice_exam")
+    assert result.errors == [] and result.warnings == []
+
+    sheet.write_text("# Worksheet\n\n## Task 2 - Something Else\n", encoding="utf-8")
+    assert check_template(brief, sheet, assessment_type="practice_exam").errors
 
 
 def test_the_cli_routes_a_theory_exam_by_the_files_given(tmp_path, capsys):

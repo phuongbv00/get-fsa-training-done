@@ -189,6 +189,16 @@ def test_c01_a_material_the_plan_names_but_which_is_missing(coverage_fired, modu
     assert "MAT-C01" in coverage_fired(plan_path, module)
 
 
+def test_c02_a_worksheet_beside_a_used_lab_is_in_use(coverage_fired, module, plan_path):
+    (module / "dbf_lab_01_worksheet.md").write_text("# Worksheet\n", encoding="utf-8")
+    assert coverage_fired(plan_path, module) == set()
+
+
+def test_c02_a_worksheet_with_no_lab_warns(coverage_fired, module, plan_path):
+    (module / "dbf_lab_07_worksheet.md").write_text("# Worksheet\n", encoding="utf-8")
+    assert "MAT-C02" in coverage_fired(plan_path, module)
+
+
 def test_c02_a_material_no_session_uses_warns(coverage_fired, module, plan_path):
     (module / "03_Extra.md").write_text("# Extra\n", encoding="utf-8")
     assert "MAT-C02" in coverage_fired(plan_path, module)
@@ -224,7 +234,7 @@ def test_another_skills_files_are_never_reported_missing(module, plan_path, caps
     capsys.readouterr()
     main(["material", "coverage", "--schedule", str(plan_path), "--dir", str(module), "--json"])
     payload = json.loads(capsys.readouterr().out)
-    assert payload["facts"]["owned by another skill"] == 2
+    assert payload["facts"]["owned by another feature"] == 2
     assert payload["findings"] == []
 
 
@@ -242,6 +252,21 @@ def test_a_mermaid_diagram_is_a_known_fence(fired, module, edit):
 
 def test_d19_an_er_relationship_without_cardinality_words_warns(fired, module, edit):
     edit(module, NOTE, "## 3. Keys", diagram("erDiagram", "  CUSTOMER ||--o{ ORDER : places"))
+    assert "MAT-D19" in fired(module)
+
+
+def test_d19_a_non_identifying_relationship_is_checked_too(fired, module, edit):
+    edit(module, NOTE, "## 3. Keys", diagram("erDiagram", "  CUSTOMER ||..o{ ORDER : places"))
+    assert "MAT-D19" in fired(module)
+
+
+def test_d19_an_er_diagram_after_front_matter_is_checked(fired, module, edit):
+    edit(
+        module,
+        NOTE,
+        "## 3. Keys",
+        diagram("---", "title: Orders", "---", "%% comment", "erDiagram", "  A ||--o{ B : has"),
+    )
     assert "MAT-D19" in fired(module)
 
 

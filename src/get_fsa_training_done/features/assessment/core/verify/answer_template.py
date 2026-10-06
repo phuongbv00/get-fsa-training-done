@@ -13,7 +13,7 @@ import re
 from pathlib import Path
 
 from .common import CheckResult, normalize_name, read_text
-from .long_form import parse_brief_tasks, section_body
+from .long_form import section_body
 
 CANDIDATE_LINE = "> **Candidate:**"
 
@@ -27,13 +27,37 @@ _QUESTION_MARK = re.compile(r"\*\*Q(\d+)\.\*\*")
 _MARKUP = re.compile(r"[*_`>#|]+")
 
 
-def expected_name(brief: Path) -> set[str]:
-    """`<stem>_answer_template.md`, with a translation's `_vn` kept last."""
-    stem = brief.stem
-    names = {f"{stem}_answer_template.md"}
-    if stem.endswith("_vn"):
-        names.add(f"{stem[:-3]}_answer_template_vn.md")
-    return names
+def name_matches(brief: Path, template: Path, assessment_type: str) -> bool:
+    """Whether the template's name follows its brief's.
+
+    A theory exam's answer sheet is `<stem>_answer_template.md`; a practice
+    exam's worksheet names what it holds, `<stem>[_<what>]_template.md`. A
+    translation keeps `_vn` last in either.
+    """
+    stem = brief.stem.removesuffix("_vn")
+    suffix = "_vn.md" if brief.stem.endswith("_vn") else ".md"
+    name = template.name
+    if not name.startswith(stem + "_") or not name.endswith("template" + suffix):
+        return False
+    if assessment_type == "practice_exam":
+        return True
+    return name == f"{stem}_answer_template{suffix}"
+
+
+def _task_slots(text: str, heading: re.Pattern[str]) -> list[tuple[str, str, list[int]]]:
+    """Each task heading in order, with the `**Qn.**` numbers under it in order."""
+    tasks: list[tuple[str, str, list[int]]] = []
+    for line in text.splitlines():
+        found = heading.match(line)
+        if found:
+            tasks.append((f"T{found.group(1)}", found.group(2).strip(), []))
+        elif tasks:
+            tasks[-1][2].extend(int(n) for n in _QUESTION_MARK.findall(line))
+    return tasks
+
+
+_BRIEF_TASK_HEADING = re.compile(r"^###\s+Task\s+(\d+)\s+[-–—]\s+(.+?)\s+\(\d+%\)\s*$")
+_TEMPLATE_TASK_HEADING = re.compile(r"^##\s+Task\s+(\d+)\s+[-–—]\s+(.+?)\s*$")
 
 
 def _plain(text: str) -> str:
@@ -71,45 +95,60 @@ def verify(
     if not brief_text or not template_text:
         return
 
-    names = expected_name(brief)
-    if template.name not in names:
-        result.warn(f"Answer template should be named {' or '.join(sorted(names))}")
+    if not name_matches(brief, template, assessment_type):
+        expected = (
+            "<stem>[_<what>]_template.md"
+            if assessment_type == "practice_exam"
+            else "<stem>_answer_template.md"
+        )
+        result.warn(f"Answer template {template.name} should be named {expected}")
 
     if assessment_type == "theory_exam" and CANDIDATE_LINE not in template_text:
         result.error(f"Answer template is missing the {CANDIDATE_LINE} line")
 
-    brief_tasks = parse_brief_tasks(brief_text)
-    template_tasks = [
-        {"id": f"T{number}", "name": name} for number, name in _TEMPLATE_TASK.findall(template_text)
-    ]
-    if template_tasks or assessment_type == "theory_exam":
+    brief_tasks = _task_slots(section_body(brief_text, "## 2. Tasks"), _BRIEF_TASK_HEADING)
+    template_tasks = _task_slots(template_text, _TEMPLATE_TASK_HEADING)
+    by_id = {task_id: (name, slots) for task_id, name, slots in brief_tasks}
+
+    if assessment_type == "practice_exam":
+        # A worksheet serves the tasks whose output is writing: any of them,
+        # in brief order, each under its exact brief name.
+        ids = [task_id for task_id, _, _ in template_tasks]
+        if ids != sorted(set(ids), key=lambda task_id: int(task_id[1:])):
+            result.error("Worksheet task headings repeat or run out of order")
+        for task_id, name, _ in template_tasks:
+            if task_id not in by_id:
+                result.error(f"Worksheet has {task_id} but the brief has no Task {task_id[1:]}")
+            elif normalize_name(name) != normalize_name(by_id[task_id][0]):
+                result.error(
+                    f"Worksheet heading {task_id} {name!r} does not match brief "
+                    f"{task_id} {by_id[task_id][0]!r}"
+                )
+    else:
         if len(template_tasks) != len(brief_tasks):
             result.error(
                 f"Answer template has {len(template_tasks)} '## Task N - Name' headings, "
                 f"the brief has {len(brief_tasks)} tasks"
             )
-        for brief_task, template_task in zip(brief_tasks, template_tasks, strict=False):
-            if brief_task["id"] != template_task["id"] or normalize_name(
-                brief_task["name"]
-            ) != normalize_name(template_task["name"]):
+        for (b_id, b_name, b_slots), (t_id, t_name, t_slots) in zip(
+            brief_tasks, template_tasks, strict=False
+        ):
+            if b_id != t_id or normalize_name(b_name) != normalize_name(t_name):
                 result.error(
-                    f"Answer template heading {template_task['id']} "
-                    f"{template_task['name']!r} does not match brief "
-                    f"{brief_task['id']} {brief_task['name']!r}"
+                    f"Answer template heading {t_id} {t_name!r} does not match brief "
+                    f"{b_id} {b_name!r}"
                 )
-
-    asked = sorted(
-        {int(n) for n in _QUESTION_MARK.findall(section_body(brief_text, "## 2. Tasks"))}
-    )
-    if asked:
-        slots = sorted({int(n) for n in _QUESTION_MARK.findall(template_text)})
-        if slots != asked:
-            result.error(
-                f"Answer template has slots for Q{', Q'.join(map(str, slots)) or ' none'}; "
-                f"the brief asks Q{asked[0]}-Q{asked[-1]}"
-            )
+            elif t_slots != b_slots:
+                result.error(
+                    f"{t_id} has slots {_slot_list(t_slots)}; the brief asks "
+                    f"{_slot_list(b_slots)}, once each and in that order"
+                )
 
     plain_template = _plain(template_text)
     leaked = [line for line in question_lines(brief_text) if line in plain_template]
     for line in leaked:
         result.error(f"Answer template repeats the brief's question text: {line[:70]}...")
+
+
+def _slot_list(slots: list[int]) -> str:
+    return ", ".join(f"Q{n}" for n in slots) or "none"

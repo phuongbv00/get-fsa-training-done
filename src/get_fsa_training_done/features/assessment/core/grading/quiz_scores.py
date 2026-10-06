@@ -24,6 +24,7 @@ quiz, or two reports pasted in parts. Their best attempt is kept.
 from __future__ import annotations
 
 import csv
+import html
 import math
 import posixpath
 import re
@@ -192,8 +193,8 @@ def read_leaderboard(path: Path, questions: int) -> list[list[str]]:
         raise UsageError(f"leaderboard paste not found: {path}")
     # The bar labels carry an icon before the count; drop the icons so the
     # count is the label's first text.
-    html = _ICON.sub("", path.read_text(encoding="utf-8"))
-    players = list(_PLAYER.finditer(html))
+    page = _ICON.sub("", path.read_text(encoding="utf-8"))
+    players = list(_PLAYER.finditer(page))
     if not players:
         raise UsageError(
             f"{path} holds no Blooket leaderboard players",
@@ -201,8 +202,8 @@ def read_leaderboard(path: Path, questions: int) -> list[list[str]]:
         )
     rows = [list(LEADERBOARD_HEADERS)]
     for index, player in enumerate(players):
-        end = players[index + 1].start() if index + 1 < len(players) else len(html)
-        block = html[player.end() : end]
+        end = players[index + 1].start() if index + 1 < len(players) else len(page)
+        block = page[player.end() : end]
         numbers = [int(n.replace(",", "")) for n in _BAR_TEXT.findall(block)]
         if len(numbers) >= 2:
             correct, incorrect = numbers[0], numbers[1]
@@ -213,7 +214,7 @@ def read_leaderboard(path: Path, questions: int) -> list[list[str]]:
         answered = correct + incorrect
         rows.append(
             [
-                player.group(1).strip(),
+                html.unescape(player.group(1)).strip(),
                 str(answered),
                 str(correct),
                 str(incorrect),

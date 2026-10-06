@@ -139,8 +139,9 @@ def _sections(note: notes.Note, report: Report, where: str, template: grammar.Te
             report.error("MAT-D14", where, "no `Next:` or `Review:` line at the end")
 
 
-#: An erDiagram relationship: `A ||--o{ B : label`.
-ER_RELATIONSHIP = re.compile(r"^\s*[\w-]+\s+[|}o][|o]--[|o][|{o]\s+[\w-]+\s*:\s*(.*)$")
+#: An erDiagram relationship: `A ||--o{ B : label`, or `..` for a
+#: non-identifying one.
+ER_RELATIONSHIP = re.compile(r"^\s*[\w-]+\s+[|}o][|o](?:--|\.\.)[|o][|{o]\s+[\w-]+\s*:\s*(.*)$")
 CARDINALITY = re.compile(r"^\W*[1n]\s*-\s*[1n]\b", re.IGNORECASE)
 #: Fixed colours: `style`/`classDef`/`linkStyle` with a colour, or a theme override.
 FIXED_COLOUR = re.compile(
@@ -161,8 +162,22 @@ def _fences(note: notes.Note, report: Report, where: str) -> None:
             _diagram(fence, report, where)
 
 
+def _diagram_type(body: tuple[str, ...]) -> str:
+    """The diagram keyword, after any `---` front matter, blank or `%%` lines."""
+    in_front_matter = False
+    for index, raw in enumerate(body):
+        line = raw.strip()
+        if line == "---" and (index == 0 or in_front_matter):
+            in_front_matter = not in_front_matter
+            continue
+        if in_front_matter or not line or line.startswith("%%"):
+            continue
+        return line.split()[0]
+    return ""
+
+
 def _diagram(fence: notes.Fence, report: Report, where: str) -> None:
-    is_er = any(line.strip().startswith("erDiagram") for line in fence.body[:3])
+    is_er = _diagram_type(fence.body) == "erDiagram"
     for offset, line in enumerate(fence.body, start=1):
         number = fence.line + offset
         relationship = ER_RELATIONSHIP.match(line) if is_er else None

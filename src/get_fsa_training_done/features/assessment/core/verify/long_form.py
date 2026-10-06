@@ -359,8 +359,11 @@ def verify(
 
     if f"_{assessment_type}_" not in brief.name:
         result.warn(f"Brief filename does not contain '_{assessment_type}_': {brief.name}")
-    if rubric.name != f"{brief.stem}_rubric.md":
-        result.error(f"Rubric should be named {brief.stem}_rubric.md, not {rubric.name}")
+    # A rubric is never translated, so a `_vn` brief is checked against the
+    # rubric of the brief it translates.
+    rubric_stem = brief.stem.removesuffix("_vn")
+    if rubric.name != f"{rubric_stem}_rubric.md":
+        result.error(f"Rubric should be named {rubric_stem}_rubric.md, not {rubric.name}")
 
     for needle in REQUIRED_BANNER_LINES:
         if needle not in brief_text:

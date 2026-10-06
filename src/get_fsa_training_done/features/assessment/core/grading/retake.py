@@ -8,7 +8,8 @@ every part of it is a flag with the usual default:
 - `keep` (default `higher`): keep whichever attempt has the higher effective
   total — the retake's after its cap — or always the retake (`retake`).
 - `void`: trainees whose retake was cancelled, for instance for cheating.
-  Their first attempt stands, whatever the retake scored.
+  Their first attempt stands, whatever the retake scored; one who has no first
+  attempt keeps a row with no scores and no total, so the gap stays visible.
 
 The attempt kept supplies the task scores and the comment, so feedback always
 describes the work the total came from. The inputs are never modified.
@@ -138,10 +139,13 @@ def merge(
                     note = cap_note.format(cap=fmt(cap))
                     result.capped.append(std_id)
 
-        assert kept is not None
-        name = kept.get(NAME, "") or (
-            roster.get(std_id).name if roster and roster.get(std_id) else ""
-        )
+        roster_name = roster.get(std_id).name if roster and roster.get(std_id) else ""
+        if kept is None:
+            # A voided retake and no first attempt: nothing stands.
+            name = roster_name or (second or {}).get(NAME, "")
+            result.rows.append([std_id, name, "", *([""] * len(task_headers)), ""])
+            continue
+        name = kept.get(NAME, "") or roster_name
         comment = " | ".join(part for part in ((kept.get(COMMENT) or "").strip(), note) if part)
         scores = [kept.get(task, "") for task in sheet.tasks]
         scores += [""] * (len(task_headers) - len(scores))
