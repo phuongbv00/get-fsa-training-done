@@ -137,15 +137,24 @@ def test_postgres_needs_no_prefetch(tmp_path):
 
 
 def docker_ready() -> bool:
+    """Docker, its daemon and the postgres image, all answering promptly.
+
+    A runner can have the client and a daemon that never answers (Windows
+    runners run Windows containers), so a slow or failing probe means skip,
+    never an error at collection time.
+    """
     if not shutil.which("docker"):
         return False
-    done = subprocess.run(["docker", "info"], capture_output=True, timeout=30)
-    images = subprocess.run(
-        ["docker", "image", "inspect", sandbox.PROFILES["postgres"].image],
-        capture_output=True,
-        timeout=30,
-    )
-    return done.returncode == 0 and images.returncode == 0
+    try:
+        info = subprocess.run(["docker", "info"], capture_output=True, timeout=30)
+        image = subprocess.run(
+            ["docker", "image", "inspect", sandbox.PROFILES["postgres"].image],
+            capture_output=True,
+            timeout=30,
+        )
+    except (subprocess.TimeoutExpired, OSError):
+        return False
+    return info.returncode == 0 and image.returncode == 0
 
 
 @pytest.mark.skipif(not docker_ready(), reason="docker and the postgres image are not present")
