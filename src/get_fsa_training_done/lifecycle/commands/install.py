@@ -8,7 +8,7 @@ from pathlib import Path
 
 from ...__about__ import __version__
 from ...errors import GftdError, UnmanagedDestinationError
-from ...skill import Skill
+from ...skill import SKILL, Skill
 from ..install import fsops, planner
 from ..install import receipt as receipt_mod
 from ..install.planner import Action, Plan
@@ -16,7 +16,6 @@ from ..platforms.base import Platform
 from .common import (
     add_target_args,
     print_plan,
-    resolve_skills,
     resolve_targets,
     validate_payload_or_die,
     warn_unverified_scope,
@@ -44,23 +43,22 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
 
 
 def run(args: argparse.Namespace) -> int:
-    skills = resolve_skills(args)
+    skill = SKILL
     failures = 0
 
-    for skill in skills:
-        validate_payload_or_die(skill.payload_dir)
-        name = args.name or skill.name
-        for platform, scope, dest in resolve_targets(args, skill):
-            try:
-                _install_one(skill, name, platform, scope, dest, args, skill.payload_dir)
-            except GftdError as exc:
-                failures += 1
-                print(f"ERROR: {skill.name}: {platform.label} ({scope}): {exc.message}")
-                if exc.hint:
-                    print(f"       {exc.hint}")
+    validate_payload_or_die(skill.payload_dir)
+    name = args.name or skill.name
+    for platform, scope, dest in resolve_targets(args, skill):
+        try:
+            _install_one(skill, name, platform, scope, dest, args, skill.payload_dir)
+        except GftdError as exc:
+            failures += 1
+            print(f"ERROR: {skill.name}: {platform.label} ({scope}): {exc.message}")
+            if exc.hint:
+                print(f"       {exc.hint}")
 
     if not args.dry_run and not failures and not args.no_prewarm:
-        _prewarm(skills, args)
+        _prewarm(skill, args)
 
     return 1 if failures else 0
 
@@ -209,17 +207,15 @@ def _venv_hint(skill: Skill) -> Path:
     return stamp.venv_path((skill.dep_group,))
 
 
-def _prewarm(skills: list[Skill], args: argparse.Namespace) -> None:
-    """Build each selected skill's venv now, so an offline machine stays
-    self-sufficient later. Dependency groups are deduped across skills that
-    share one, so two skills both needing "core" don't build it twice."""
+def _prewarm(skill: Skill, args: argparse.Namespace) -> None:
+    """Build the skill's venv now, so an offline machine stays self-sufficient
+    later."""
     from ..envmgr import bootstrap
 
-    for group in sorted({skill.dep_group for skill in skills}):
-        try:
-            bootstrap.ensure(group, offline=args.offline)
-        except GftdError as exc:
-            print(f"WARNING: could not pre-build the {group!r} environment: {exc.message}")
+    try:
+        bootstrap.ensure(skill.dep_group, offline=args.offline)
+    except GftdError as exc:
+        print(f"WARNING: could not pre-build the {skill.dep_group!r} environment: {exc.message}")
 
 
 def uninstall_tree(dest: Path) -> None:  # pragma: no cover - used by tests/cleanup

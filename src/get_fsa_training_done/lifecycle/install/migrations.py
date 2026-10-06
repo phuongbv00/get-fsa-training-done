@@ -6,7 +6,8 @@ gone from the payload so the planner marks it REMOVE, but if the user edited it
 the planner marks it CONFLICT and leaves it — a migration can say "that is a
 rename, not a conflict" and clean up.
 
-Empty until 0.1.0 has shipped and there is something to migrate from.
+Empty while no shipped version has renamed or moved a payload file in a way
+the planner cannot reconcile.
 """
 
 from __future__ import annotations

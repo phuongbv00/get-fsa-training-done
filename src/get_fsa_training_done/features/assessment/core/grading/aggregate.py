@@ -225,13 +225,16 @@ def _legend(task_order: list[str], task_meta: dict[str, dict]) -> str:
     return "\n".join(lines)
 
 
+def write_rows(path: Path, rows: list[list[str]]) -> None:
+    """Every CSV the grading pipeline writes: UTF-8 with a BOM, so Excel opens
+    the Vietnamese names correctly."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8-sig") as handle:
+        csv.writer(handle).writerows(rows)
+
+
 def write(aggregation: Aggregation, out: Path) -> Path:
-    out.parent.mkdir(parents=True, exist_ok=True)
-    # utf-8-sig so Excel opens the Vietnamese names correctly.
-    with out.open("w", newline="", encoding="utf-8-sig") as handle:
-        writer = csv.writer(handle)
-        writer.writerow(aggregation.headers)
-        writer.writerows(aggregation.rows)
+    write_rows(out, [aggregation.headers, *aggregation.rows])
 
     legend_path = out.with_suffix(".legend.txt")
     legend_path.write_text(

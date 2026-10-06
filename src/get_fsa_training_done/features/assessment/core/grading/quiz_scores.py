@@ -23,7 +23,6 @@ quiz, or two reports pasted in parts. Their best attempt is kept.
 
 from __future__ import annotations
 
-import csv
 import html
 import math
 import posixpath
@@ -154,7 +153,8 @@ def _column_index(headers: list[str], names: list[str]) -> int:
     )
 
 
-def _number(value: str) -> float:
+def _count(value: str) -> float:
+    """A report cell as a count: commas and a trailing `%` dropped, blank as 0."""
     text = str(value or "").strip().replace(",", "")
     if text.endswith("%"):
         text = text[:-1]
@@ -267,10 +267,10 @@ def score(
                 continue
             nickname = trainee.std_id
 
-        answered = _number(cell(row, answered_at))
-        correct = _number(cell(row, correct_at))
-        incorrect = _number(cell(row, incorrect_at))
-        unattempted = _number(cell(row, unattempted_at))
+        answered = _count(cell(row, answered_at))
+        correct = _count(cell(row, correct_at))
+        incorrect = _count(cell(row, incorrect_at))
+        unattempted = _count(cell(row, unattempted_at))
 
         expected_total = max(answered, correct + incorrect) + unattempted
         value = (
@@ -287,9 +287,3 @@ def score(
 
     result.rows += [[nickname, f"{best[nickname.lower()]:.1f}"] for nickname in order]
     return result
-
-
-def write_csv(path: Path, rows: list[list[str]]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", newline="", encoding="utf-8-sig") as handle:
-        csv.writer(handle).writerows(rows)

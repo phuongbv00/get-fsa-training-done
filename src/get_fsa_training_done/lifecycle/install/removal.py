@@ -1,10 +1,8 @@
 """Removing exactly what a receipt vouches for, and nothing else.
 
-`uninstall` and the legacy-name cleanup must agree to the byte on what "remove
-this install" means, because they run against the same directories. A file the
-user edited is theirs: its hash no longer matches the receipt, so it is kept and
-reported rather than deleted. Sharing one implementation is what stops the
-cleanup path from being the careless one.
+A file the user edited is theirs: its hash no longer matches the receipt, so it
+is kept and reported rather than deleted. Anything that removes an install goes
+through here, so no path can be the careless one.
 """
 
 from __future__ import annotations

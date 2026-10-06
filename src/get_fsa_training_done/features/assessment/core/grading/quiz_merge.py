@@ -15,6 +15,7 @@ from pathlib import Path
 
 from get_fsa_training_done.errors import UsageError
 
+from .aggregate import write_rows
 from .roster import Roster
 
 
@@ -39,7 +40,8 @@ def parse_inputs(values: list[str]) -> list[tuple[str, Path]]:
     return inputs
 
 
-def read_scores(path: Path) -> dict[str, str]:
+def read_scores(path: Path) -> dict[str, tuple[str, str]]:
+    """Each id, matched case-insensitively, to the id as written and its score."""
     if not path.is_file():
         raise UsageError(f"quiz score CSV not found: {path}")
     with path.open(newline="", encoding="utf-8-sig") as handle:
@@ -47,7 +49,7 @@ def read_scores(path: Path) -> dict[str, str]:
         if not {"Std ID", "score"} <= set(reader.fieldnames or []):
             raise UsageError(f"{path} is not `grade quiz` output (Std ID, score)")
         return {
-            row["Std ID"].strip().lower(): row["score"].strip()
+            row["Std ID"].strip().lower(): (row["Std ID"].strip(), row["score"].strip())
             for row in reader
             if row.get("Std ID", "").strip()
         }
@@ -67,19 +69,15 @@ def merge(inputs: list[tuple[str, Path]], roster: Roster) -> Merged:
                 str(number),
                 trainee.std_id,
                 trainee.name,
-                *(table.get(key, "") for _, table in scores),
+                *(table.get(key, ("", ""))[1] for _, table in scores),
             ]
         )
     for label, table in scores:
-        stray = sorted(key for key in table if key not in known)
+        stray = sorted(written for key, (written, _) in table.items() if key not in known)
         if stray:
             merged.unknown[label] = stray
     return merged
 
 
 def write(merged: Merged, out: Path) -> None:
-    out.parent.mkdir(parents=True, exist_ok=True)
-    with out.open("w", newline="", encoding="utf-8-sig") as handle:
-        writer = csv.writer(handle)
-        writer.writerow(merged.headers)
-        writer.writerows(merged.rows)
+    write_rows(out, [merged.headers, *merged.rows])

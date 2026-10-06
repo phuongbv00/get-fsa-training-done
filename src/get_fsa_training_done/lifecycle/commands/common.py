@@ -6,7 +6,7 @@ import argparse
 from pathlib import Path
 
 from ...errors import GftdError, UsageError
-from ...skill import SKILL, Skill
+from ...skill import Skill
 from ..install.planner import ACTION_ORDER, Action, Plan
 from ..platforms import registry
 from ..platforms.base import Platform
@@ -70,11 +70,6 @@ def add_target_args(parser: argparse.ArgumentParser) -> None:
         action="store_true",
         help="never reach the network; fail instead",
     )
-
-
-def resolve_skills(args: argparse.Namespace) -> list[Skill]:
-    """The skill to act on. There is one; the list keeps the commands' loops."""
-    return [SKILL]
 
 
 def project_root_of(args: argparse.Namespace) -> Path | None:

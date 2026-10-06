@@ -50,14 +50,13 @@ def check(
     report: Report,
     *,
     template: grammar.Template,
-    known_files: set[str] | None = None,
 ) -> None:
     where = note.path.name
     _filename(note, report, where, template)
     _heading(note, report, where)
     _sections(note, report, where, template)
     _fences(note, report, where)
-    _links(note, report, where, known_files)
+    _links(note, report, where)
     _language(note, report, where)
     if template is grammar.LAB:
         _lab(note, report, where)
@@ -191,7 +190,7 @@ def _diagram(fence: notes.Fence, report: Report, where: str) -> None:
             report.warn("MAT-D20", where, f"line {number}: colour fixed in the diagram")
 
 
-def _links(note: notes.Note, report: Report, where: str, known_files: set[str] | None) -> None:
+def _links(note: notes.Note, report: Report, where: str) -> None:
     for href, line in note.links:
         if href.startswith(("http://", "https://", "mailto:")):
             continue
@@ -210,7 +209,6 @@ def _links(note: notes.Note, report: Report, where: str, known_files: set[str] |
                 where,
                 f"line {line}: #{anchor} is not a heading in {target or where}",
             )
-    del known_files
 
 
 def _language(note: notes.Note, report: Report, where: str) -> None:

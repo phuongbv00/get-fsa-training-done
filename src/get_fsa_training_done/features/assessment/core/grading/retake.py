@@ -23,7 +23,7 @@ from pathlib import Path
 
 from get_fsa_training_done.errors import UsageError
 
-from .aggregate import fmt
+from .aggregate import as_number, fmt, write_rows
 from .roster import Roster
 
 ID, NAME, COMMENT, TOTAL = "Std ID", "Name", "Comment", "Total"
@@ -74,13 +74,6 @@ def read(path: Path) -> Sheet:
     return Sheet(headers=headers, rows=rows, order=order)
 
 
-def _number(value: str | None) -> float | None:
-    try:
-        return float(str(value).strip())
-    except (TypeError, ValueError):
-        return None
-
-
 def merge(
     first: Sheet,
     retake: Sheet,
@@ -122,9 +115,9 @@ def merge(
         if original is None and second is None:
             continue
 
-        kept, sheet, total, note = original, first, _number((original or {}).get(TOTAL)), ""
+        kept, sheet, total, note = original, first, as_number((original or {}).get(TOTAL)), ""
         if second is not None:
-            raw = _number(second.get(TOTAL))
+            raw = as_number(second.get(TOTAL))
             effective = None if raw is None else min(raw, cap)
             if key in voided:
                 result.voided.append(std_id)
@@ -155,8 +148,4 @@ def merge(
 
 
 def write(merged: Merge, out: Path) -> None:
-    out.parent.mkdir(parents=True, exist_ok=True)
-    with out.open("w", newline="", encoding="utf-8-sig") as handle:
-        writer = csv.writer(handle)
-        writer.writerow(merged.headers)
-        writer.writerows(merged.rows)
+    write_rows(out, [merged.headers, *merged.rows])

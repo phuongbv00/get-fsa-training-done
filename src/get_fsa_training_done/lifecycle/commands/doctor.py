@@ -45,18 +45,12 @@ def run(args: argparse.Namespace) -> int:
     archives = {tool: shutil.which(tool) or "" for tool in RAR_TOOLS}
     env = bootstrap.info()
 
-    extra: dict[str, str] = {}
-    payloads: dict[str, dict] = {}
     try:
         problems = [str(p) for p in registry.get("codex").validate(SKILL.payload_dir)]
     except Exception as exc:  # pragma: no cover - packaging failure
         problems = [f"ERROR: payload unavailable: {exc}"]
-    payloads[SKILL.name] = {
-        "name": SKILL.name,
-        "path": str(SKILL.payload_dir),
-        "problems": problems,
-    }
-    extra.update(features.doctor_extra())
+    payload = {"name": SKILL.name, "path": str(SKILL.payload_dir), "problems": problems}
+    extra = features.doctor_extra()
     libraries = {module: _importable(module) for module, _ in VENV_LIBRARIES}
 
     report = {
@@ -72,7 +66,7 @@ def run(args: argparse.Namespace) -> int:
         "extra": extra,
         "rar_tools": archives,
         "libraries": libraries,
-        "payloads": payloads,
+        "payload": payload,
     }
 
     if args.as_json:
@@ -104,9 +98,8 @@ def run(args: argparse.Namespace) -> int:
         print("                   install one of: " + ", ".join(RAR_TOOLS))
         print("                   every other format is handled without it")
 
-    for info in payloads.values():
-        state = "valid" if not info["problems"] else "; ".join(info["problems"])
-        print(f"  payload:{info['name']:<24} {state}")
+    state = "valid" if not problems else "; ".join(problems)
+    print(f"  payload:{payload['name']:<24} {state}")
 
     return 0 if _healthy(report) else 1
 
@@ -133,7 +126,4 @@ def _healthy(report: dict) -> bool:
     archive format, and the machine handles every other one unaided. A broken
     payload does fail: that is shipped content, not a local prerequisite.
     """
-    for info in report["payloads"].values():
-        if any(p.startswith("ERROR") for p in info["problems"]):
-            return False
-    return True
+    return not any(p.startswith("ERROR") for p in report["payload"]["problems"])

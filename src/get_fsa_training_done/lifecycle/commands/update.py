@@ -7,14 +7,13 @@ from pathlib import Path
 
 from ...__about__ import __version__
 from ...errors import GftdError, NotInstalledError
-from ...skill import Skill
+from ...skill import SKILL, Skill
 from ..install import migrations, planner
 from ..install import receipt as receipt_mod
 from ..platforms.base import Platform
 from .common import (
     add_target_args,
     print_plan,
-    resolve_skills,
     resolve_targets,
     validate_payload_or_die,
 )
@@ -45,24 +44,23 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
 
 
 def run(args: argparse.Namespace) -> int:
-    skills = resolve_skills(args)
+    skill = SKILL
     exit_code = 0
 
-    for skill in skills:
-        payload = skill.payload_dir
-        if not args.check:
-            validate_payload_or_die(payload)
+    payload = skill.payload_dir
+    if not args.check:
+        validate_payload_or_die(payload)
 
-        for platform, scope, dest in resolve_targets(args, skill):
-            try:
-                outdated = _update_one(skill, platform, scope, dest, args, payload)
-                if args.check and outdated:
-                    exit_code = 1
-            except GftdError as exc:
-                exit_code = max(exit_code, exc.exit_code)
-                print(f"ERROR: {skill.name}: {platform.label} ({scope}): {exc.message}")
-                if exc.hint:
-                    print(f"       {exc.hint}")
+    for platform, scope, dest in resolve_targets(args, skill):
+        try:
+            outdated = _update_one(skill, platform, scope, dest, args, payload)
+            if args.check and outdated:
+                exit_code = 1
+        except GftdError as exc:
+            exit_code = max(exit_code, exc.exit_code)
+            print(f"ERROR: {skill.name}: {platform.label} ({scope}): {exc.message}")
+            if exc.hint:
+                print(f"       {exc.hint}")
     return exit_code
 
 

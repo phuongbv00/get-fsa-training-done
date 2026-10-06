@@ -27,66 +27,49 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
 
 
 def run(args: argparse.Namespace) -> int:
-    skills = [SKILL]
+    skill = SKILL
+    name = args.name or skill.name
     project_root = Path(args.project_root).expanduser().resolve() if args.project_root else None
 
-    grouped: dict[str, list[dict]] = {}
-    for skill in skills:
-        name = args.name or skill.name
-        rows = []
-        for platform in registry.resolve(args.platform):
-            # Run from the directory that *holds* the user-scope config — your
-            # home directory, usually — and `<cwd>/.claude/skills` is the very
-            # same folder as `~/.claude/skills`. There is one install there, so
-            # report it once, under the scope we looked at first.
-            seen: set[Path] = set()
-            for scope in ("user", "project"):
-                if scope == "project" and not platform.project_subdir:
-                    continue
-                dest = platform.dest(scope, name, project_root)
-                if not dest.exists():
-                    continue
-                resolved = dest.resolve()
-                if resolved in seen:
-                    continue
-                seen.add(resolved)
-                rows.append(_describe(skill, platform.key, platform.label, scope, dest))
-        grouped[skill.name] = rows
+    rows = []
+    for platform in registry.resolve(args.platform):
+        # Run from the directory that *holds* the user-scope config — your
+        # home directory, usually — and `<cwd>/.claude/skills` is the very
+        # same folder as `~/.claude/skills`. There is one install there, so
+        # report it once, under the scope we looked at first.
+        seen: set[Path] = set()
+        for scope in ("user", "project"):
+            if scope == "project" and not platform.project_subdir:
+                continue
+            dest = platform.dest(scope, name, project_root)
+            if not dest.exists():
+                continue
+            resolved = dest.resolve()
+            if resolved in seen:
+                continue
+            seen.add(resolved)
+            rows.append(_describe(skill, platform.key, platform.label, scope, dest))
 
     if args.as_json:
-        print(
-            json.dumps(
-                {
-                    "package_version": __version__,
-                    "installs": [row for rows in grouped.values() for row in rows],
-                },
-                indent=2,
-            )
-        )
+        print(json.dumps({"package_version": __version__, "installs": rows}, indent=2))
         return 0
 
     print(f"package {__version__}")
-    any_installed = False
-    for skill_name, rows in grouped.items():
-        print(f"\n{skill_name}")
-        if not rows:
-            print("  No installs found.")
-            continue
-        any_installed = True
-        for row in rows:
-            marker = "  " if row["current"] else "! "
-            line = f"{row['label']} ({row['scope']}): {row['version']}  {row['dest_display']}"
-            print(f"{marker}  {line}")
-            if row["drift"]:
-                print(f"      {row['drift']} file(s) differ from what was installed")
-            if not row["current"] and row["version"] != "unmanaged":
-                print(
-                    f"      update available: {__version__}  (run `get-fsa-training-done update`)"
-                )
-            if row["version"] == "unmanaged":
-                print("      no receipt — not installed by get-fsa-training-done")
-    if not any_installed:
+    print(f"\n{skill.name}")
+    if not rows:
+        print("  No installs found.")
         print("\nRun `get-fsa-training-done install --platform all` to install.")
+        return 0
+    for row in rows:
+        marker = "  " if row["current"] else "! "
+        line = f"{row['label']} ({row['scope']}): {row['version']}  {row['dest_display']}"
+        print(f"{marker}  {line}")
+        if row["drift"]:
+            print(f"      {row['drift']} file(s) differ from what was installed")
+        if not row["current"] and row["version"] != "unmanaged":
+            print(f"      update available: {__version__}  (run `get-fsa-training-done update`)")
+        if row["version"] == "unmanaged":
+            print("      no receipt — not installed by get-fsa-training-done")
     return 0
 
 

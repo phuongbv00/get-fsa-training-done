@@ -304,12 +304,12 @@ def run_quiz(args: argparse.Namespace) -> int:
 
     if args.converted_csv:
         converted = Path(args.converted_csv).expanduser()
-        quiz_mod.write_csv(converted, rows)
+        aggregate_mod.write_rows(converted, rows)
         print(f"Converted {label} -> {converted}")
 
     roster = _roster(args.roster)
     result = quiz_mod.score(rows, roster, _aliases(args.alias))
-    quiz_mod.write_csv(out, result.rows)
+    aggregate_mod.write_rows(out, result.rows)
 
     if result.dropped:
         print(f"Excluded {len(result.dropped)} dropped trainee(s)")

@@ -7,11 +7,11 @@ import shutil
 from pathlib import Path
 
 from ...errors import GftdError, UnmanagedDestinationError
-from ...skill import Skill
+from ...skill import SKILL, Skill
 from ..install import receipt as receipt_mod
 from ..install import removal
 from ..platforms.base import Platform
-from .common import add_target_args, resolve_skills, resolve_targets
+from .common import add_target_args, resolve_targets
 
 
 def add_parser(subparsers: argparse._SubParsersAction) -> None:
@@ -38,20 +38,19 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
 
 
 def run(args: argparse.Namespace) -> int:
-    skills = resolve_skills(args)
+    skill = SKILL
     failures = 0
     removed_any = False
 
-    for skill in skills:
-        for platform, scope, dest in resolve_targets(args, skill):
-            try:
-                if _uninstall_one(skill, platform, scope, dest, args):
-                    removed_any = True
-            except GftdError as exc:
-                failures += 1
-                print(f"ERROR: {skill.name}: {platform.label} ({scope}): {exc.message}")
-                if exc.hint:
-                    print(f"       {exc.hint}")
+    for platform, scope, dest in resolve_targets(args, skill):
+        try:
+            if _uninstall_one(skill, platform, scope, dest, args):
+                removed_any = True
+        except GftdError as exc:
+            failures += 1
+            print(f"ERROR: {skill.name}: {platform.label} ({scope}): {exc.message}")
+            if exc.hint:
+                print(f"       {exc.hint}")
 
     if args.purge_venv and removed_any and not args.dry_run:
         from ..envmgr import bootstrap
