@@ -14,12 +14,12 @@ from pathlib import Path
 
 import pytest
 
-from fsa_trainer_skills.cli import main
+from get_fsa_training_done.cli import main
 
 #: The clean programme ships *in the payload*, so the example the model reads
 #: and the fixture the tests trust are the same bytes. A consistency gate keeps
 #: it verifying clean; `tests/fixtures/program/` holds only broken variants.
-from fsa_trainer_skills.skills.program import SKILL
+from get_fsa_training_done.skills.program import SKILL
 
 MINI = SKILL.payload_dir / "references" / "examples" / "mini"
 
@@ -32,7 +32,7 @@ def no_venv(monkeypatch):
     pip-installs into it, which turns a millisecond check into a network round
     trip and hangs the suite.
     """
-    monkeypatch.setenv("FSA_TRAINER_SKILLS_NO_VENV", "1")
+    monkeypatch.setenv("GET_FSA_TRAINING_DONE_NO_VENV", "1")
 
 
 @pytest.fixture

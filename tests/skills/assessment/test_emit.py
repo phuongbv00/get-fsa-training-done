@@ -12,8 +12,8 @@ import json
 
 import pytest
 
-from fsa_trainer_skills.errors import UsageError
-from fsa_trainer_skills.skills.assessment.core.emit import blooket, coderbyte, master
+from get_fsa_training_done.errors import UsageError
+from get_fsa_training_done.skills.assessment.core.emit import blooket, coderbyte, master
 
 from .conftest import FIXTURES
 

@@ -11,15 +11,15 @@ import zipfile
 
 import pytest
 
-from fsa_trainer_skills.skills.assessment.core.grading import (
+from get_fsa_training_done.skills.assessment.core.grading import (
     aggregate,
     ai_cheat,
     batches,
     plagiarism,
     preprocess,
 )
-from fsa_trainer_skills.skills.assessment.core.grading import roster as roster_mod
-from fsa_trainer_skills.skills.assessment.core.grading.roster import std_id_from_folder
+from get_fsa_training_done.skills.assessment.core.grading import roster as roster_mod
+from get_fsa_training_done.skills.assessment.core.grading.roster import std_id_from_folder
 
 # --------------------------------------------------------------------------- #
 # Roster
@@ -68,7 +68,7 @@ def test_std_id_from_folder_handles_the_ordinary_case():
 
 
 def test_roster_without_an_id_column_is_rejected(tmp_path):
-    from fsa_trainer_skills.errors import UsageError
+    from get_fsa_training_done.errors import UsageError
 
     bad = tmp_path / "r.csv"
     bad.write_text("No,Student,Name\n1,x,y\n", encoding="utf-8")

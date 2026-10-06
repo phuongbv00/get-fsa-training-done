@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Propagate the canonical version out to the files that duplicate it.
 
-`src/fsa_trainer_skills/__about__.py` is the single source of truth.
+`src/get_fsa_training_done/__about__.py` is the single source of truth.
 `pyproject.toml` reads it directly through hatchling, but `package.json` and
 every registered skill's payload `VERSION` file cannot, so they are written
 here. `--check` runs in CI so drift fails the build instead of shipping.
@@ -22,9 +22,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from fsa_trainer_skills import skills as skill_registry  # noqa: E402
+from get_fsa_training_done import skills as skill_registry  # noqa: E402
 
-ABOUT = ROOT / "src" / "fsa_trainer_skills" / "__about__.py"
+ABOUT = ROOT / "src" / "get_fsa_training_done" / "__about__.py"
 PACKAGE_JSON = ROOT / "package.json"
 
 

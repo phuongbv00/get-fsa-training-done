@@ -21,7 +21,7 @@ jobs:
           set -euo pipefail
           version=$(python -c "import re,pathlib; \
             print(re.search(r'__version__ = \"([^\"]+)\"', \
-            pathlib.Path('src/fsa_trainer_skills/__about__.py').read_text()).group(1))")
+            pathlib.Path('src/get_fsa_training_done/__about__.py').read_text()).group(1))")
           if [ "v$version" != "${GITHUB_REF_NAME}" ]; then
             echo "tag ${GITHUB_REF_NAME} does not match __about__.py ($version)"
             exit 1
@@ -49,13 +49,13 @@ jobs:
           import pathlib, sys, zipfile
 
           sys.path.insert(0, "src")
-          from fsa_trainer_skills import skills as skill_registry
+          from get_fsa_training_done import skills as skill_registry
 
           wheel = next(pathlib.Path("dist").glob("*.whl"))
           names = zipfile.ZipFile(wheel).namelist()
 
           required = [
-              f"fsa_trainer_skills/skills/{skill.namespace}/payload/{skill.name}/SKILL.md"
+              f"get_fsa_training_done/skills/{skill.namespace}/payload/{skill.name}/SKILL.md"
               for skill in skill_registry.all_skills()
           ]
           missing = [name for name in required if name not in names]

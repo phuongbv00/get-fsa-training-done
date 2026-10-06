@@ -16,10 +16,10 @@ from pathlib import Path
 
 import pytest
 
-from fsa_trainer_skills import skills as skill_registry
-from fsa_trainer_skills.cli import LIFECYCLE_COMMANDS
-from fsa_trainer_skills.platforms import registry
-from fsa_trainer_skills.skillmeta import read_skill_frontmatter
+from get_fsa_training_done import skills as skill_registry
+from get_fsa_training_done.cli import LIFECYCLE_COMMANDS
+from get_fsa_training_done.platforms import registry
+from get_fsa_training_done.skillmeta import read_skill_frontmatter
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
@@ -150,4 +150,28 @@ def test_no_skill_shells_out_to_an_external_binary():
         for needle in ("subprocess", "shutil.which", "os.system", "os.exec"):
             if needle in source:
                 offenders.append(f"{relative}: {needle}")
+    assert offenders == []
+
+
+# The rename to get-fsa-training-done was a clean break: nothing reads the old
+# package, CLI, env var or receipt names. Only the changelog (history) and the
+# README's upgrade note may still say them.
+OLD_NAMES = ("fsa-trainer" + "-skills", "fsa_trainer" + "_skills", "FSA_TRAINER" + "_SKILLS")
+OLD_NAME_ALLOWED = {"CHANGELOG.md", "README.md"}
+
+
+def test_old_project_name_is_gone():
+    tracked = subprocess.run(
+        ["git", "ls-files"], capture_output=True, text=True, cwd=ROOT, check=True
+    ).stdout.split()
+    offenders = []
+    for name in tracked:
+        if name in OLD_NAME_ALLOWED:
+            continue
+        path = ROOT / name
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, FileNotFoundError, IsADirectoryError):
+            continue
+        offenders += [f"{name}: {old}" for old in OLD_NAMES if old in text]
     assert offenders == []

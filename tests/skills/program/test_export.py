@@ -12,10 +12,10 @@ import zipfile
 
 import pytest
 
-from fsa_trainer_skills.cli import main
-from fsa_trainer_skills.errors import FsaTrainerSkillsError, UsageError
-from fsa_trainer_skills.skills.program.core.xlsx import syllabus_layout as layout
-from fsa_trainer_skills.skills.program.core.xlsx.package import XlsxPackage
+from get_fsa_training_done.cli import main
+from get_fsa_training_done.errors import FsaTrainerSkillsError, UsageError
+from get_fsa_training_done.skills.program.core.xlsx import syllabus_layout as layout
+from get_fsa_training_done.skills.program.core.xlsx.package import XlsxPackage
 
 DBF = "curriculum/syllabi/AA_FR_TT_DBF_Syllabus.md"
 DBF_PLAN = "curriculum/syllabi/AA_FR_TT_DBF_ScheduleDetail.csv"

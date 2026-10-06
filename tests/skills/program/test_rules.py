@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import pytest
 
-from fsa_trainer_skills.skills.program.core import rules
+from get_fsa_training_done.skills.program.core import rules
 
 CURRICULUM = "curriculum/AA_FR_TT_DEMO_TrainingProgramCurriculum.md"
 MASTER = "curriculum/AA_FR_TT_DEMO_MasterSchedule.csv"

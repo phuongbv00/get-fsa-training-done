@@ -3,9 +3,9 @@ requires = ["hatchling>=1.25"]
 build-backend = "hatchling.build"
 
 [project]
-name = "fsa-trainer-skills"
+name = "get-fsa-training-done"
 dynamic = ["version"]
-description = "A CLI plus a registry of agent skills for FSA training tools, installable into Claude Code and Codex."
+description = "One agent skill, and the CLI behind it, for getting FSA training done: programmes, teaching material and assessments. Installs into Claude Code and Codex."
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
@@ -26,7 +26,7 @@ classifiers = [
 ]
 
 # The package itself declares nothing, deliberately: `pip install
-# fsa-trainer-skills` pulls no transitive tree, and every lifecycle command
+# get-fsa-training-done` pulls no transitive tree, and every lifecycle command
 # (install, update, status, doctor) runs on a bare interpreter.
 #
 # The libraries the *workers* need live in the managed venv instead, listed in
@@ -35,20 +35,21 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/phuongbv/fsa-trainer-skills"
-Issues = "https://github.com/phuongbv/fsa-trainer-skills/issues"
+Homepage = "https://github.com/phuongbv00/get-fsa-training-done"
+Issues = "https://github.com/phuongbv00/get-fsa-training-done/issues"
 
 [project.scripts]
-fsa-trainer-skills = "fsa_trainer_skills.cli:run"
+get-fsa-training-done = "get_fsa_training_done.cli:run"
+gftd = "get_fsa_training_done.cli:run"
 
 [tool.hatch.version]
-path = "src/fsa_trainer_skills/__about__.py"
+path = "src/get_fsa_training_done/__about__.py"
 
 [tool.hatch.build.targets.wheel]
 # Every skill lives inside this one package (including its payload data
 # files), so the default packages declaration already covers everything —
 # no force-include needed, and none is needed when a new skill registers.
-packages = ["src/fsa_trainer_skills"]
+packages = ["src/get_fsa_training_done"]
 
 [tool.hatch.build.targets.sdist]
 include = [

@@ -13,11 +13,11 @@ const os = require('node:os');
 const path = require('node:path');
 
 const MIN_VERSION = [3, 9];
-const PACKAGE_NAME = 'fsa-trainer-skills';
+const PACKAGE_NAME = 'get-fsa-training-done';
 
 function cacheFile() {
-  const home = process.env.FSA_TRAINER_SKILLS_HOME
-    ? path.resolve(process.env.FSA_TRAINER_SKILLS_HOME)
+  const home = process.env.GET_FSA_TRAINING_DONE_HOME
+    ? path.resolve(process.env.GET_FSA_TRAINING_DONE_HOME)
     : path.join(
         process.env.XDG_CACHE_HOME || path.join(os.homedir(), '.cache'),
         PACKAGE_NAME
@@ -26,7 +26,7 @@ function cacheFile() {
 }
 
 function candidates() {
-  const explicit = process.env.FSA_TRAINER_SKILLS_PYTHON;
+  const explicit = process.env.GET_FSA_TRAINING_DONE_PYTHON;
   const list = explicit ? [explicit] : [];
   if (process.platform === 'win32') {
     list.push('python', 'py');
@@ -73,7 +73,7 @@ function writeCache(found) {
 }
 
 function findPython() {
-  if (!process.env.FSA_TRAINER_SKILLS_PYTHON) {
+  if (!process.env.GET_FSA_TRAINING_DONE_PYTHON) {
     const cached = readCache();
     if (cached) return cached;
   }

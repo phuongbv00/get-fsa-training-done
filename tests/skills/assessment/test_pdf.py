@@ -16,8 +16,8 @@ import unicodedata
 
 import pytest
 
-from fsa_trainer_skills.skills.assessment.core import html as html_mod
-from fsa_trainer_skills.skills.assessment.core import pdf as pdf_mod
+from get_fsa_training_done.skills.assessment.core import html as html_mod
+from get_fsa_training_done.skills.assessment.core import pdf as pdf_mod
 
 pytest.importorskip("xhtml2pdf")
 pypdf = pytest.importorskip("pypdf")

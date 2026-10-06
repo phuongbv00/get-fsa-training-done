@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from fsa_trainer_skills.skills.assessment.core import budget, markdown
+from get_fsa_training_done.skills.assessment.core import budget, markdown
 
 pypdf = pytest.importorskip("pypdf")
 

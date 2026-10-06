@@ -10,14 +10,14 @@ import csv
 
 import pytest
 
-from fsa_trainer_skills import levels
-from fsa_trainer_skills.skills.assessment.core.verify import (
+from get_fsa_training_done import levels
+from get_fsa_training_done.skills.assessment.core.verify import (
     CheckResult,
     capstone,
     long_form,
     question_set,
 )
-from fsa_trainer_skills.skills.assessment.core.verify.common import DEFAULT_TIME_MAP
+from get_fsa_training_done.skills.assessment.core.verify.common import DEFAULT_TIME_MAP
 
 from .conftest import FIXTURES
 

@@ -4,10 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-`fsa-trainer-skills` ships a CLI plus a registry of agent skills, all of which must stay in sync:
+`get-fsa-training-done` ships a CLI plus a registry of agent skills, all of which must stay in sync:
 
-- **A skill registry** — each skill is a subpackage under `src/fsa_trainer_skills/skills/` exporting a module-level `SKILL: Skill` object. Currently three, dividing one job: `skills/program/` (`fsa-training-program`, the curriculum, schedules, syllabi and vendor workbooks), `skills/material/` (`fsa-training-material`, lecture notes, handbooks and lab guides), and `skills/assessment/` (`fsa-training-assessment`, quizzes, exams, assignments and grading).
-- **The `fsa-trainer-skills` CLI** — shared lifecycle commands (`install`, `update`, `uninstall`, `status`, `doctor`, `env`) that operate across every registered skill, plus each skill's own worker commands under `fsa-trainer-skills <namespace> <verb>` (e.g. `fsa-trainer-skills assessment render`).
+- **A skill registry** — each skill is a subpackage under `src/get_fsa_training_done/skills/` exporting a module-level `SKILL: Skill` object. Currently three, dividing one job: `skills/program/` (`fsa-training-program`, the curriculum, schedules, syllabi and vendor workbooks), `skills/material/` (`fsa-training-material`, lecture notes, handbooks and lab guides), and `skills/assessment/` (`fsa-training-assessment`, quizzes, exams, assignments and grading).
+- **The `get-fsa-training-done` CLI** — shared lifecycle commands (`install`, `update`, `uninstall`, `status`, `doctor`, `env`) that operate across every registered skill, plus each skill's own worker commands under `get-fsa-training-done <namespace> <verb>` (e.g. `get-fsa-training-done assessment render`).
 
 ## How the three skills relate
 
@@ -29,7 +29,7 @@ python scripts/sync_version.py --check    # version consistency gate, every skil
 python scripts/assessment/gen_levels_md.py --check   # assess skill's levels.md gate
 ```
 
-When iterating on worker commands locally, `fsa-trainer-skills --no-venv <cmd>` (or `FSA_TRAINER_SKILLS_NO_VENV=1`) runs in the current interpreter instead of re-execing into the managed venv.
+When iterating on worker commands locally, `get-fsa-training-done --no-venv <cmd>` (or `GET_FSA_TRAINING_DONE_NO_VENV=1`) runs in the current interpreter instead of re-execing into the managed venv.
 
 ## Architecture
 
@@ -38,7 +38,7 @@ When iterating on worker commands locally, `fsa-trainer-skills --no-venv <cmd>` 
 `cli.py` builds its parser from two sources:
 
 - **Lifecycle** (`install`, `update`, `uninstall`, `status`, `doctor`, `env`) run in whatever interpreter invoked them — they must work before any environment exists. They act across every skill by default, or one via `--skill <namespace>`.
-- **Per-skill workers** — each `Skill.add_worker_parsers()` registers its own verbs under its own namespace. `assessment` registers `render`, `verify`, `emit`, `grade`, `levels` under `fsa-trainer-skills assessment <verb>`. Workers re-exec via `envmgr.reexec` into a managed virtualenv keyed by the skill's `dep_group`, bootstrapped on first use. The package itself is never installed into the venv — its parent dir goes on `PYTHONPATH`. The **package** declares zero runtime dependencies (`pip install` pulls nothing, and every lifecycle command runs on a bare interpreter); the libraries the workers need live in the managed venv, declared in `envmgr/requirements/core.txt` and pre-warmed by `install`. **No skill shells out to an external binary** — the sole exception is a `.rar` extractor, which is optional because `.rar` has no pure-Python reader.
+- **Per-skill workers** — each `Skill.add_worker_parsers()` registers its own verbs under its own namespace. `assessment` registers `render`, `verify`, `emit`, `grade`, `levels` under `get-fsa-training-done assessment <verb>`. Workers re-exec via `envmgr.reexec` into a managed virtualenv keyed by the skill's `dep_group`, bootstrapped on first use. The package itself is never installed into the venv — its parent dir goes on `PYTHONPATH`. The **package** declares zero runtime dependencies (`pip install` pulls nothing, and every lifecycle command runs on a bare interpreter); the libraries the workers need live in the managed venv, declared in `envmgr/requirements/core.txt` and pre-warmed by `install`. **No skill shells out to an external binary** — the sole exception is a `.rar` extractor, which is optional because `.rar` has no pure-Python reader.
 
 ### The skill abstraction
 
@@ -46,13 +46,13 @@ When iterating on worker commands locally, `fsa-trainer-skills --no-venv <cmd>` 
 
 ### Generated files — never edit by hand
 
-- `src/fsa_trainer_skills/skills/assessment/payload/fsa-training-assessment/references/levels.md` is generated from `skills/assessment/core/levels.py` by `scripts/assessment/gen_levels_md.py`. Edit the Python, then regenerate.
-- `src/fsa_trainer_skills/skills/program/payload/fsa-training-program/references/rules.md` is generated from `skills/program/core/rules.py`, and `references/schemas.md` from `core/schemas.py` + `core/schedule.py`, by the scripts in `scripts/program/`.
-- `src/fsa_trainer_skills/skills/material/payload/fsa-training-material/references/structure.md` is generated from `skills/material/core/grammar.py` by `scripts/material/gen_structure_md.py`.
-- The version is canonical in `src/fsa_trainer_skills/__about__.py`; `scripts/sync_version.py` iterates the skill registry and propagates it to `package.json` and every skill's payload `VERSION` file — adding a skill needs no edit to this script.
+- `src/get_fsa_training_done/skills/assessment/payload/fsa-training-assessment/references/levels.md` is generated from `skills/assessment/core/levels.py` by `scripts/assessment/gen_levels_md.py`. Edit the Python, then regenerate.
+- `src/get_fsa_training_done/skills/program/payload/fsa-training-program/references/rules.md` is generated from `skills/program/core/rules.py`, and `references/schemas.md` from `core/schemas.py` + `core/schedule.py`, by the scripts in `scripts/program/`.
+- `src/get_fsa_training_done/skills/material/payload/fsa-training-material/references/structure.md` is generated from `skills/material/core/grammar.py` by `scripts/material/gen_structure_md.py`.
+- The version is canonical in `src/get_fsa_training_done/__about__.py`; `scripts/sync_version.py` iterates the skill registry and propagates it to `package.json` and every skill's payload `VERSION` file — adding a skill needs no edit to this script.
 
 Every `scripts/<skill>/gen_*.py` is covered by one globbed gate in `tests/test_consistency.py` and one loop in CI, so a new skill's generated reference is checked the day it lands.
-- `npm/python/` is a staged copy of `src/fsa_trainer_skills` created by `npm/lib/prepack.js` (the npm package is a thin shim over the Python implementation). Regenerate it; never edit it.
+- `npm/python/` is a staged copy of `src/get_fsa_training_done` created by `npm/lib/prepack.js` (the npm package is a thin shim over the Python implementation). Regenerate it; never edit it.
 
 CI (`consistency` job and `tests/test_consistency.py`) fails on drift in any of these. The top-level `tests/test_consistency.py` holds cross-skill gates (payload validity against Codex's rules, no duplicate skill names/namespaces, version sync); assess-specific gates (every assessment type has a workflow and verifier, SKILL.md links every workflow file) live in `tests/skills/assessment/test_consistency.py`.
 
@@ -76,8 +76,8 @@ Everything defaults to English; a Vietnamese translation is a separate `_vn` sib
 
 ### Skill/CLI contract (assessment)
 
-Platform import files are always *derived* from the master CSV (`fsa-trainer-skills assessment emit`), never written by hand, and `fsa-trainer-skills assessment verify` checks master ↔ import consistency. A capstone's sprint pack follows the same rule: `fsa-trainer-skills assessment sprint-kit` derives the learner handout, the templates, and the spec's `## Sprint checkpoint` section from the project spec's sprint table, so the gate wording lives once per language in `skills/assessment/core/sprintkit.py` and cannot drift from the ids `core/verify/capstone.py` enforces. English is the default for everything the skill emits and other languages are available on request; for the sprint pack that means a `Locale` in `sprintkit.py` (`--lang`, currently `en` and `vi`) rather than translating generated output, and instructor rubrics stay English in every case because `verify` and the grading pipeline parse their headings. Assessment calibration (Bloom mix, difficulty, duration, rubric posture) is keyed by **level** (`CPL`, `FR`, `UP_SKILL`/`RE_SKILL` with `junior`/`mid`/`senior` bands) defined once in `skills/assessment/core/levels.py`. `verify --level/--band` compares the artifact against that level via `core/verify/calibration.py` and reports drift as a **warning, never an error** — Step 0 may legitimately override any default.
+Platform import files are always *derived* from the master CSV (`get-fsa-training-done assessment emit`), never written by hand, and `get-fsa-training-done assessment verify` checks master ↔ import consistency. A capstone's sprint pack follows the same rule: `get-fsa-training-done assessment sprint-kit` derives the learner handout, the templates, and the spec's `## Sprint checkpoint` section from the project spec's sprint table, so the gate wording lives once per language in `skills/assessment/core/sprintkit.py` and cannot drift from the ids `core/verify/capstone.py` enforces. English is the default for everything the skill emits and other languages are available on request; for the sprint pack that means a `Locale` in `sprintkit.py` (`--lang`, currently `en` and `vi`) rather than translating generated output, and instructor rubrics stay English in every case because `verify` and the grading pipeline parse their headings. Assessment calibration (Bloom mix, difficulty, duration, rubric posture) is keyed by **level** (`CPL`, `FR`, `UP_SKILL`/`RE_SKILL` with `junior`/`mid`/`senior` bands) defined once in `skills/assessment/core/levels.py`. `verify --level/--band` compares the artifact against that level via `core/verify/calibration.py` and reports drift as a **warning, never an error** — Step 0 may legitimately override any default.
 
 ## Tests
 
-An autouse fixture in `tests/conftest.py` redirects `CLAUDE_CONFIG_DIR`, `CODEX_HOME`, `FSA_TRAINER_SKILLS_HOME`, and `XDG_CACHE_HOME` into a tmp dir — install tests create and delete skill folders, and this keeps them off the developer's real `~/.claude`. Keep any new test that touches install paths or the env cache under that isolation. `tests/test_install.py` parametrizes its whole lifecycle matrix over a `skill` fixture built from `skill_registry.all_skills()`, so a new skill gets the same coverage automatically. Skill-specific tests live under `tests/skills/<namespace>/`; `assessment`'s canonical fixtures live in `tests/fixtures/assessment/` (master CSVs, derived import files, the long-form brief/rubric pair) and CI byte-compares `emit` output against them.
+An autouse fixture in `tests/conftest.py` redirects `CLAUDE_CONFIG_DIR`, `CODEX_HOME`, `GET_FSA_TRAINING_DONE_HOME`, and `XDG_CACHE_HOME` into a tmp dir — install tests create and delete skill folders, and this keeps them off the developer's real `~/.claude`. Keep any new test that touches install paths or the env cache under that isolation. `tests/test_install.py` parametrizes its whole lifecycle matrix over a `skill` fixture built from `skill_registry.all_skills()`, so a new skill gets the same coverage automatically. Skill-specific tests live under `tests/skills/<namespace>/`; `assessment`'s canonical fixtures live in `tests/fixtures/assessment/` (master CSVs, derived import files, the long-form brief/rubric pair) and CI byte-compares `emit` output against them.

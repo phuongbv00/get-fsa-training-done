@@ -13,8 +13,8 @@ from pathlib import Path
 
 import pytest
 
-from fsa_trainer_skills.cli import main
-from fsa_trainer_skills.skills.material import SKILL
+from get_fsa_training_done.cli import main
+from get_fsa_training_done.skills.material import SKILL
 
 EXAMPLES = SKILL.payload_dir / "references" / "examples"
 MINI = EXAMPLES / "mini"
@@ -25,7 +25,7 @@ SYLLABUS = EXAMPLES / "plan" / "AA_FR_TT_DBF_Syllabus.md"
 @pytest.fixture(autouse=True)
 def no_venv(monkeypatch):
     """Keep worker commands in-process; otherwise each call builds a venv."""
-    monkeypatch.setenv("FSA_TRAINER_SKILLS_NO_VENV", "1")
+    monkeypatch.setenv("GET_FSA_TRAINING_DONE_NO_VENV", "1")
 
 
 @pytest.fixture

@@ -9,11 +9,11 @@ workflow file the router promises to route to actually exists.
 
 from __future__ import annotations
 
-from fsa_trainer_skills.skills.assessment import SKILL
+from get_fsa_training_done.skills.assessment import SKILL
 
 
 def test_every_assessment_type_has_a_workflow_and_a_verifier():
-    from fsa_trainer_skills.skills.assessment.core.verify import ALL_TYPES
+    from get_fsa_training_done.skills.assessment.core.verify import ALL_TYPES
 
     payload = SKILL.payload_dir
     for assessment_type in ALL_TYPES:
@@ -54,8 +54,8 @@ def test_the_router_names_the_real_cli_and_receipt():
     one is invisible: the model silently falls through to step 3 and asks the
     user to install a package that is not this one.
     """
-    from fsa_trainer_skills.__about__ import CLI_NAME, PACKAGE_NAME
-    from fsa_trainer_skills.install.receipt import RECEIPT_NAME
+    from get_fsa_training_done.__about__ import CLI_NAME, PACKAGE_NAME
+    from get_fsa_training_done.install.receipt import RECEIPT_NAME
 
     router = (SKILL.payload_dir / "SKILL.md").read_text(encoding="utf-8")
     section = router[router.index("## Resolving the CLI") : router.index("## Step 1")]

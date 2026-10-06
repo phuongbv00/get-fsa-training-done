@@ -12,11 +12,11 @@ import json
 
 import pytest
 
-from fsa_trainer_skills import skills as skill_registry
-from fsa_trainer_skills.__about__ import __version__
-from fsa_trainer_skills.cli import main
-from fsa_trainer_skills.install import receipt as receipt_mod
-from fsa_trainer_skills.platforms import registry
+from get_fsa_training_done import skills as skill_registry
+from get_fsa_training_done.__about__ import __version__
+from get_fsa_training_done.cli import main
+from get_fsa_training_done.install import receipt as receipt_mod
+from get_fsa_training_done.platforms import registry
 
 
 @pytest.fixture(params=skill_registry.all_skills(), ids=lambda s: s.namespace)
@@ -40,7 +40,7 @@ def test_install_creates_receipt_and_files(isolated_home, skill):
     assert receipt.skill_name == skill.name
     # The receipt must record how to call back into the CLI: `npx` leaves
     # nothing on PATH, so the skill would otherwise have no way to find it.
-    assert receipt.cli["invocation"][-2:] == ["-m", "fsa_trainer_skills"]
+    assert receipt.cli["invocation"][-2:] == ["-m", "get_fsa_training_done"]
     assert receipt.files
 
 
@@ -59,7 +59,7 @@ def test_install_refuses_an_unmanaged_destination(isolated_home, skill, capsys):
 
     args = ["--skill", skill.namespace, "--platform", "claude", "--no-prewarm"]
     assert main(["install", *args]) == 1
-    assert "not installed by fsa-trainer-skills" in capsys.readouterr().out
+    assert "not installed by get-fsa-training-done" in capsys.readouterr().out
     assert (dest / "SKILL.md").read_text(encoding="utf-8") == "someone else's skill"
 
 
@@ -134,7 +134,7 @@ def test_uninstall_refuses_an_unmanaged_directory(isolated_home, skill, capsys):
 
     args = ["--skill", skill.namespace, "--platform", "claude"]
     assert main(["uninstall", *args]) == 1
-    assert "no fsa-trainer-skills receipt" in capsys.readouterr().out
+    assert "no get-fsa-training-done receipt" in capsys.readouterr().out
     assert (dest / "SKILL.md").is_file()
 
 

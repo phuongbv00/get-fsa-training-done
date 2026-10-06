@@ -6,9 +6,9 @@ import zipfile
 
 import pytest
 
-from fsa_trainer_skills.errors import UsageError
-from fsa_trainer_skills.skills.assessment.core.grading import quiz_scores
-from fsa_trainer_skills.skills.assessment.core.grading import roster as roster_mod
+from get_fsa_training_done.errors import UsageError
+from get_fsa_training_done.skills.assessment.core.grading import quiz_scores
+from get_fsa_training_done.skills.assessment.core.grading import roster as roster_mod
 
 NS = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"'
 RNS = 'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"'

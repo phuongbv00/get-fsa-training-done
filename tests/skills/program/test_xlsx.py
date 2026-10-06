@@ -14,10 +14,10 @@ import zipfile
 
 import pytest
 
-from fsa_trainer_skills.errors import FsaTrainerSkillsError, UsageError
-from fsa_trainer_skills.skills.program.core.xlsx import probe as probe_mod
-from fsa_trainer_skills.skills.program.core.xlsx import refs
-from fsa_trainer_skills.skills.program.core.xlsx.package import XlsxPackage
+from get_fsa_training_done.errors import FsaTrainerSkillsError, UsageError
+from get_fsa_training_done.skills.program.core.xlsx import probe as probe_mod
+from get_fsa_training_done.skills.program.core.xlsx import refs
+from get_fsa_training_done.skills.program.core.xlsx.package import XlsxPackage
 
 SYLLABUS = "<Topic Code>_Syllabus"
 

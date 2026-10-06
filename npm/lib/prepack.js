@@ -8,8 +8,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const root = path.join(__dirname, '..', '..');
-const source = path.join(root, 'src', 'fsa_trainer_skills');
-const target = path.join(root, 'npm', 'python', 'fsa_trainer_skills');
+const source = path.join(root, 'src', 'get_fsa_training_done');
+const target = path.join(root, 'npm', 'python', 'get_fsa_training_done');
 
 const SKIP_DIRS = new Set(['__pycache__', '.pytest_cache']);
 const SKIP_EXTENSIONS = new Set(['.pyc', '.pyo']);
@@ -42,4 +42,4 @@ if (!match || match[1] !== version) {
   process.exit(1);
 }
 
-process.stdout.write(`staged fsa_trainer_skills ${version} into npm/python\n`);
+process.stdout.write(`staged get_fsa_training_done ${version} into npm/python\n`);

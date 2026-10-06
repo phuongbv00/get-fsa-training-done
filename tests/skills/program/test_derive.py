@@ -10,11 +10,11 @@ from __future__ import annotations
 
 import pytest
 
-from fsa_trainer_skills.cli import main
-from fsa_trainer_skills.errors import FsaTrainerSkillsError, UsageError
-from fsa_trainer_skills.skills.program.core import csvio
-from fsa_trainer_skills.skills.program.core import program as program_mod
-from fsa_trainer_skills.skills.program.core.derive import allocation, skeleton
+from get_fsa_training_done.cli import main
+from get_fsa_training_done.errors import FsaTrainerSkillsError, UsageError
+from get_fsa_training_done.skills.program.core import csvio
+from get_fsa_training_done.skills.program.core import program as program_mod
+from get_fsa_training_done.skills.program.core.derive import allocation, skeleton
 
 DBF = "curriculum/syllabi/AA_FR_TT_DBF_Syllabus.md"
 DBF_PLAN = "curriculum/syllabi/AA_FR_TT_DBF_ScheduleDetail.csv"

@@ -11,9 +11,9 @@ import csv
 
 import pytest
 
-from fsa_trainer_skills.errors import UsageError
-from fsa_trainer_skills.skills.assessment.core import sprintkit
-from fsa_trainer_skills.skills.assessment.core.verify import CheckResult, capstone
+from get_fsa_training_done.errors import UsageError
+from get_fsa_training_done.skills.assessment.core import sprintkit
+from get_fsa_training_done.skills.assessment.core.verify import CheckResult, capstone
 
 from .conftest import FIXTURES
 

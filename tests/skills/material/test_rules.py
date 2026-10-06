@@ -7,7 +7,7 @@ prose would promise it too. Each case makes one edit to the clean module.
 
 from __future__ import annotations
 
-from fsa_trainer_skills.skills.material.core import rules
+from get_fsa_training_done.skills.material.core import rules
 
 NOTE = "01_Relational_Modelling.md"
 SECOND = "02_Querying.md"
@@ -219,7 +219,7 @@ def test_another_skills_files_are_never_reported_missing(module, plan_path, caps
     skill, and reporting them here would send someone to write the wrong thing."""
     import json
 
-    from fsa_trainer_skills.cli import main
+    from get_fsa_training_done.cli import main
 
     capsys.readouterr()
     main(["material", "coverage", "--schedule", str(plan_path), "--dir", str(module), "--json"])

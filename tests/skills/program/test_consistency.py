@@ -11,10 +11,10 @@ from __future__ import annotations
 
 import re
 
-from fsa_trainer_skills.__about__ import CLI_NAME, PACKAGE_NAME
-from fsa_trainer_skills.install.receipt import RECEIPT_NAME
-from fsa_trainer_skills.skills.program import SKILL
-from fsa_trainer_skills.skills.program.core import rules, schedule
+from get_fsa_training_done.__about__ import CLI_NAME, PACKAGE_NAME
+from get_fsa_training_done.install.receipt import RECEIPT_NAME
+from get_fsa_training_done.skills.program import SKILL
+from get_fsa_training_done.skills.program.core import rules, schedule
 
 
 def payload_text(*parts: str) -> str:

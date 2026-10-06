@@ -9,9 +9,9 @@ from __future__ import annotations
 
 import pytest
 
-from fsa_trainer_skills.errors import UsageError
-from fsa_trainer_skills.skills.program.core import mdtable
-from fsa_trainer_skills.skills.program.core import program as program_mod
+from get_fsa_training_done.errors import UsageError
+from get_fsa_training_done.skills.program.core import mdtable
+from get_fsa_training_done.skills.program.core import program as program_mod
 
 CURRICULUM = """# Java Full-Stack — Fresher
 

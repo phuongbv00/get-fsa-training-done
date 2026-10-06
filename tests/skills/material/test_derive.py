@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from fsa_trainer_skills.cli import main
-from fsa_trainer_skills.errors import UsageError
-from fsa_trainer_skills.skills.material.core import appendix
+from get_fsa_training_done.cli import main
+from get_fsa_training_done.errors import UsageError
+from get_fsa_training_done.skills.material.core import appendix
 
 APPENDIX = "99_Appendix.md"
 

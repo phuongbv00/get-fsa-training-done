@@ -6,14 +6,14 @@ import json
 
 import pytest
 
-from fsa_trainer_skills import cli
-from fsa_trainer_skills.errors import UsageError
+from get_fsa_training_done import cli
+from get_fsa_training_done.errors import UsageError
 
 
 @pytest.fixture(autouse=True)
 def no_venv(monkeypatch):
     """Worker commands re-exec into the managed venv; keep them in-process here."""
-    monkeypatch.setenv("FSA_TRAINER_SKILLS_NO_VENV", "1")
+    monkeypatch.setenv("GET_FSA_TRAINING_DONE_NO_VENV", "1")
 
 
 def test_a_skill_verb_reaches_its_worker(capsys):
@@ -27,7 +27,7 @@ def test_the_level_flag_rejects_a_missing_band():
 
 
 def test_doctor_reports_every_dependency_group(capsys):
-    from fsa_trainer_skills.envmgr import stamp
+    from get_fsa_training_done.envmgr import stamp
 
     cli.main(["doctor", "--json"])
     report = json.loads(capsys.readouterr().out)

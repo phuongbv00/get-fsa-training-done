@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pytest
 
-from fsa_trainer_skills import levels
+from get_fsa_training_done import levels
 
 
 def test_every_level_has_coherent_percentages():

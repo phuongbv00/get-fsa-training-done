@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import re
 
-from fsa_trainer_skills.__about__ import CLI_NAME, PACKAGE_NAME
-from fsa_trainer_skills.install.receipt import RECEIPT_NAME
-from fsa_trainer_skills.skills.material import SKILL
-from fsa_trainer_skills.skills.material.core import grammar, rules
+from get_fsa_training_done.__about__ import CLI_NAME, PACKAGE_NAME
+from get_fsa_training_done.install.receipt import RECEIPT_NAME
+from get_fsa_training_done.skills.material import SKILL
+from get_fsa_training_done.skills.material.core import grammar, rules
 
 
 def payload_text(*parts: str) -> str:
@@ -78,7 +78,7 @@ def test_every_fence_language_is_documented():
 
 def test_every_shipped_template_parses_as_the_kind_it_names():
     """A skeleton the checker would reject teaches the wrong shape."""
-    from fsa_trainer_skills.skills.material.core import notes
+    from get_fsa_training_done.skills.material.core import notes
 
     for name, key in (
         ("lecture_note.md", "unit"),

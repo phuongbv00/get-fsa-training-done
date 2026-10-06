@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import pytest
 
-from fsa_trainer_skills.errors import UsageError
-from fsa_trainer_skills.skills.program.core import syllabus as syllabus_mod
+from get_fsa_training_done.errors import UsageError
+from get_fsa_training_done.skills.program.core import syllabus as syllabus_mod
 
 SYLLABUS = """# AA_FR_TT_DBF — Database Foundations
 

@@ -56,7 +56,7 @@ jobs:
       - run: pip install -e . pytest
       # The workers run in the managed venv; the tests run here, so they need
       # the same libraries to exercise the real renderer and archive readers.
-      - run: pip install -r src/fsa_trainer_skills/envmgr/requirements/core.txt
+      - run: pip install -r src/get_fsa_training_done/envmgr/requirements/core.txt
       - run: pytest -q
 
   install-round-trip:
@@ -73,23 +73,23 @@ jobs:
         env:
           CLAUDE_CONFIG_DIR: ${{ runner.temp }}/home/.claude
           CODEX_HOME: ${{ runner.temp }}/home/.codex
-          FSA_TRAINER_SKILLS_HOME: ${{ runner.temp }}/home/cache
+          GET_FSA_TRAINING_DONE_HOME: ${{ runner.temp }}/home/cache
         run: |
           set -euo pipefail
-          fsa-trainer-skills install --platform all --dry-run
-          fsa-trainer-skills install --platform all
-          fsa-trainer-skills status --json
-          fsa-trainer-skills update --check
-          fsa-trainer-skills uninstall --platform all
+          get-fsa-training-done install --platform all --dry-run
+          get-fsa-training-done install --platform all
+          get-fsa-training-done status --json
+          get-fsa-training-done update --check
+          get-fsa-training-done uninstall --platform all
           test -z "$(find "$CLAUDE_CONFIG_DIR" "$CODEX_HOME" -type f 2>/dev/null)" \
             || { echo "uninstall left files behind"; find "$CLAUDE_CONFIG_DIR" "$CODEX_HOME" -type f; exit 1; }
       - name: emit and verify against the shipped fixtures
         run: |
           set -euo pipefail
-          fsa-trainer-skills assessment emit blooket \
+          get-fsa-training-done assessment emit blooket \
             --master tests/fixtures/assessment/question_set/quiz_master.csv -o /tmp/b.csv
           cmp /tmp/b.csv tests/fixtures/assessment/question_set/quiz_blooket.csv
-          fsa-trainer-skills assessment verify --type quiz \
+          get-fsa-training-done assessment verify --type quiz \
             --master tests/fixtures/assessment/question_set/quiz_master.csv --blooket /tmp/b.csv
 
   npm-shim:
@@ -103,8 +103,8 @@ jobs:
         with:
           python-version: "3.12"
       - run: node npm/lib/prepack.js
-      - run: node npm/bin/fsa-trainer-skills.js --version
-      - run: node npm/bin/fsa-trainer-skills.js doctor --json
+      - run: node npm/bin/get-fsa-training-done.js --version
+      - run: node npm/bin/get-fsa-training-done.js doctor --json
 
   render:
     # `render` needs no browser and no system fonts: it runs in the managed venv
@@ -121,13 +121,13 @@ jobs:
         run: |
           set -euo pipefail
           cp tests/fixtures/assessment/long_form/sbf_practice_exam_02.md /tmp/brief.md
-          fsa-trainer-skills assessment render /tmp/brief.md
+          get-fsa-training-done assessment render /tmp/brief.md
       - name: a Vietnamese brief keeps its diacritics
         # The reason the fonts are embedded. Chrome used to resolve these from
         # the host, so this would have depended on the runner's font packages.
         run: |
           set -euo pipefail
           printf '# \u0110\u1ec1 b\u00e0i\n\nN\u1ed9p b\u00e0i d\u01b0\u1edbi d\u1ea1ng `m\u00e3_s\u1ed1.zip`.\n' > /tmp/vn.md
-          fsa-trainer-skills assessment render /tmp/vn.md --lang vi -o /tmp/vn.pdf
+          get-fsa-training-done assessment render /tmp/vn.md --lang vi -o /tmp/vn.pdf
           pip install pypdf
           python -c 'from pypdf import PdfReader; t="\n".join(p.extract_text() for p in PdfReader("/tmp/vn.pdf").pages); assert all(f in t for f in ("\u0110\u1ec1 b\u00e0i","N\u1ed9p","m\u00e3_s\u1ed1")), t; assert "\x00" not in t, "missing glyph"; print("Vietnamese round-trip OK")'
