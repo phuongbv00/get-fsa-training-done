@@ -1,4 +1,4 @@
-"""Codex CLI.
+"""Codex — the app, the CLI and the IDE extension share `$CODEX_HOME`.
 
 User scope is `$CODEX_HOME/skills/<name>` (default `~/.codex/skills`). Project
 scope was verified empirically against codex-cli 0.147.0 with
@@ -119,7 +119,7 @@ def validate_payload(payload_dir: Path) -> list[Problem]:
 
 CODEX = Codex(
     key="codex",
-    label="Codex CLI",
+    label="Codex",
     home_env="CODEX_HOME",
     home_default=".codex",
     skills_subdir="skills",

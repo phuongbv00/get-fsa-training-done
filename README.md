@@ -3,7 +3,7 @@
 One agent skill, and the CLI behind it, for getting FSA training done:
 designing a programme, writing its teaching material, and designing and grading
 its assessments. It installs into [Claude Code](https://claude.com/claude-code),
-the [Codex CLI](https://developers.openai.com/codex/cli) and
+[Codex](https://developers.openai.com/codex) (the app, the CLI and the IDE extension) and
 [GitHub Copilot](https://docs.github.com/en/copilot) (the Copilot CLI and agent
 mode in VS Code).
 
