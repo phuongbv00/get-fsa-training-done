@@ -4,7 +4,7 @@
 `scripts/sync_version.py` propagates it to the skill payload's `VERSION` file.
 """
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 PACKAGE_NAME = "get-fsa-training-done"
 CLI_NAME = "get-fsa-training-done"
