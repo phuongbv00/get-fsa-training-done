@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>get-fsa-training-done | Soạn khoá học FSA</title>
+<title>Get FSA Training Done! | Soạn khoá học FSA</title>
 <meta name="description" content="Skill cho Claude Code và Codex: soạn chương trình, học liệu, đề thi; xuất Excel để upload FAMS. Từng file được kiểm tra tự động.">
-<meta property="og:title" content="get-fsa-training-done | From syllabus to grading">
+<meta property="og:title" content="Get FSA Training Done! | From syllabus to grading">
 <meta property="og:description" content="FSA syllabus templates. Materials matched to sessions. Assessments calibrated by learner level and Bloom's taxonomy. Files you can inspect, with automated checks.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23090D57'/%3E%3Crect x='7' y='9' width='18' height='4' rx='2' fill='%23F37021'/%3E%3Crect x='7' y='15' width='13' height='4' rx='2' fill='%230B67B1'/%3E%3Crect x='7' y='21' width='8' height='4' rx='2' fill='%230DB04B'/%3E%3C/svg%3E">
+<script>try { var th = localStorage.getItem('gftd-theme'); if (th === 'light' || th === 'dark') document.documentElement.setAttribute('data-theme', th); } catch (e) {}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -35,7 +36,7 @@
     --bg: #0A0D24; --bg-alt: #0F1330; --surface: #141A3D;
     --ink: #EEF0FA; --ink-2: #C3C7DE; --ink-3: #9096B8;
     --line: #232A55; --line-2: #2E3668; --code-bg: #070A1F;
-    --xl-head: #1B2250; --xl-grid: #2A3263; --re: #2A2160; --re-ink: #B9A8FF;
+    --xl-head: #1B2250; --xl-grid: #2A3263; --re: #2A2160; --re-ink: #B9A8FF; --blue-hi: #4A9BE0; --blue-hi: #4A9BE0;
     --shadow: 0 1px 2px rgba(0,0,0,.3), 0 18px 40px rgba(0,0,0,.4);
     color-scheme: dark;
   }
@@ -45,13 +46,13 @@
   --bg: #0A0D24; --bg-alt: #0F1330; --surface: #141A3D;
   --ink: #EEF0FA; --ink-2: #C3C7DE; --ink-3: #9096B8;
   --line: #232A55; --line-2: #2E3668; --code-bg: #070A1F;
-  --xl-head: #1B2250; --xl-grid: #2A3263; --re: #2A2160; --re-ink: #B9A8FF;
+  --xl-head: #1B2250; --xl-grid: #2A3263; --re: #2A2160; --re-ink: #B9A8FF; --blue-hi: #4A9BE0;
   --shadow: 0 1px 2px rgba(0,0,0,.3), 0 18px 40px rgba(0,0,0,.4);
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 var(--font-body); overflow-x: hidden; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 var(--font-body); overflow-x: clip; }
 html[data-lang="vi"] .en, html[data-lang="en"] .vi { display: none !important; }
 a { color: var(--blue); text-decoration: none; }
 code, pre { font-family: var(--font-mono); }
@@ -67,6 +68,16 @@ p { margin: 0; }
 .stripe i:nth-child(2) { background: var(--blue); }
 .stripe i:nth-child(3) { background: var(--green); }
 
+header.top {
+  position: sticky; top: 0; z-index: 100;
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  -webkit-backdrop-filter: saturate(1.6) blur(14px); backdrop-filter: saturate(1.6) blur(14px);
+  border-bottom: 1px solid transparent;
+  transition: border-color .25s ease, box-shadow .25s ease, background-color .3s ease;
+}
+header.top.scrolled { border-bottom-color: var(--line); box-shadow: 0 6px 24px rgba(9,13,87,.06); }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { header.top { background: var(--bg); } }
+html { scroll-padding-top: 76px; }
 header .wrap { display: flex; align-items: center; gap: 16px; height: 64px; }
 .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); font: 800 18px var(--font-head); }
 .mark { display: grid; gap: 3px; width: 20px; }
@@ -78,12 +89,23 @@ header .wrap { display: flex; align-items: center; gap: 16px; height: 64px; }
 .lang button { border: 0; background: none; color: var(--ink-3); font: 600 12.5px var(--font-body); padding: 4px 10px; border-radius: 999px; cursor: pointer; }
 .lang button[aria-pressed="true"] { background: var(--navy); color: #fff; }
 .gh { color: var(--ink-2); display: inline-flex; }
+.theme { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line-2); background: none; color: var(--ink-2); cursor: pointer; transition: color .2s, border-color .2s, transform .3s; }
+.theme:hover { color: var(--ink); border-color: var(--ink-3); transform: rotate(-15deg); }
+.theme .moon { display: none; }
+:root[data-theme="dark"] .theme .sun { display: none; }
+:root[data-theme="dark"] .theme .moon { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme .sun { display: none; }
+  :root:not([data-theme="light"]) .theme .moon { display: block; }
+}
+body, .card, .lane, .file, header { transition: background-color .3s ease, border-color .3s ease, color .3s ease; }
+
 
 /* hero */
 .hero { padding: 72px 0 88px; text-align: center; }
 .hero h1 { font-size: clamp(36px, 5.2vw, 60px); font-weight: 800; }
 .hero h1 em { font-style: normal; color: var(--orange); }
-.hero .sub { margin: 20px auto 0; max-width: 580px; font-size: 18.5px; color: var(--ink-2); }
+.hero .sub { margin: 16px auto 0; max-width: 580px; font-size: 18.5px; color: var(--ink-2); }
 .ctas { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
 .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 10px; font: 600 15px var(--font-body); border: 1px solid transparent; }
 .btn-primary { background: var(--orange); color: #fff; box-shadow: 0 8px 22px rgba(243,112,33,.32); }
@@ -138,9 +160,9 @@ header .wrap { display: flex; align-items: center; gap: 16px; height: 64px; }
 @keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes hl { from { background-size: 0 100%; } to { background-size: 100% 100%; } }
 .motion .hero h1, .motion .hero .sub, .motion .hero .ctas, .motion .hero .trio { animation: riseIn .7s cubic-bezier(.2,.7,.2,1) both; }
-.motion .hero .sub { animation-delay: .1s; }
-.motion .hero .ctas { animation-delay: .2s; }
-.motion .hero .trio { animation-delay: .3s; }
+.motion .hero .sub { animation-delay: .5s; }
+.motion .hero .ctas { animation-delay: .6s; }
+.motion .hero .trio { animation-delay: .7s; }
 .motion .file { animation: dealIn .9s cubic-bezier(.2,.8,.2,1) both, floaty 6s ease-in-out infinite; }
 .motion .f1 { animation-delay: .25s, 1.2s; }
 .motion .f2 { animation-delay: .45s, 2.2s; }
@@ -172,17 +194,10 @@ header .wrap { display: flex; align-items: center; gap: 16px; height: 64px; }
   .motion .bloom span { transform: none !important; }
 }
 
-.h1-tri .l1, .h1-tri .l2, .h1-tri .l3 { display: block; }
-.h1-tri .l1 { color: var(--orange); }
-.h1-tri .l2 { color: var(--blue); }
-.h1-tri .l3 { color: var(--green); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .h1-tri .l2 { color: #4A9BE0; } }
-:root[data-theme="dark"] .h1-tri .l2 { color: #4A9BE0; }
-@keyframes lineIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-.motion .hero h1.h1-tri { animation: none; }
-.motion .h1-tri .l1, .motion .h1-tri .l2, .motion .h1-tri .l3 { animation: lineIn .6s cubic-bezier(.2,.7,.2,1) both; }
-.motion .h1-tri .l2 { animation-delay: .15s; }
-.motion .h1-tri .l3 { animation-delay: .3s; }
+.name { font-size: clamp(38px, 5.6vw, 64px); font-weight: 800; }
+.name .grad { background: linear-gradient(95deg, var(--orange) 22%, var(--blue-hi, var(--blue)) 46%, var(--blue-hi, var(--blue)) 56%, var(--green) 80%); background: linear-gradient(95deg in oklab, var(--orange) 22%, var(--blue-hi, var(--blue)) 46%, var(--blue-hi, var(--blue)) 56%, var(--green) 80%); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+
+.name .nw { white-space: nowrap; }
 
 /* feature rows */
 .feat { padding: 88px 0; }
@@ -229,6 +244,33 @@ header .wrap { display: flex; align-items: center; gap: 16px; height: 64px; }
 .exports .badge { margin-left: auto; }
 .bloom { display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 18px; }
 .bloom-l { display: flex; justify-content: space-between; font: 500 11px var(--font-mono); color: var(--ink-3); margin-top: 6px; }
+
+.asmt .atabs { display: flex; gap: 4px; padding: 8px; border-bottom: 1px solid var(--line); background: var(--bg-alt); overflow-x: auto; scrollbar-width: none; }
+.asmt .atabs::-webkit-scrollbar { display: none; }
+.atab { flex: none; border: 0; background: none; font: 600 12.5px var(--font-body); color: var(--ink-3); padding: 7px 12px; border-radius: 8px; cursor: pointer; white-space: nowrap; transition: background .2s, color .2s; }
+.atab:hover { color: var(--ink); }
+.atab.on { background: var(--surface); color: var(--green-deep); box-shadow: 0 1px 3px rgba(9,13,87,.12); }
+.apanels { display: grid; }
+.apanel { grid-area: 1 / 1; padding: 20px 22px; opacity: 0; visibility: hidden; transform: translateY(8px); transition: opacity .45s ease, transform .45s ease, visibility .45s; }
+.apanel.on { opacity: 1; visibility: visible; transform: none; }
+.apanel .q { font: 700 17px/1.4 var(--font-head); }
+.apanel .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.dh h5 { margin: 0; font: 800 17px/1.3 var(--font-head); }
+.dh .dm { font-size: 12.5px; color: var(--ink-3); margin-top: 4px; }
+.ws { margin-top: 16px; display: grid; gap: 4px; }
+.ws .wbar { grid-template-columns: 140px 1fr 36px; font-size: 12.5px; margin: 3px 0; }
+.ws .wbar > span:nth-child(2) { height: 8px; border-radius: 4px; }
+.apanel.on .ws .wbar i { animation: grow .7s cubic-bezier(.2,.7,.2,1) both; transform-origin: left; }
+.tl { display: flex; align-items: center; gap: 6px; margin-top: 16px; flex-wrap: wrap; }
+.tl span { font: 600 12px var(--font-body); padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--ink-2); }
+.tl span.on { background: var(--green-soft); border-color: transparent; color: var(--green-deep); }
+.tl i { flex: 1; min-width: 12px; height: 2px; background: var(--line-2); border-radius: 1px; }
+.aprog { height: 3px; background: var(--line); }
+.aprog i { display: block; height: 100%; width: 0; background: var(--green); }
+.aprog i.run { animation: prog var(--dur, 5s) linear forwards; }
+@keyframes prog { from { width: 0; } to { width: 100%; } }
+.apanel .opt.ok { animation: glow 2.4s ease-in-out .6s infinite; }
+@media (max-width: 480px) { .ws .wbar { grid-template-columns: 110px 1fr 34px; } }
 
 /* syllabus visual */
 .sy { display: grid; grid-template-columns: 1fr 46px 1.15fr; align-items: center; }
@@ -298,14 +340,18 @@ footer .fine { margin-left: auto; }
 </style>
 </head>
 <body>
-<div class="stripe" aria-hidden="true"><i></i><i></i><i></i></div>
-<header>
+<header class="top">
+  <div class="stripe" aria-hidden="true"><i></i><i></i><i></i></div>
   <div class="wrap">
     <span class="brand"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>gftd</span>
     <div class="lang" role="group" aria-label="Language">
       <button type="button" data-set-lang="vi" aria-pressed="true">VI</button>
       <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
     </div>
+    <button type="button" class="theme" aria-label="Toggle dark mode" title="Light / Dark">
+      <svg class="sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <svg class="moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    </button>
     <a class="gh" href="https://github.com/phuongbv00/get-fsa-training-done" aria-label="GitHub">
       <svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z"/></svg>
     </a>
@@ -316,14 +362,14 @@ footer .fine { margin-left: auto; }
 <div class="hero">
   <div class="wrap">
     <div>
-    <h1 class="h1-tri"><span class="vi"><span class="l1">AI soạn.</span><span class="l2">Máy kiểm tra.</span><span class="l3">Trainer duyệt.</span></span><span class="en"><span class="l1">AI drafts.</span><span class="l2">Machines check.</span><span class="l3">Trainers decide.</span></span></h1>
+    <h1 class="name"><span class="grad">Get FSA <span class="nw">Training Done!</span></span></h1>
     <p class="sub"><span class="vi">Skill cho Claude Code và Codex: từ syllabus đến chấm bài, đúng mẫu FSA, kiểm tra tự động.</span><span class="en">A skill for Claude Code and Codex: from syllabus to grading, in FSA templates, checked automatically.</span></p>
     <div class="ctas">
       <a class="btn btn-primary" href="#start"><span class="vi">Cài đặt</span><span class="en">Get started</span> →</a>
       <a class="btn btn-ghost" href="#quiz"><span class="vi">Xem cách hoạt động</span><span class="en">See how it works</span></a>
     </div>
     <div class="trio">
-      <span style="--c:var(--green)"><i></i>Quiz &amp; <span class="vi">đề thi</span><span class="en">exams</span></span>
+      <span style="--c:var(--green)"><i></i>Quiz · Assignment · Exam</span>
       <span style="--c:var(--orange)"><i></i>Syllabus → FAMS</span>
       <span style="--c:var(--blue)"><i></i><span class="vi">Học liệu</span><span class="en">Materials</span></span>
     </div>
@@ -365,33 +411,23 @@ footer .fine { margin-left: auto; }
   </div>
 </div>
 
-<!-- QUIZ -->
+<!-- ASSESSMENT -->
 <section class="feat alt" id="quiz" style="--c:var(--green)">
   <div class="wrap">
     <div class="copy reveal">
       <div class="kick">Assessment</div>
-      <h2><span class="vi">Quiz đúng trình độ, xuất từ một bản gốc</span><span class="en">Quizzes pitched to the level, exported from one master</span></h2>
+      <h2><span class="vi">Mọi loại assessment, từ Quiz đến Capstone Project</span><span class="en">Every kind of assessment, Quiz to Capstone Project</span></h2>
       <ul class="ticks">
-        <li><span class="vi">Tỉ lệ Bloom và độ khó theo từng cấp, từ CPL đến Senior</span><span class="en">Bloom and difficulty mix set per level, CPL to senior</span></li>
-        <li><span class="vi">Một file gốc → Blooket, Coderbyte, không gõ lại</span><span class="en">One master → Blooket and Coderbyte, never retyped</span></li>
-        <li><span class="vi">Song ngữ EN/VI, đề kèm rubric và PDF</span><span class="en">EN/VI versions, exams with rubric and PDF</span></li>
+        <li>Quiz · Short &amp; Long Assignment · Theory &amp; Practice Exam · Capstone Project</li>
+        <li><span class="vi">Độ khó theo trình độ, song ngữ EN/VI, kèm rubric</span><span class="en">Pitched to the level, EN/VI, rubric included</span></li>
+        <li><span class="vi">Chấm bài trong sandbox, kiểm tra gian lận, gộp điểm thi lại</span><span class="en">Sandboxed grading, cheat checks, retake merging</span></li>
       </ul>
     </div>
     <div class="visual reveal">
-      <div class="card quiz">
-        <div class="tags"><span class="tag un">Understand</span><span class="tag e">Easy</span><span class="tag t">5s</span></div>
-        <p class="q">Which statement best distinguishes Spring Boot from Spring Framework?</p>
-        <div class="opts">
-          <div class="opt"><b>1</b><span>Spring Boot replaces dependency injection with static factories</span></div>
-          <div class="opt ok"><b>2</b><span>Spring Boot adds opinionated setup and auto-configuration on top of Spring</span></div>
-          <div class="opt"><b>3</b><span>Spring Framework can build only command-line applications</span></div>
-        </div>
-        <div class="bloom" aria-hidden="true"><span style="flex:15;background:#7A5AF8"></span><span style="flex:30;background:var(--blue)"></span><span style="flex:40;background:var(--green)"></span><span style="flex:15;background:var(--orange)"></span></div>
-        <div class="bloom-l"><span>Remember 15</span><span>Understand 30</span><span>Apply 40</span><span>Analyze 15</span></div>
-        <div class="exports">
-          <span class="chip">Blooket</span><span class="chip">Coderbyte</span><span class="chip">EN · VI</span>
-          <span class="badge">verify</span>
-        </div>
+      <div class="card asmt">
+        <div class="atabs" role="tablist"><button type="button" role="tab" class="atab on" data-i="0" aria-selected="true">Quiz</button><button type="button" role="tab" class="atab" data-i="1" aria-selected="false">Short Assignment</button><button type="button" role="tab" class="atab" data-i="2" aria-selected="false">Long Assignment</button><button type="button" role="tab" class="atab" data-i="3" aria-selected="false">Theory Exam</button><button type="button" role="tab" class="atab" data-i="4" aria-selected="false">Practice Exam</button><button type="button" role="tab" class="atab" data-i="5" aria-selected="false">Capstone Project</button></div>
+        <div class="apanels"><div class="apanel on" role="tabpanel" data-i="0"><div class="tags"><span class="tag un">Understand</span><span class="tag e">Easy</span><span class="tag t">5s</span></div><p class="q">Which statement best distinguishes Spring Boot from Spring Framework?</p><div class="opts"><div class="opt"><b>1</b><span>Spring Boot replaces dependency injection with static factories</span></div><div class="opt ok"><b>2</b><span>Spring Boot adds opinionated setup and auto-configuration on top of Spring</span></div><div class="opt"><b>3</b><span>Spring Framework can build only command-line applications</span></div></div><div class="bloom" aria-hidden="true"><span style="flex:15;background:#7A5AF8"></span><span style="flex:30;background:var(--blue)"></span><span style="flex:40;background:var(--green)"></span><span style="flex:15;background:var(--orange)"></span></div><div class="bloom-l"><span>Remember 15</span><span>Understand 30</span><span>Apply 40</span><span>Analyze 15</span></div><div class="exports"><span class="chip">Blooket</span><span class="chip">Coderbyte</span><span class="chip">EN · VI</span><span class="badge">verify</span></div></div><div class="apanel" role="tabpanel" data-i="1"><div class="dh"><h5>Short Assignment - OrderDesk Returns Backlog</h5><div class="dm">FR · 60 minutes · Agile | Scrum | user stories</div></div><div class="ws"><div class="wbar"><span>Open questions</span><span><i style="--w:57%"></i></span><b>20%</b></div><div class="wbar"><span>User stories</span><span><i style="--w:100%"></i></span><b>35%</b></div><div class="wbar"><span>Estimation & DoD</span><span><i style="--w:57%"></i></span><b>20%</b></div><div class="wbar"><span>Backlog order</span><span><i style="--w:71%"></i></span><b>25%</b></div></div><div class="exports"><span class="chip">brief.md</span><span class="chip">rubric.md</span><span class="chip">PDF EN · VI</span><span class="badge">verify</span></div></div><div class="apanel" role="tabpanel" data-i="2"><div class="dh"><h5>Long Assignment - BookTrack: Library Lending Operations</h5><div class="dm">Java Core · JPA/Hibernate · concurrency · submit at end of module</div></div><div class="tl"><span class="on">Kickoff</span><i></i><span>Checkpoint</span><i></i><span>Acceptance</span></div><div class="ws"><div class="wbar"><span>Book Catalogue</span><span><i style="--w:75%"></i></span><b>15%</b></div><div class="wbar"><span>Lending & Returns</span><span><i style="--w:100%"></i></span><b>20%</b></div><div class="wbar"><span>Reports</span><span><i style="--w:100%"></i></span><b>20%</b></div><div class="wbar"><span>Data Storage</span><span><i style="--w:100%"></i></span><b>20%</b></div><div class="wbar"><span>Files & Concurrency</span><span><i style="--w:50%"></i></span><b>10%</b></div></div><div class="exports"><span class="chip">brief.md</span><span class="chip">rubric.md</span><span class="chip">PDF EN · VI</span><span class="badge">verify</span></div></div><div class="apanel" role="tabpanel" data-i="3"><div class="dh"><h5>Theory Exam - Java and Persistence Interview Questions</h5><div class="dm">FR · 90 minutes · written</div></div><div class="ws"><div class="wbar"><span>Java Platform</span><span><i style="--w:100%"></i></span><b>25%</b></div><div class="wbar"><span>OOP & Testing</span><span><i style="--w:100%"></i></span><b>25%</b></div><div class="wbar"><span>Collections & Streams</span><span><i style="--w:100%"></i></span><b>25%</b></div><div class="wbar"><span>JDBC & JPA</span><span><i style="--w:100%"></i></span><b>25%</b></div></div><div class="exports"><span class="chip">answer_template.md</span><span class="chip">rubric.md</span><span class="chip">Coderbyte</span><span class="badge">verify</span></div></div><div class="apanel" role="tabpanel" data-i="4"><div class="dh"><h5>Practice Exam - StockDesk Order Service</h5><div class="dm">FR · 3 hours · Java 21 | Maven | JUnit 5 | JDBC</div></div><div class="ws"><div class="wbar"><span>Atomic Order</span><span><i style="--w:100%"></i></span><b>40%</b></div><div class="wbar"><span>Category Report</span><span><i style="--w:50%"></i></span><b>20%</b></div><div class="wbar"><span>Domain Model</span><span><i style="--w:38%"></i></span><b>15%</b></div><div class="wbar"><span>Automated Tests</span><span><i style="--w:38%"></i></span><b>15%</b></div><div class="wbar"><span>Product Lookup</span><span><i style="--w:25%"></i></span><b>10%</b></div></div><div class="exports"><span class="chip">starter.zip</span><span class="chip">seed.sql</span><span class="chip">rubric.md</span><span class="chip">sandbox</span><span class="badge">verify</span></div></div><div class="apanel" role="tabpanel" data-i="5"><div class="dh"><h5>Project Spec - &lt;Project name&gt;</h5><div class="dm">team · sprints · demo · individual contribution</div></div><div class="tl"><span class="on">Sprint 1</span><i></i><span class="on">Sprint 2</span><i></i><span class="on">Sprint 3</span><i></i><span>Final Review</span></div><div class="ws"><div class="wbar"><span>Sprint Review ×3</span><span><i style="--w:100%"></i></span><b>60%</b></div><div class="wbar"><span>Final Review</span><span><i style="--w:67%"></i></span><b>40%</b></div></div><div class="exports"><span class="chip">spec.md</span><span class="chip">sprint kit</span><span class="chip">checkpoints</span><span class="badge">verify</span></div></div></div>
+        <div class="aprog" aria-hidden="true"><i></i></div>
       </div>
     </div>
   </div>
@@ -523,11 +559,11 @@ footer .fine { margin-left: auto; }
         <h3>Assessment</h3>
         <div class="pills">
           <span>Quiz</span>
-          <span class="vi">Bài tập ngắn</span><span class="en">Short assignment</span>
-          <span class="vi">Bài tập dài</span><span class="en">Long assignment</span>
-          <span class="vi">Đề lý thuyết</span><span class="en">Theory exam</span>
-          <span class="vi">Đề thực hành</span><span class="en">Practice exam</span>
-          <span>Capstone</span>
+          <span>Short Assignment</span>
+          <span>Long Assignment</span>
+          <span>Theory Exam</span>
+          <span>Practice Exam</span>
+          <span>Capstone Project</span>
           <span class="vi">Chấm bài</span><span class="en">Grading</span>
           <span class="vi">Thi lại</span><span class="en">Retakes</span>
           <span class="vi">Tổng hợp điểm quiz</span><span class="en">Quiz reports</span>
@@ -566,9 +602,9 @@ footer .fine { margin-left: auto; }
 (function () {
   var root = document.documentElement;
   var META = {
-    vi: { title: 'get-fsa-training-done | Soạn khoá học FSA',
+    vi: { title: 'Get FSA Training Done! | Soạn khoá học FSA',
           desc: 'Skill cho Claude Code và Codex: soạn chương trình, học liệu, đề thi; xuất Excel để upload FAMS. Từng file được kiểm tra tự động.' },
-    en: { title: 'get-fsa-training-done | Build FSA courses',
+    en: { title: 'Get FSA Training Done! | Build FSA courses',
           desc: 'A skill for Claude Code and Codex: design programmes, materials and assessments; export Excel for FAMS. Files checked automatically.' }
   };
   function setLang(l) {
@@ -588,6 +624,46 @@ footer .fine { margin-left: auto; }
     }, { threshold: 0.18 });
     document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
   }
+  // assessment tabs
+  (function () {
+    var tabs = [].slice.call(document.querySelectorAll('.atab'));
+    var panels = [].slice.call(document.querySelectorAll('.apanel'));
+    var bar = document.querySelector('.aprog i');
+    if (!tabs.length) return;
+    var cur = 0, timer = null, DUR = 5000;
+    var auto = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function show(i) {
+      cur = i;
+      tabs.forEach(function (t, k) { t.classList.toggle('on', k === i); t.setAttribute('aria-selected', String(k === i)); });
+      panels.forEach(function (p, k) { p.classList.toggle('on', k === i); });
+      tabs[i].scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      if (bar) { bar.classList.remove('run'); void bar.offsetWidth; if (auto && timer) bar.classList.add('run'); }
+    }
+    function start() { if (!auto) return; stop(); timer = setInterval(function () { show((cur + 1) % tabs.length); }, DUR); bar.style.setProperty('--dur', DUR + 'ms'); bar.classList.remove('run'); void bar.offsetWidth; bar.classList.add('run'); }
+    function stop() { clearInterval(timer); timer = null; if (bar) bar.classList.remove('run'); }
+    tabs.forEach(function (t, k) { t.addEventListener('click', function () { show(k); auto = false; stop(); }); });
+    var card = document.querySelector('.asmt');
+    card.addEventListener('mouseenter', stop);
+    card.addEventListener('mouseleave', function () { if (auto) start(); });
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { if (auto && !timer) start(); } else stop(); }); }, { threshold: 0.4 }).observe(card);
+    }
+  })();
+  // header shadow once scrolled
+  var hdr = document.querySelector('header.top');
+  function onScroll() { hdr.classList.toggle('scrolled', window.scrollY > 4); }
+  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  // theme
+  function isDark() {
+    var t = root.getAttribute('data-theme');
+    return t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+  }
+  document.querySelector('.theme').addEventListener('click', function () {
+    var next = isDark() ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('gftd-theme', next); } catch (e) {}
+    document.dispatchEvent(new CustomEvent('gftd-theme'));
+  });
   var saved = null;
   try { saved = localStorage.getItem('gftd-lang'); } catch (e) {}
   setLang(saved === 'en' ? 'en' : 'vi');
@@ -607,21 +683,30 @@ footer .fine { margin-left: auto; }
 </script>
 <script type="module">
 import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-const t = document.documentElement.dataset.theme;
-const dark = t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
-mermaid.initialize({
-  startOnLoad: false, theme: 'base', fontFamily: 'Inter, system-ui, sans-serif',
-  themeVariables: dark ? {
-    primaryColor: '#1B2350', primaryTextColor: '#EEF0FA', primaryBorderColor: '#F37021', lineColor: '#9096B8',
-    actorBkg: '#1B2350', actorBorder: '#F37021', actorTextColor: '#EEF0FA', signalColor: '#C3C7DE', signalTextColor: '#EEF0FA',
-    noteBkgColor: '#3A2414', noteTextColor: '#FFD3B5', noteBorderColor: '#F37021', textColor: '#EEF0FA'
-  } : {
-    primaryColor: '#FFF1E6', primaryTextColor: '#1A1D29', primaryBorderColor: '#F37021', lineColor: '#6B6E80',
-    actorBkg: '#FFF1E6', actorBorder: '#F37021', actorTextColor: '#1A1D29', signalColor: '#44475A', signalTextColor: '#1A1D29',
-    noteBkgColor: '#E8F1FA', noteTextColor: '#0B3A66', noteBorderColor: '#0B67B1', textColor: '#1A1D29'
-  }
-});
-await mermaid.run({ querySelector: 'pre.mermaid' });
+const nodes = [...document.querySelectorAll('pre.mermaid')];
+const sources = nodes.map(n => n.textContent);
+const LIGHT = {
+  primaryColor: '#FFF1E6', primaryTextColor: '#1A1D29', primaryBorderColor: '#F37021', lineColor: '#6B6E80',
+  actorBkg: '#FFF1E6', actorBorder: '#F37021', actorTextColor: '#1A1D29', signalColor: '#44475A', signalTextColor: '#1A1D29',
+  noteBkgColor: '#E8F1FA', noteTextColor: '#0B3A66', noteBorderColor: '#0B67B1', textColor: '#1A1D29'
+};
+const DARK = {
+  primaryColor: '#1B2350', primaryTextColor: '#EEF0FA', primaryBorderColor: '#F37021', lineColor: '#9096B8',
+  actorBkg: '#1B2350', actorBorder: '#F37021', actorTextColor: '#EEF0FA', signalColor: '#C3C7DE', signalTextColor: '#EEF0FA',
+  noteBkgColor: '#3A2414', noteTextColor: '#FFD3B5', noteBorderColor: '#F37021', textColor: '#EEF0FA'
+};
+function isDark() {
+  const t = document.documentElement.dataset.theme;
+  return t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+}
+async function render() {
+  mermaid.initialize({ startOnLoad: false, theme: 'base', fontFamily: 'Inter, system-ui, sans-serif', themeVariables: isDark() ? DARK : LIGHT });
+  nodes.forEach((n, i) => { n.removeAttribute('data-processed'); n.innerHTML = ''; n.textContent = sources[i]; });
+  await mermaid.run({ nodes });
+}
+await render();
+document.addEventListener('gftd-theme', render);
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', render);
 </script>
 </body>
 </html>
