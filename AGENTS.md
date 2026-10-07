@@ -33,6 +33,10 @@ for g in scripts/*/gen_*.py; do python "$g" --check; done   # generated referenc
 
 When iterating on worker commands locally, `gftd --no-venv <cmd>` (or `GET_FSA_TRAINING_DONE_NO_VENV=1`) runs in the current interpreter instead of re-execing into the managed venv.
 
+If `pytest` fails on a symbol that exists in `src/`, a stale non-editable install in site-packages is shadowing the checkout — re-run `pip install -e .` (or `PYTHONPATH=src pytest`).
+
+Release only when asked, never as part of an ordinary commit: the steps are in the README's **Releasing** section.
+
 ## Architecture
 
 ### Layout

@@ -116,6 +116,41 @@ for generator in scripts/*/gen_*.py; do python "$generator" --check; done
 `src/get_fsa_training_done/__about__.py` holds the canonical version;
 `sync_version.py` propagates it to the payload's `VERSION`.
 
+## Releasing
+
+A release is a pushed `v<version>` tag; nothing else publishes. Ordinary
+commits stay on the current version.
+
+```bash
+# 1. bump the canonical version, then propagate it
+$EDITOR src/get_fsa_training_done/__about__.py      # __version__ = "X.Y.Z"
+python scripts/sync_version.py
+
+# 2. run every gate in "Development" above — CI runs the same ones
+
+# 3. commit, tag, push the commit and the tag together
+git commit -am "Release X.Y.Z"
+git tag -a vX.Y.Z -m "vX.Y.Z"
+git push origin main vX.Y.Z
+```
+
+The tag triggers `.github/workflows/release.yml`:
+
+1. **guard** — refuses the tag unless it equals `v` + `__about__.py`'s
+   version, and re-runs the version and generated-file gates.
+2. **pypi** — builds, checks the wheel carries the skill payload, and
+   publishes through PyPI Trusted Publishing (environment `release`; no token).
+3. **github-release** — creates the GitHub release with generated notes.
+
+The landing page reads the latest version from PyPI, so it needs no edit.
+Users pick the release up with `pip install -U get-fsa-training-done` and
+then `gftd update`.
+
+If the guard fails, the tag is wrong, not the workflow: delete it
+(`git push origin :refs/tags/vX.Y.Z && git tag -d vX.Y.Z`), fix, and tag
+again. Once PyPI has accepted a version it can never be re-uploaded — ship a
+fix as the next patch version instead.
+
 ## Licence
 
 MIT
