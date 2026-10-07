@@ -19,9 +19,21 @@ The `## 2. Tasks` section of `<stem>.md`. The rest of the brief follows
 
 ### Theory exam — interview questions
 
-Default shape: **20 questions, 4 tasks of 5, 25% each, 60 minutes.** The
-Problem Statement is one paragraph: answer as you would explain it to an
-interviewer, explain how and why, add a short example where it helps.
+Default shape: **20 questions, 4 tasks of 5, 25% each, 90 minutes.** The
+Problem Statement is one line ("Answer the 20 questions below."); anything a
+question needs — "why", "how would you fix it" — is asked in that question.
+
+Each task mixes three kinds, in this order, so the paper is neither a recall
+drill nor a wall of scenarios:
+
+| Per task | Kind | Worth | What it is |
+|---|---|---|---|
+| 2 | definition | 1.0 each | short and purely theoretical — "What are the JVM, JRE and JDK?" — the marks a prepared candidate can always earn |
+| 1 | code reading | tiered | a short snippet: what it prints or does, why, and how to fix it |
+| 2 | interview | tiered | a real interview question about mechanism or a trade-off |
+
+Too many scenario or code questions overwhelm a fresher; keep it to one per
+task. Every question asks at most 2 things.
 
 - Number questions `**Q1.**` to `**Q20.**` across the whole paper; each task
   groups one topic.
@@ -37,6 +49,12 @@ interviewer, explain how and why, add a short example where it helps.
   ("which dependency breaks the next normal form?").
 - A practical question ("write the query that ...") belongs in a practice exam,
   not here.
+- **Never teach the practice exam.** A theory exam usually sits before the
+  practice exam of the same module. Leave out what discriminates in the
+  practice exam — its tables, class names, and the hard point itself (if Task 4
+  of the practice exam is a concurrent order, no theory question walks through
+  locking or a lost update on stock) — and tell the instructor not to review
+  those points after the theory exam.
 
 ### Written quiz — critique an artifact
 

@@ -69,12 +69,23 @@ verifier output, and the scope. Check:
   two queries' results) rather than as recall.
 - The wording is plain and unambiguous for a trainee reading a second language,
   numbers are digits, and the Vietnamese version (if any) never says "của bạn".
-- Every rubric row lists the points a strong answer covers, and a bare
-  definition is capped at half the row.
+- Each task mixes the three kinds: 2 short definition questions worth 1.0
+  each, 1 code-reading question, 2 interview questions. Flag a paper that is
+  mostly scenarios or code — it overwhelms a fresher — or mostly recall.
+- Every question asks at most 2 things, and a question that needs a "why" or a
+  fix asks for it itself; the Problem Statement is one line.
+- Definitions are scored point by point; every other row in cumulative
+  Base 40 / Mechanism 30 / Strong 30 tiers, with Strong earned only by an
+  explanation on the given code or the candidate's own example.
+- **Score estimate.** Recompute the rubric's profile table: a candidate who
+  memorised definitions and mechanisms but explains nothing must stay below
+  the target (8 at FR). Report each profile's estimate.
+- **No leak into the practice exam.** No question walks through the practice
+  exam's discriminating point, tables or class names.
 - The answer template has the task headings and `**Qn.**` slots only, and none
   of the question text.
-- The question count fits the duration: about 3 minutes per question at the
-  default 20 in 60 minutes.
+- The question count fits the duration: about 2 minutes per definition and
+  6 per tiered question, which is the default 20 in 90 minutes.
 
 ## Output
 

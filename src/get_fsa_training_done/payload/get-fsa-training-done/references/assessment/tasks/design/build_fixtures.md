@@ -44,12 +44,23 @@ Beside the brief, named `<stem>_<role>`:
 5. Prove each runnable file with `references/common/tasks/run_in_sandbox.md`:
    the reference schema, the seed and its test; the starter's tests; the mock
    API's tests.
-6. Keep every instructor file out of what the trainee receives.
+6. **Solve a practice exam yourself.** Write a reference solution from the
+   brief alone, with tests that include the brief's own examples and its hard
+   case (two orders at once, a tie, a rollback), and run them in the sandbox.
+   Record how long a strong fresher would need; it must leave a margin inside
+   the duration. Keep the solution outside the exam folder and out of anything
+   a trainee receives.
+7. **An offline exam room needs its build cached.** List what the machines must
+   hold before the exam — for Maven, the project's dependencies *and* the
+   default lifecycle plugins (compiler, surefire, resources, jar, install);
+   `mvn -o clean test` on a clean cache fails without them.
+8. Keep every instructor file out of what the trainee receives.
 
 ## Done when
 
-Every runnable fixture has passed in the sandbox, and the result is reported as
-a measurement ("seed_test: 14 checks passed").
+Every runnable fixture has passed in the sandbox, a practice exam's reference
+solution passes its tests, and both are reported as measurements ("seed_test:
+14 checks passed", "reference solution: 8/8 tests, about 165 of 180 minutes").
 
 ## Hands off to
 

@@ -48,18 +48,29 @@ every score sheet.
 5. For an exam, say in § 1 where the 80/20 line falls — which criteria are the
    ~20% beyond what the labs drilled — and that 8 is the designed ceiling for a
    trainee who only did the labs.
-6. For a written exam or quiz, write **one row per question**, with the points a
-   strong answer covers. A bare definition with no mechanism or example earns at
-   most half the row; correct, equivalent wording earns full credit.
-7. When a criterion needs behaviour shown — a seed loads, the tests pass —
+6. For a written exam or quiz, write **one row per question**.
+   - A definition question is scored by the points it lists, one by one.
+   - A code-reading or interview question is scored in **cumulative tiers**:
+     **Base 40%** (the right answer), **Mechanism 30%** (why, in terms of how
+     it works), **Strong 30%** (the consequence, failure mode or trade-off).
+     A tier counts only when the one below it is met in full.
+   - **Strong is earned by explaining**, on the code in the question or on the
+     candidate's own example. Listing the right words earns 0 at that tier.
+     That is what keeps a candidate who memorised the answer sheets below 8.
+   - Correct, equivalent wording earns full credit.
+7. Re-run the score estimate from
+   `references/assessment/tasks/design/plan_scope.md` against the finished
+   rubric, profile by profile, and keep the table in § 1. If a weaker profile
+   crosses its target, move weight off the criterion that lets it through.
+8. When a criterion needs behaviour shown — a seed loads, the tests pass —
    name the check and the supplied file it runs, so the grader runs it through
    `references/common/tasks/run_in_sandbox.md`. Reading the work stays the
    primary evidence.
-8. § 4 is one `### Tn - <name>` subsection per task that needs caps, in task
+9. § 4 is one `### Tn - <name>` subsection per task that needs caps, in task
    order, after an optional `### Every task`. Every entry bounds that task's raw
    0-10 score, never the total. Under exam time pressure a missing foundation
    **caps** the task rather than deducting from it.
-9. § 6 lists tasks and weights only: no `Caps applied:`, no `Deductions:`.
+10. § 6 lists tasks and weights only: no `Caps applied:`, no `Deductions:`.
 
 ## Done when
 

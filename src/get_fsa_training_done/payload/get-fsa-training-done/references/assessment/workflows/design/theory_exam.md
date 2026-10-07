@@ -13,12 +13,12 @@ the practice exam, no reference to labs or assignments.
 
 | Step | Task | For a theory exam |
 |---|---|---|
-| 1 | `references/assessment/tasks/design/plan_scope.md` | default 20 questions, 4 tasks of 5, 25% each, 60 minutes |
+| 1 | `references/assessment/tasks/design/plan_scope.md` | default 20 questions, 4 tasks of 5, 25% each, 90 minutes; score target and profile estimate |
 | 2 | `references/assessment/tasks/design/write_brief.md` | `Code: <LEVEL>_<SUBJ>_TE_<seq>`; Topics may list the outcome codes; deliverable: the completed template, renamed `<subj>_t_exam_<seq>_<fpt_account>.md`, nothing else |
 | 3 | `references/assessment/tasks/design/author_oe_questions.md` | § Theory exam — interview questions |
-| 4 | `references/assessment/tasks/design/write_rubric.md` | one row per question; a bare definition earns at most half the row |
+| 4 | `references/assessment/tasks/design/write_rubric.md` | one row per question; definitions by point, the rest in Base/Mechanism/Strong tiers |
 | 5 | `references/assessment/tasks/design/write_answer_template.md` | headings and `**Qn.**` slots only, never the questions |
-| 6 | `references/assessment/tasks/design/render_pdf.md` | 60 minutes is a 2-page budget |
+| 6 | `references/assessment/tasks/design/render_pdf.md` | 90 minutes is a 3-page budget |
 | 7 | `references/assessment/tasks/design/verify.md` | `--type theory_exam --brief ... --rubric ... --answer-template ... --pdf ...`; verifier `references/assessment/verifiers/theory_exam.md` |
 | 8 | `references/common/tasks/translate_vn.md` | only on request: the brief and the answer template |
 

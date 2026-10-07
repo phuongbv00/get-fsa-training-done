@@ -47,6 +47,16 @@ Check both structure and content:
   that part as hard, a bonus or optional, and never states its separate weight;
   the rubric states where the line falls. Flag a paper where the hard part is
   most of the marks, or absent.
+- **No handed-over solution.** Flag any brief that names the API, pattern,
+  configuration or test URL that solves the hard part: it turns the task into
+  translation, and a junior then scores like a strong candidate.
+- **Score estimate.** Recompute the profile table from the rubric — main flow
+  about 6, solid about 7-7.5, very strong 8 and above at FR — and show the
+  arithmetic. A weaker profile above its target is a `needs_revision`, with
+  the criterion that lets it through named.
+- **The exam is solvable.** A reference solution passed its tests in the
+  sandbox, including the brief's examples and hard case, in a time that leaves
+  a margin; an offline room has its build cached.
 - **Goals in the brief, standards in the rubric.** Flag a brief that hands over
   a template the task is meant to test (an "As a ... I want ..." pattern, a
   sample WBS row).

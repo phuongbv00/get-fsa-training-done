@@ -17,6 +17,7 @@ type, the level, the scope, the files, and where they go.
 | `duration` | all | ask |
 | `language` | all | English; a Vietnamese sibling only on request |
 | `grade_pipeline` | assignments, exams | yes — controls the submission-archive naming |
+| `score_target` | exams | who may reach which score; FR default: **8 and above only for a very strong fresher** |
 
 A question set also needs its count, distributions, option count, time map and
 delivery format; a capstone needs team size, sprint calendar, checkpoint gates,
@@ -38,9 +39,22 @@ A confirmed plan, echoed back to the user. No files.
    must be passable from that practice (see
    `references/assessment/tasks/design/write_brief.md` § The 80/20 rule) and
    must not reuse their domain.
-5. Echo the plan: the absolute `output_dir`, every output filename, the level
-   and its calibration, the task list or question distribution, any supplied
-   files, and any Vietnamese siblings.
+5. For an exam, estimate the score of three candidate profiles against the
+   draft task list, and keep the estimate with the plan:
+
+   | Profile | Who | FR target |
+   |---|---|---|
+   | main flow | did what the labs drilled, nothing more | about 6 |
+   | solid | correct and careful, misses the hardest edge | about 7-7.5 |
+   | very strong | handles the edge cases and explains the why | 8 and above |
+
+   A profile that lands above its target means a criterion is worth too much,
+   or the hard part too little: move weight, do not lower the bar for the top
+   profile. Redo the estimate after the rubric exists
+   (`references/assessment/tasks/design/write_rubric.md`).
+6. Echo the plan: the absolute `output_dir`, every output filename, the level
+   and its calibration, the task list or question distribution, the score
+   estimate for an exam, any supplied files, and any Vietnamese siblings.
 
 ## Done when
 

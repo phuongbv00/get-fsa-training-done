@@ -76,6 +76,17 @@ How much to give away depends on the level:
 | "Use `PreparedStatement` for all user-provided values" | "Must be safe against SQL injection — user input must never change the structure of a SQL statement" |
 | "Use try-with-resources for JDBC resources" | "No resource leaks: every connection is released on every path, including when an error occurs midway" |
 | "Write the story as: As a ... I want ... so that ..." | "Write the user stories this decision needs" (the three-part form is a rubric criterion) |
+| "Use a conditional `UPDATE`, `setAutoCommit(false)`, commit after both writes" | "An order succeeds or fails as a whole, and stays correct when two orders are placed at the same time" |
+| "Aggregate with `Collectors.teeing` in one pass" | "Compute the report in a single pass over the data" |
+
+An exam brief never names the API that solves the hard part, the URL or
+configuration a test needs, or the pattern the rubric looks for: once it does,
+the task is translation, and a junior scores like a senior.
+
+**Examples can test.** An example in the brief may be chosen to expose a
+common mistake — two items with equal scores listed with the alphabetically
+later one first, so a wrong tie-break shows. State it as a fact of the
+example, never as a warning.
 
 The brief states goals; the **standard** a goal is held to — a story's three
 parts, a WBS item small enough for one person — lives in the rubric.

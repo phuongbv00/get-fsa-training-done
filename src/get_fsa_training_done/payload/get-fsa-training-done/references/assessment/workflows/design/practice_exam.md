@@ -9,11 +9,11 @@ files and worksheets.
 
 | Step | Task | For a practice exam |
 |---|---|---|
-| 1 | `references/assessment/tasks/design/plan_scope.md` | read what the labs and assignments drilled; pick a fresh domain |
+| 1 | `references/assessment/tasks/design/plan_scope.md` | read what the labs and assignments drilled; pick a fresh domain; score target and profile estimate |
 | 2 | `references/assessment/tasks/design/write_brief.md` | `Code: <LEVEL>_<SUBJ>_PE_<seq>`, wall-clock Duration; the 80/20 rule; feasibility, below |
 | 3 | `references/assessment/tasks/design/write_rubric.md` | caps for missing foundations; state the 80/20 line |
 | 4 | `references/assessment/tasks/design/write_answer_template.md` | when a task's output is writing or a table: a worksheet with the tables drawn |
-| 5 | `references/assessment/tasks/design/build_fixtures.md` | seed data and its test, a git repository, a starter — each proven in the sandbox |
+| 5 | `references/assessment/tasks/design/build_fixtures.md` | seed data and its test, a git repository, a starter — each proven in the sandbox; a reference solution timed against the duration |
 | 6 | `references/assessment/tasks/design/render_pdf.md` | **binding** budget: 2 A4 pages per hour |
 | 7 | `references/assessment/tasks/design/verify.md` | `--type practice_exam`; verifier `references/assessment/verifiers/practice_exam.md`, which asks for a per-task minute budget |
 | 8 | `references/common/tasks/translate_vn.md` | only on request: brief and worksheets, same page budget |
