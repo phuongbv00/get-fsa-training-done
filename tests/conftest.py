@@ -22,4 +22,6 @@ def isolated_home(tmp_path, monkeypatch):
     monkeypatch.setenv("GET_FSA_TRAINING_DONE_HOME", str(home / "cache"))
     monkeypatch.setenv("XDG_CACHE_HOME", str(home / "xdg-cache"))
     monkeypatch.delenv("GET_FSA_TRAINING_DONE_NO_VENV", raising=False)
+    # `gftd update` would otherwise ask PyPI for a newer release.
+    monkeypatch.setenv("GET_FSA_TRAINING_DONE_NO_SELF_UPDATE", "1")
     return home

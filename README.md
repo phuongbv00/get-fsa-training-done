@@ -57,13 +57,20 @@ gftd install --platform all
 | `gftd install --platform codex --scope project` | `./.codex/skills/get-fsa-training-done` |
 | `gftd install --platform copilot --scope user` | `~/.copilot/skills/get-fsa-training-done` |
 | `gftd install --platform copilot --scope project` | `./.github/skills/get-fsa-training-done` |
-| `gftd update` | upgrade in place, preserving files you edited |
+| `gftd update` | upgrade the CLI from PyPI, then every install it finds, preserving files you edited |
 | `gftd uninstall --platform all` | remove exactly what was installed |
 | `gftd status` | what is installed where, and whether it drifted |
 | `gftd doctor` | check this machine for the skill's prerequisites |
 
 Add `--dry-run` to any of `install`, `update`, or `uninstall` to see the exact
 file-by-file plan without touching anything.
+
+`gftd update` first upgrades the package itself to the latest PyPI release —
+through pip, pipx or `uv tool`, whichever installed it — then updates the skill
+in every host and scope that holds an install (`--platform`/`--scope` narrow
+that). `--no-self-update`, `--offline` or
+`GET_FSA_TRAINING_DONE_NO_SELF_UPDATE=1` skip PyPI; an editable checkout is
+never upgraded, only reported.
 
 ## Dependencies
 
@@ -147,8 +154,8 @@ The tag triggers `.github/workflows/release.yml`:
 3. **github-release** — creates the GitHub release with generated notes.
 
 The landing page reads the latest version from PyPI, so it needs no edit.
-Users pick the release up with `pip install -U get-fsa-training-done` and
-then `gftd update`.
+Users pick the release up with `gftd update`, which upgrades the package from
+PyPI and then every installed skill.
 
 If the guard fails, the tag is wrong, not the workflow: delete it
 (`git push origin :refs/tags/vX.Y.Z && git tag -d vX.Y.Z`), fix, and tag

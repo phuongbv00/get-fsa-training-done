@@ -58,6 +58,8 @@ def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     parser = build_parser()
     args = parser.parse_args(argv)
+    # `update` re-runs itself after upgrading the package from PyPI.
+    args.argv = argv
 
     if args.no_venv:
         import os

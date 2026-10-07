@@ -1,19 +1,30 @@
-"""`gftd update` — version-aware upgrade of an installed skill."""
+"""`gftd update` — upgrade the CLI from PyPI, then every installed skill.
+
+With no --platform or --dir, `update` finds every install that carries our
+receipt — each host, user and project scope — and upgrades them all, so a
+user who installed into Claude and Copilot gets both refreshed in one go.
+"""
 
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
-from ...__about__ import __version__
+from ...__about__ import PACKAGE_NAME, __version__
 from ...errors import GftdError, NotInstalledError
 from ...skill import SKILL, Skill
+from .. import selfupdate
 from ..install import migrations, planner
 from ..install import receipt as receipt_mod
+from ..platforms import registry
 from ..platforms.base import Platform
 from .common import (
+    Target,
     add_target_args,
+    format_dest,
     print_plan,
+    project_root_of,
     resolve_targets,
     validate_payload_or_die,
 )
@@ -23,9 +34,10 @@ from .install import _file_records, _report_conflicts, _venv_hint, apply_plan
 def add_parser(subparsers: argparse._SubParsersAction) -> None:
     parser = subparsers.add_parser(
         "update",
-        help="upgrade an installed skill to this package's version",
+        help="upgrade the CLI from PyPI, then the installed skill",
         description=(
-            "Compare the installed files against the bundled payload and apply the "
+            "Upgrade get-fsa-training-done itself to the latest PyPI release, then "
+            "compare the installed files against its payload and apply the "
             "difference. Files you edited are never overwritten without --force."
         ),
     )
@@ -40,10 +52,48 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
         action="store_true",
         help="overwrite files you have modified (previous bytes kept as *.bak)",
     )
-    parser.set_defaults(func=run)
+    parser.add_argument(
+        "--no-self-update",
+        action="store_true",
+        help="skip the PyPI check and update from the package already installed",
+    )
+    # No --platform/--scope means "wherever it is installed", not "claude, user".
+    parser.set_defaults(func=run, platform=None, scope=None)
 
 
 def run(args: argparse.Namespace) -> int:
+    newer = None
+    if not (args.no_self_update or args.offline or selfupdate.disabled()):
+        newer = _check_pypi(args)
+        if newer and not args.check and not args.dry_run:
+            selfupdate.upgrade(selfupdate.install_kind(), newer)
+            return selfupdate.rerun(getattr(args, "argv", None) or sys.argv[1:])
+    code = _run_skill(args)
+    # --check: a newer package on PyPI is an available update too.
+    return max(code, 1) if newer and args.check else code
+
+
+def _check_pypi(args: argparse.Namespace) -> str | None:
+    """The PyPI version to upgrade to, or None to stay on this one."""
+    latest = selfupdate.latest_version()
+    if latest is None:
+        print(f"{PACKAGE_NAME}: could not reach PyPI; updating from {__version__}")
+        return None
+    if not selfupdate.is_newer(latest):
+        return None
+    kind = selfupdate.install_kind()
+    if kind in ("editable", "source"):
+        print(
+            f"{PACKAGE_NAME}: {latest} is on PyPI, but this is a {kind} checkout "
+            f"at {__version__} — pull it to upgrade"
+        )
+        return None
+    if args.check or args.dry_run:
+        print(f"{PACKAGE_NAME}: {__version__} installed, {latest} on PyPI")
+    return latest
+
+
+def _run_skill(args: argparse.Namespace) -> int:
     skill = SKILL
     exit_code = 0
 
@@ -51,7 +101,19 @@ def run(args: argparse.Namespace) -> int:
     if not args.check:
         validate_payload_or_die(payload)
 
-    for platform, scope, dest in resolve_targets(args, skill):
+    if args.platform is None and not args.dir:
+        targets = installed_targets(skill, args)
+        if not targets:
+            raise NotInstalledError(
+                f"{skill.name} is not installed anywhere",
+                hint="run `gftd install --platform all`",
+            )
+    else:
+        args.platform = args.platform or "claude"
+        args.scope = args.scope or "user"
+        targets = resolve_targets(args, skill)
+
+    for platform, scope, dest in targets:
         try:
             outdated = _update_one(skill, platform, scope, dest, args, payload)
             if args.check and outdated:
@@ -62,6 +124,29 @@ def run(args: argparse.Namespace) -> int:
             if exc.hint:
                 print(f"       {exc.hint}")
     return exit_code
+
+
+def installed_targets(skill: Skill, args: argparse.Namespace) -> list[Target]:
+    """Every destination holding our receipt, across hosts and scopes."""
+    name = args.name or skill.name
+    project_root = project_root_of(args)
+    scopes = (args.scope,) if args.scope else ("user", "project")
+    targets: list[Target] = []
+    seen: set[Path] = set()
+    for platform in registry.resolve(registry.ALL):
+        for scope in scopes:
+            if scope == "project" and not platform.project_subdir:
+                continue
+            dest = platform.dest(scope, name, project_root)
+            # From the home directory, project scope is the user-scope folder.
+            if dest.resolve() in seen or receipt_mod.read(dest) is None:
+                continue
+            seen.add(dest.resolve())
+            targets.append((platform, scope, dest))
+    if targets:
+        where = ", ".join(f"{p.label} ({s}) {format_dest(d)}" for p, s, d in targets)
+        print(f"{skill.name}: found {len(targets)} install(s): {where}")
+    return targets
 
 
 def _update_one(

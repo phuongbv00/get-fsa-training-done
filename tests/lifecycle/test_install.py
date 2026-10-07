@@ -212,3 +212,104 @@ def test_status_still_reports_a_genuinely_separate_project_install(
     rows = json.loads(capsys.readouterr().out)["installs"]
 
     assert {row["scope"] for row in rows} == {"user", "project"}
+
+
+# --- Self-update from PyPI --------------------------------------------------
+
+
+@pytest.fixture
+def pypi(monkeypatch):
+    """Turn the PyPI check back on, against a fake index and a fake installer."""
+    from get_fsa_training_done.lifecycle import selfupdate
+
+    monkeypatch.delenv(selfupdate.DISABLE_ENV)
+    calls = {"upgrade": [], "rerun": []}
+    state = {"latest": __version__, "kind": "pip"}
+    monkeypatch.setattr(selfupdate, "latest_version", lambda: state["latest"])
+    monkeypatch.setattr(selfupdate, "install_kind", lambda: state["kind"])
+    monkeypatch.setattr(selfupdate, "upgrade", lambda kind, v: calls["upgrade"].append((kind, v)))
+    monkeypatch.setattr(selfupdate, "rerun", lambda argv: calls["rerun"].append(argv) or 0)
+    return state, calls
+
+
+def test_update_upgrades_from_pypi_then_reruns(isolated_home, skill, pypi):
+    state, calls = pypi
+    state["latest"] = "99.0.0"
+    main(["install", "--platform", "claude", "--no-prewarm"])
+    assert main(["update", "--platform", "claude"]) == 0
+    assert calls["upgrade"] == [("pip", "99.0.0")]
+    assert calls["rerun"] == [["update", "--platform", "claude"]]
+
+
+def test_update_stays_put_when_pypi_is_not_newer(isolated_home, skill, pypi):
+    _, calls = pypi
+    main(["install", "--platform", "claude", "--no-prewarm"])
+    assert main(["update", "--platform", "claude"]) == 0
+    assert calls == {"upgrade": [], "rerun": []}
+
+
+@pytest.mark.parametrize("flag", ["--no-self-update", "--offline", "--dry-run"])
+def test_update_flags_that_never_upgrade(isolated_home, skill, pypi, flag):
+    state, calls = pypi
+    state["latest"] = "99.0.0"
+    main(["install", "--platform", "claude", "--no-prewarm"])
+    assert main(["update", "--platform", "claude", flag]) == 0
+    assert calls == {"upgrade": [], "rerun": []}
+
+
+def test_update_check_flags_a_newer_pypi_release(isolated_home, skill, pypi, capsys):
+    state, calls = pypi
+    state["latest"] = "99.0.0"
+    main(["install", "--platform", "claude", "--no-prewarm"])
+    assert main(["update", "--platform", "claude", "--check"]) == 1
+    assert "99.0.0 on PyPI" in capsys.readouterr().out
+    assert calls["upgrade"] == []
+
+
+def test_update_leaves_an_editable_checkout_alone(isolated_home, skill, pypi, capsys):
+    state, calls = pypi
+    state["latest"], state["kind"] = "99.0.0", "editable"
+    main(["install", "--platform", "claude", "--no-prewarm"])
+    assert main(["update", "--platform", "claude"]) == 0
+    assert "pull it to upgrade" in capsys.readouterr().out
+    assert calls["upgrade"] == []
+
+
+def test_version_ordering():
+    from get_fsa_training_done.lifecycle.selfupdate import is_newer
+
+    assert is_newer("1.0.10", "1.0.9")
+    assert not is_newer("1.0.1", "1.0.1")
+    assert not is_newer("0.9.0", "1.0.0")
+
+
+def test_bare_update_upgrades_every_install(isolated_home, tmp_path, skill, monkeypatch, capsys):
+    project = tmp_path / "proj"
+    project.mkdir()
+    monkeypatch.chdir(project)
+    main(["install", "--platform", "claude", "--no-prewarm"])
+    main(["install", "--platform", "copilot", "--no-prewarm"])
+    main(["install", "--platform", "codex", "--scope", "project", "--no-prewarm"])
+    dests = [
+        registry.get("claude").dest("user", skill.name),
+        registry.get("copilot").dest("user", skill.name),
+        registry.get("codex").dest("project", skill.name),
+    ]
+    for dest in dests:
+        receipt = receipt_mod.read(dest)
+        receipt.version = "0.0.1"
+        receipt_mod.write(dest, receipt)
+
+    assert main(["update"]) == 0
+    assert "found 3 install(s)" in capsys.readouterr().out
+    assert [receipt_mod.read(d).version for d in dests] == [__version__] * 3
+    # Codex at user scope was never installed, so update did not create it.
+    assert not registry.get("codex").dest("user", skill.name).exists()
+
+
+def test_bare_update_with_nothing_installed(isolated_home, tmp_path, monkeypatch):
+    from get_fsa_training_done.errors import NotInstalledError
+
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(NotInstalledError):
+        main(["update"])
