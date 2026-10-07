@@ -25,7 +25,7 @@ from .common import (
 def add_parser(subparsers: argparse._SubParsersAction) -> None:
     parser = subparsers.add_parser(
         "install",
-        help="install a skill into Claude Code and/or Codex",
+        help="install a skill into Claude Code, Codex and/or GitHub Copilot",
         description="Copy a skill's bundled payload into a host's skills directory.",
     )
     add_target_args(parser)

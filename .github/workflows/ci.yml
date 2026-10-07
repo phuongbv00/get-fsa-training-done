@@ -73,6 +73,7 @@ jobs:
         env:
           CLAUDE_CONFIG_DIR: ${{ runner.temp }}/home/.claude
           CODEX_HOME: ${{ runner.temp }}/home/.codex
+          COPILOT_HOME: ${{ runner.temp }}/home/.copilot
           GET_FSA_TRAINING_DONE_HOME: ${{ runner.temp }}/home/cache
         run: |
           set -euo pipefail
@@ -81,8 +82,8 @@ jobs:
           gftd status --json
           gftd update --check
           gftd uninstall --platform all
-          test -z "$(find "$CLAUDE_CONFIG_DIR" "$CODEX_HOME" -type f 2>/dev/null)" \
-            || { echo "uninstall left files behind"; find "$CLAUDE_CONFIG_DIR" "$CODEX_HOME" -type f; exit 1; }
+          test -z "$(find "$CLAUDE_CONFIG_DIR" "$CODEX_HOME" "$COPILOT_HOME" -type f 2>/dev/null)" \
+            || { echo "uninstall left files behind"; find "$CLAUDE_CONFIG_DIR" "$CODEX_HOME" "$COPILOT_HOME" -type f; exit 1; }
       - name: emit and verify against the shipped fixtures
         run: |
           set -euo pipefail

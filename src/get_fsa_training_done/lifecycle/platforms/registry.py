@@ -6,8 +6,9 @@ from ...errors import UsageError
 from .base import SCOPES, Platform, Problem
 from .claude import CLAUDE
 from .codex import CODEX
+from .copilot import COPILOT
 
-_PLATFORMS: dict[str, Platform] = {p.key: p for p in (CLAUDE, CODEX)}
+_PLATFORMS: dict[str, Platform] = {p.key: p for p in (CLAUDE, CODEX, COPILOT)}
 
 ALL = "all"
 

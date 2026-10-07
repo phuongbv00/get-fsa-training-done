@@ -25,8 +25,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog=SHORT_NAME,
         description=(
-            "Install the get-fsa-training-done agent skill in Claude Code and Codex, "
-            "and run its program, material and assessment commands."
+            "Install the get-fsa-training-done agent skill in Claude Code, Codex and "
+            "GitHub Copilot, and run its program, material and assessment commands."
         ),
     )
     parser.add_argument("--version", action="version", version=f"{CLI_NAME} {__version__}")

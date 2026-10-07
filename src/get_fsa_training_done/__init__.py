@@ -1,5 +1,6 @@
 """get-fsa-training-done — one agent skill for FSA training, and the CLI that
-installs it into Claude Code and Codex and does its deterministic work.
+installs it into Claude Code, Codex and GitHub Copilot and does its
+deterministic work.
 
 The skill's payload (`payload/`, a `SKILL.md` a model follows and the
 references it routes to) is installed by the lifecycle commands in

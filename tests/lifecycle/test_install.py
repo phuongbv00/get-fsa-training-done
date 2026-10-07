@@ -151,7 +151,7 @@ def test_update_check_flags_an_older_install(isolated_home, skill):
     assert main(["update", *base, "--check"]) == 1
 
 
-@pytest.mark.parametrize("platform", ["claude", "codex"])
+@pytest.mark.parametrize("platform", ["claude", "codex", "copilot"])
 @pytest.mark.parametrize("scope", ["user", "project"])
 def test_every_target_round_trips(isolated_home, tmp_path, skill, platform, scope):
     args = ["--platform", platform, "--scope", scope]

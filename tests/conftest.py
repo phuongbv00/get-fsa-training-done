@@ -18,6 +18,7 @@ def isolated_home(tmp_path, monkeypatch):
     home.mkdir()
     monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(home / ".claude"))
     monkeypatch.setenv("CODEX_HOME", str(home / ".codex"))
+    monkeypatch.setenv("COPILOT_HOME", str(home / ".copilot"))
     monkeypatch.setenv("GET_FSA_TRAINING_DONE_HOME", str(home / "cache"))
     monkeypatch.setenv("XDG_CACHE_HOME", str(home / "xdg-cache"))
     monkeypatch.delenv("GET_FSA_TRAINING_DONE_NO_VENV", raising=False)

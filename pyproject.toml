@@ -5,12 +5,12 @@ build-backend = "hatchling.build"
 [project]
 name = "get-fsa-training-done"
 dynamic = ["version"]
-description = "One agent skill, and the CLI behind it, for getting FSA training done: programmes, teaching material and assessments. Installs into Claude Code and Codex."
+description = "One agent skill, and the CLI behind it, for getting FSA training done: programmes, teaching material and assessments. Installs into Claude Code, Codex and GitHub Copilot."
 readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "MIT" }
 authors = [{ name = "Phuong Bui" }]
-keywords = ["assessment", "curriculum", "grading", "claude-code", "codex", "agent-skill"]
+keywords = ["assessment", "curriculum", "grading", "claude-code", "codex", "github-copilot", "agent-skill"]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Environment :: Console",
