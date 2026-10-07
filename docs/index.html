@@ -183,8 +183,8 @@ body, .card, .lane, .file, header { transition: background-color .3s ease, borde
 .motion .in .arrow svg { animation: nudge 1.6s ease-in-out infinite; }
 .motion .lane { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
 .motion .in .lane { opacity: 1; transform: none; }
-.motion .in .lane:nth-child(2) { transition-delay: .12s; }
-.motion .in .lane:nth-child(3) { transition-delay: .24s; }
+.motion .in .lane-stack .lane:nth-child(2) { transition-delay: .12s; }
+.motion .in .lanes > .lane { transition-delay: .2s; }
 .card, .lane, .pills span { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
 .visual .card:hover { transform: translateY(-4px); }
 .pills span:hover { border-color: var(--c); transform: translateY(-2px); }
@@ -314,7 +314,9 @@ body, .card, .lane, .file, header { transition: background-color .3s ease, borde
 .cap { padding: 88px 0; text-align: center; }
 .cap h2 { font-size: clamp(26px, 3.4vw, 36px); font-weight: 800; }
 .cap .lead { margin: 12px auto 0; max-width: 560px; color: var(--ink-2); font-size: 17px; }
-.lanes { display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 18px; margin-top: 40px; text-align: left; }
+.lanes { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 40px; text-align: left; }
+.lane-stack { display: grid; gap: 18px; min-width: 0; }
+#ver { color: inherit; }
 .lanes > * { min-width: 0; }
 .lane { border: 1px solid var(--line); border-top: 4px solid var(--c); border-radius: 14px; padding: 18px; background: var(--surface); }
 .lane h3 { font: 700 16px var(--font-head); color: var(--c); margin-bottom: 12px; }
@@ -540,19 +542,21 @@ footer .fine { margin-left: auto; }
     <h2><span class="vi">Từ thiết kế chương trình đến chấm bài</span><span class="en">From programme design to grading</span></h2>
     <p class="lead"><span class="vi">Chỉ cần nói việc cần làm, agent chọn quy trình phù hợp.</span><span class="en">Describe the job; the agent picks the right workflow.</span></p>
     <div class="lanes">
-      <div class="lane" style="--c:var(--orange)">
-        <h3>Program</h3>
-        <div class="pills">
-          <span class="vi">Chương trình mới</span><span class="en">New programme</span>
-          <span class="vi">Thêm môn học</span><span class="en">Add a topic</span>
-          <span class="vi">Cập nhật lịch học</span><span class="en">Revise a schedule</span>
+      <div class="lane-stack">
+        <div class="lane" style="--c:var(--orange)">
+          <h3>Program</h3>
+          <div class="pills">
+            <span class="vi">Chương trình mới</span><span class="en">New programme</span>
+            <span class="vi">Thêm môn học</span><span class="en">Add a topic</span>
+            <span class="vi">Cập nhật lịch học</span><span class="en">Revise a schedule</span>
+          </div>
         </div>
-      </div>
-      <div class="lane" style="--c:var(--blue)">
-        <h3>Material</h3>
-        <div class="pills">
-          <span class="vi">Trọn bộ học liệu module</span><span class="en">Full module pack</span>
-          <span class="vi">Bổ sung phần còn thiếu</span><span class="en">Fill the gaps</span>
+        <div class="lane" style="--c:var(--blue)">
+          <h3>Material</h3>
+          <div class="pills">
+            <span class="vi">Trọn bộ học liệu module</span><span class="en">Full module pack</span>
+            <span class="vi">Bổ sung phần còn thiếu</span><span class="en">Fill the gaps</span>
+          </div>
         </div>
       </div>
       <div class="lane" style="--c:var(--green)">
@@ -591,9 +595,8 @@ footer .fine { margin-left: auto; }
 <footer>
   <div class="wrap">
     <span class="brand" style="font-size:15px"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>gftd</span>
-    <span>v1.0.0 · MIT</span>
+    <span><a id="ver" href="https://pypi.org/project/get-fsa-training-done/" hidden></a>MIT</span>
     <a href="https://github.com/phuongbv00/get-fsa-training-done">GitHub</a>
-    <a href="https://pypi.org/project/get-fsa-training-done/">PyPI</a>
     <span class="fine"><span class="vi">Công cụ cộng đồng, không phải sản phẩm chính thức của FPT.</span><span class="en">A community tool, not an official FPT product.</span></span>
   </div>
 </footer>
@@ -664,6 +667,11 @@ footer .fine { margin-left: auto; }
     try { localStorage.setItem('gftd-theme', next); } catch (e) {}
     document.dispatchEvent(new CustomEvent('gftd-theme'));
   });
+  // latest version, straight from PyPI — nothing to edit on release
+  fetch('https://pypi.org/pypi/get-fsa-training-done/json').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+    var v = d && d.info && d.info.version; if (!v) return;
+    var a = document.getElementById('ver'); a.textContent = 'v' + v + ' · '; a.hidden = false;
+  }).catch(function () {});
   var saved = null;
   try { saved = localStorage.getItem('gftd-lang'); } catch (e) {}
   setLang(saved === 'en' ? 'en' : 'vi');
