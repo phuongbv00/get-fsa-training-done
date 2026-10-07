@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="vi" data-lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>get-fsa-training-done | Soạn khoá học FSA</title>
+<meta name="description" content="Skill cho Claude Code và Codex: soạn chương trình, học liệu, đề thi; xuất Excel để upload FAMS. Từng file được kiểm tra tự động.">
+<meta property="og:title" content="get-fsa-training-done | From syllabus to grading">
+<meta property="og:description" content="FSA syllabus templates. Materials matched to sessions. Assessments calibrated by learner level and Bloom's taxonomy. Files you can inspect, with automated checks.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23090D57'/%3E%3Crect x='7' y='9' width='18' height='4' rx='2' fill='%23F37021'/%3E%3Crect x='7' y='15' width='13' height='4' rx='2' fill='%230B67B1'/%3E%3Crect x='7' y='21' width='8' height='4' rx='2' fill='%230DB04B'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange: #F37021; --orange-deep: #C9560E; --orange-soft: #FFF1E6;
+  --blue: #0B67B1; --blue-soft: #E8F1FA;
+  --green: #0DB04B; --green-deep: #0A8A3B; --green-soft: #E6F7EC;
+  --navy: #090D57;
+  --bg: #FFFFFF; --bg-alt: #F6F7FA; --surface: #FFFFFF;
+  --ink: #1A1D29; --ink-2: #474A5C; --ink-3: #737689;
+  --line: #E4E6EE; --line-2: #D3D6E2;
+  --code-bg: #0F1330; --code-ink: #E6E8F5; --code-dim: #8A90B8;
+  --xl-head: #F1F3F6; --xl-grid: #DADDE5;
+  --re: #E9E4FB; --re-ink: #5B3FC4;
+  --shadow: 0 1px 2px rgba(9,13,87,.05), 0 18px 40px rgba(9,13,87,.10);
+  --font-head: "Be Vietnam Pro", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --orange-soft: #3A2414; --blue-soft: #10264A; --green-soft: #0E3320; --green-deep: #3DDC84; --orange-deep: #FF9D5C;
+    --bg: #0A0D24; --bg-alt: #0F1330; --surface: #141A3D;
+    --ink: #EEF0FA; --ink-2: #C3C7DE; --ink-3: #9096B8;
+    --line: #232A55; --line-2: #2E3668; --code-bg: #070A1F;
+    --xl-head: #1B2250; --xl-grid: #2A3263; --re: #2A2160; --re-ink: #B9A8FF;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 18px 40px rgba(0,0,0,.4);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --orange-soft: #3A2414; --blue-soft: #10264A; --green-soft: #0E3320; --green-deep: #3DDC84; --orange-deep: #FF9D5C;
+  --bg: #0A0D24; --bg-alt: #0F1330; --surface: #141A3D;
+  --ink: #EEF0FA; --ink-2: #C3C7DE; --ink-3: #9096B8;
+  --line: #232A55; --line-2: #2E3668; --code-bg: #070A1F;
+  --xl-head: #1B2250; --xl-grid: #2A3263; --re: #2A2160; --re-ink: #B9A8FF;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 18px 40px rgba(0,0,0,.4);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 var(--font-body); overflow-x: hidden; }
+html[data-lang="vi"] .en, html[data-lang="en"] .vi { display: none !important; }
+a { color: var(--blue); text-decoration: none; }
+code, pre { font-family: var(--font-mono); }
+h1, h2, h3, h4 { font-family: var(--font-head); margin: 0; line-height: 1.18; letter-spacing: -.015em; }
+p { margin: 0; }
+.wrap { width: min(1120px, 100%); margin: 0 auto; padding: 0 24px; }
+@media (max-width: 640px) { .wrap { padding: 0 16px; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+.stripe { display: flex; height: 4px; }
+.stripe i { flex: 1; }
+.stripe i:nth-child(1) { background: var(--orange); }
+.stripe i:nth-child(2) { background: var(--blue); }
+.stripe i:nth-child(3) { background: var(--green); }
+
+header .wrap { display: flex; align-items: center; gap: 16px; height: 64px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--ink); font: 800 18px var(--font-head); }
+.mark { display: grid; gap: 3px; width: 20px; }
+.mark i { display: block; height: 4px; border-radius: 2px; }
+.mark i:nth-child(1) { background: var(--orange); }
+.mark i:nth-child(2) { background: var(--blue); width: 72%; }
+.mark i:nth-child(3) { background: var(--green); width: 44%; }
+.lang { margin-left: auto; display: inline-flex; border: 1px solid var(--line-2); border-radius: 999px; padding: 3px; }
+.lang button { border: 0; background: none; color: var(--ink-3); font: 600 12.5px var(--font-body); padding: 4px 10px; border-radius: 999px; cursor: pointer; }
+.lang button[aria-pressed="true"] { background: var(--navy); color: #fff; }
+.gh { color: var(--ink-2); display: inline-flex; }
+
+/* hero */
+.hero { padding: 72px 0 88px; text-align: center; }
+.hero h1 { font-size: clamp(36px, 5.2vw, 60px); font-weight: 800; }
+.hero h1 em { font-style: normal; color: var(--orange); }
+.hero .sub { margin: 20px auto 0; max-width: 580px; font-size: 18.5px; color: var(--ink-2); }
+.ctas { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 10px; font: 600 15px var(--font-body); border: 1px solid transparent; }
+.btn-primary { background: var(--orange); color: #fff; box-shadow: 0 8px 22px rgba(243,112,33,.32); }
+.btn-primary:hover { background: #D85A10; }
+.btn-ghost { border-color: var(--line-2); color: var(--ink); }
+.btn-ghost:hover { border-color: var(--ink-3); }
+.trio { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 22px; margin-top: 40px; font-size: 14px; color: var(--ink-3); }
+.trio span { display: inline-flex; align-items: center; gap: 8px; }
+.trio i { width: 9px; height: 9px; border-radius: 3px; background: var(--c); }
+
+/* hero split + stacked files */
+.hero { text-align: left; padding: 64px 0 80px; overflow: hidden; }
+.hero .wrap { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; }
+.hero .sub { margin-left: 0; }
+.hero .ctas, .hero .trio { justify-content: flex-start; }
+.files { position: relative; height: 430px; text-align: left; }
+.file { position: absolute; width: 340px; max-width: 88%; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 30px 60px rgba(9,13,87,.18); overflow: hidden; font-size: 12.5px; }
+.file .fh { display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: var(--bg-alt); border-bottom: 1px solid var(--line); font: 500 11.5px var(--font-mono); color: var(--ink-2); }
+.file .fh .tg { margin-left: auto; font: 700 10px var(--font-body); letter-spacing: .05em; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; color: #fff; background: var(--c); }
+.file .fb { padding: 12px 14px; }
+.f1 { --c: var(--orange); --r: -4deg; top: 0; left: 0; }
+.f2 { --c: var(--blue); --r: 3deg; top: 128px; right: 0; z-index: 2; }
+.f3 { --c: var(--green); --r: -1.5deg; bottom: 0; left: 34px; z-index: 3; }
+.file { transform: rotate(var(--r)); }
+.mini-csv { width: 100%; border-collapse: collapse; font: 11px var(--font-mono); }
+.mini-csv td { padding: 5px 4px; border-bottom: 1px dashed var(--line); white-space: nowrap; }
+.mini-csv td.hl { background: var(--orange-soft); color: var(--orange-deep); font-weight: 600; }
+.mini-doc h5, .mini-exam h5 { margin: 0 0 4px; font: 700 13.5px var(--font-head); }
+.mini-doc p, .mini-exam .meta { color: var(--ink-3); font-size: 11.5px; margin-bottom: 8px; }
+.mini-doc .ln { height: 7px; border-radius: 4px; background: var(--bg-alt); margin: 6px 0; border: 1px solid var(--line); }
+.mini-code { margin-top: 8px; background: var(--code-bg); color: var(--code-ink); border-radius: 7px; padding: 8px 10px; font: 10.5px/1.55 var(--font-mono); white-space: pre; overflow: hidden; }
+.mini-code .k { color: #FF9D5C; } .mini-code .a { color: #7FC4FF; } .mini-code .c { color: var(--code-dim); }
+.wbar { display: grid; grid-template-columns: 96px 1fr 32px; align-items: center; gap: 8px; font-size: 11px; margin: 5px 0; color: var(--ink-2); }
+.wbar > span:nth-child(2) { height: 6px; border-radius: 3px; background: var(--bg-alt); overflow: hidden; }
+.wbar i { display: block; height: 100%; width: var(--w); background: var(--green); border-radius: 3px; }
+.wbar b { text-align: right; font-weight: 600; }
+@media (max-width: 900px) {
+  .hero { text-align: center; padding-top: 48px; }
+  .hero .wrap { grid-template-columns: 1fr; }
+  .hero .sub { margin-left: auto; }
+  .hero .ctas, .hero .trio { justify-content: center; }
+  .files { width: 100%; max-width: 480px; margin: 0 auto; height: 400px; }
+}
+@media (max-width: 480px) { .file { width: 290px; } .files { height: 440px; } .f2 { top: 150px; } }
+
+/* motion */
+@keyframes dealIn { from { opacity: 0; transform: translateY(40px) rotate(0deg) scale(.96); } to { opacity: 1; transform: rotate(var(--r)); } }
+@keyframes floaty { 0%, 100% { translate: 0 0; } 50% { translate: 0 -8px; } }
+@keyframes riseIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(13,176,75,0); } 50% { box-shadow: 0 0 0 6px rgba(13,176,75,.18); } }
+@keyframes nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(6px); } }
+@keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes hl { from { background-size: 0 100%; } to { background-size: 100% 100%; } }
+.motion .hero h1, .motion .hero .sub, .motion .hero .ctas, .motion .hero .trio { animation: riseIn .7s cubic-bezier(.2,.7,.2,1) both; }
+.motion .hero .sub { animation-delay: .1s; }
+.motion .hero .ctas { animation-delay: .2s; }
+.motion .hero .trio { animation-delay: .3s; }
+.motion .file { animation: dealIn .9s cubic-bezier(.2,.8,.2,1) both, floaty 6s ease-in-out infinite; }
+.motion .f1 { animation-delay: .25s, 1.2s; }
+.motion .f2 { animation-delay: .45s, 2.2s; }
+.motion .f3 { animation-delay: .65s, 3.2s; }
+.motion .file:hover { animation-play-state: paused; z-index: 5; }
+.motion .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); }
+.motion .reveal.in { opacity: 1; transform: none; }
+.motion .ticks li { opacity: 0; transform: translateX(-10px); transition: opacity .5s ease, transform .5s ease; }
+.motion .in .ticks li { opacity: 1; transform: none; }
+.motion .in .ticks li:nth-child(2) { transition-delay: .12s; }
+.motion .in .ticks li:nth-child(3) { transition-delay: .24s; }
+.motion .bloom span { transform-origin: left; transform: scaleX(0); }
+.motion .in .bloom span { animation: grow .7s cubic-bezier(.2,.7,.2,1) both; }
+.motion .in .bloom span:nth-child(2) { animation-delay: .15s; }
+.motion .in .bloom span:nth-child(3) { animation-delay: .3s; }
+.motion .in .bloom span:nth-child(4) { animation-delay: .45s; }
+.motion .in .opt.ok { animation: glow 2.4s ease-in-out .8s infinite; }
+.motion .in .arrow svg { animation: nudge 1.6s ease-in-out infinite; }
+.motion .lane { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
+.motion .in .lane { opacity: 1; transform: none; }
+.motion .in .lane:nth-child(2) { transition-delay: .12s; }
+.motion .in .lane:nth-child(3) { transition-delay: .24s; }
+.card, .lane, .pills span { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+.visual .card:hover { transform: translateY(-4px); }
+.pills span:hover { border-color: var(--c); transform: translateY(-2px); }
+@media (prefers-reduced-motion: reduce) {
+  .motion *, .motion *::before { animation: none !important; transition: none !important; }
+  .motion .reveal, .motion .ticks li, .motion .lane { opacity: 1 !important; transform: none !important; }
+  .motion .bloom span { transform: none !important; }
+}
+
+.h1-tri .l1, .h1-tri .l2, .h1-tri .l3 { display: block; }
+.h1-tri .l1 { color: var(--orange); }
+.h1-tri .l2 { color: var(--blue); }
+.h1-tri .l3 { color: var(--green); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .h1-tri .l2 { color: #4A9BE0; } }
+:root[data-theme="dark"] .h1-tri .l2 { color: #4A9BE0; }
+@keyframes lineIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.motion .hero h1.h1-tri { animation: none; }
+.motion .h1-tri .l1, .motion .h1-tri .l2, .motion .h1-tri .l3 { animation: lineIn .6s cubic-bezier(.2,.7,.2,1) both; }
+.motion .h1-tri .l2 { animation-delay: .15s; }
+.motion .h1-tri .l3 { animation-delay: .3s; }
+
+/* feature rows */
+.feat { padding: 88px 0; }
+.feat.alt { background: var(--bg-alt); }
+.feat .wrap { display: grid; grid-template-columns: .85fr 1.15fr; gap: 64px; align-items: center; }
+.feat.flip .wrap { grid-template-columns: 1.15fr .85fr; }
+.feat.flip .copy { order: 2; }
+.feat .copy > * + * { margin-top: 16px; }
+.kick { font: 700 12.5px var(--font-body); letter-spacing: .1em; text-transform: uppercase; color: var(--c); }
+.feat h2 { font-size: clamp(28px, 3.6vw, 40px); font-weight: 800; }
+.feat .lead { font-size: 17px; color: var(--ink-2); }
+.ticks { list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 12px; }
+.ticks li { display: grid; grid-template-columns: 22px 1fr; gap: 10px; font-size: 15.5px; color: var(--ink); }
+.ticks li::before { content: "✓"; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font: 700 12px var(--font-body); color: #fff; background: var(--c); margin-top: 1px; }
+.visual { min-width: 0; position: relative; }
+@media (max-width: 900px) {
+  .feat { padding: 64px 0; }
+  .feat .wrap { grid-template-columns: 1fr; gap: 36px; }
+  .feat.flip .wrap { grid-template-columns: 1fr; }
+  .feat.flip .copy { order: 0; }
+}
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+.card .bar { display: flex; align-items: center; gap: 8px; padding: 9px 14px; font: 500 12px var(--font-mono); color: var(--ink-3); background: var(--bg-alt); border-bottom: 1px solid var(--line); }
+.card .bar .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dc, var(--line-2)); }
+.badge { display: inline-flex; align-items: center; gap: 6px; font: 600 12px var(--font-body); padding: 6px 11px; border-radius: 999px; background: var(--green-soft); color: var(--green-deep); }
+.badge::before { content: "✓"; font-weight: 700; }
+
+/* quiz visual */
+.quiz { padding: 22px; }
+.quiz .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.tag { font: 600 11.5px var(--font-body); padding: 3px 9px; border-radius: 6px; }
+.tag.un { background: var(--blue-soft); color: var(--blue); }
+.tag.e { background: var(--green-soft); color: var(--green-deep); }
+.tag.t { background: var(--bg-alt); color: var(--ink-2); border: 1px solid var(--line); }
+.quiz .q { font: 700 18px/1.4 var(--font-head); }
+.opts { display: grid; gap: 8px; margin-top: 16px; }
+.opt { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 14.5px; }
+.opt b { width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center; background: var(--bg-alt); font: 700 12px var(--font-mono); color: var(--ink-3); }
+.opt.ok { border-color: var(--green); background: var(--green-soft); }
+.opt.ok b { background: var(--green); color: #fff; }
+.exports { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--line-2); font-size: 13px; color: var(--ink-3); }
+.exports .chip { font: 600 12.5px var(--font-body); padding: 5px 10px; border-radius: 8px; background: var(--bg-alt); border: 1px solid var(--line); color: var(--ink); }
+.exports .badge { margin-left: auto; }
+.bloom { display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 18px; }
+.bloom-l { display: flex; justify-content: space-between; font: 500 11px var(--font-mono); color: var(--ink-3); margin-top: 6px; }
+
+/* syllabus visual */
+.sy { display: grid; grid-template-columns: 1fr 46px 1.15fr; align-items: center; }
+.sy > * { min-width: 0; }
+.doc { padding: 16px 18px; font-size: 13px; }
+.doc h4 { font: 800 15px var(--font-head); margin-bottom: 10px; }
+.doc ol { margin: 0; padding-left: 20px; display: grid; gap: 3px; color: var(--ink-2); }
+.doc ol li::marker { color: var(--orange); font-weight: 700; }
+.arrow { display: grid; place-items: center; color: var(--orange); }
+.xl table { border-collapse: collapse; width: 100%; font-size: 12px; table-layout: fixed; }
+.xl td, .xl th { border: 1px solid var(--xl-grid); padding: 6px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.xl th { background: var(--xl-head); font: 500 10.5px var(--font-mono); color: var(--ink-3); }
+.xl td:first-child { background: var(--xl-head); font: 500 10.5px var(--font-mono); color: var(--ink-3); text-align: center; width: 30px; }
+.xl td.h { font-weight: 600; }
+.xl .tabs { display: flex; gap: 2px; padding: 0 6px; background: var(--xl-head); border-top: 1px solid var(--xl-grid); overflow: hidden; }
+.xl .tabs span { font: 500 11px var(--font-body); padding: 6px 10px; color: var(--ink-3); white-space: nowrap; }
+.xl .tabs span.on { background: var(--surface); color: var(--green-deep); border-bottom: 2px solid var(--green); font-weight: 600; }
+.fams { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 18px; font-size: 13px; color: var(--ink-3); }
+.fams b { font: 800 14px var(--font-head); color: #fff; background: var(--navy); padding: 7px 14px; border-radius: 8px; letter-spacing: .04em; }
+@media (max-width: 560px) {
+  .sy { grid-template-columns: 1fr; gap: 8px; }
+  .sy .arrow { transform: rotate(90deg); height: 30px; }
+}
+
+/* material visual */
+.mt { display: grid; grid-template-columns: .7fr 1.3fr; gap: 16px; align-items: start; }
+.mt > * { min-width: 0; }
+.skel { padding: 14px 16px; font: 12px/1.9 var(--font-mono); color: var(--ink-3); }
+.skel div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.skel .ph { color: var(--orange-deep); }
+.note { padding: 18px; }
+.note h4 { font: 800 16px var(--font-head); }
+.note .meta { font-size: 12px; color: var(--ink-3); margin: 4px 0 12px; }
+.note pre { margin: 0; padding: 10px 12px; border-radius: 8px; background: var(--code-bg); color: var(--code-ink); font-size: 11.5px; line-height: 1.6; overflow-x: auto; }
+.note pre .a { color: #7FC4FF; } .note pre .k { color: #FF9D5C; } .note pre .d { color: var(--code-dim); }
+.diagram { margin-top: 12px; padding: 8px; border: 1px solid var(--line); border-radius: 8px; text-align: center; overflow-x: auto; }
+.diagram pre.mermaid { margin: 0; background: none; color: transparent; padding: 0; font-size: 12px; }
+@media (max-width: 560px) { .mt { grid-template-columns: 1fr; } .skel { display: none; } }
+
+/* capability map */
+.cap { padding: 88px 0; text-align: center; }
+.cap h2 { font-size: clamp(26px, 3.4vw, 36px); font-weight: 800; }
+.cap .lead { margin: 12px auto 0; max-width: 560px; color: var(--ink-2); font-size: 17px; }
+.lanes { display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 18px; margin-top: 40px; text-align: left; }
+.lanes > * { min-width: 0; }
+.lane { border: 1px solid var(--line); border-top: 4px solid var(--c); border-radius: 14px; padding: 18px; background: var(--surface); }
+.lane h3 { font: 700 16px var(--font-head); color: var(--c); margin-bottom: 12px; }
+.pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.pills span { font-size: 14px; padding: 6px 12px; border-radius: 999px; background: var(--bg-alt); border: 1px solid var(--line); }
+@media (max-width: 900px) { .lanes { grid-template-columns: 1fr; } }
+
+/* final CTA */
+.final { background: linear-gradient(150deg, #090D57, #0E1A78 60%, #0B2B7A); color: #fff; padding: 72px 0; text-align: center; }
+.final h2 { font-size: clamp(26px, 3.6vw, 38px); font-weight: 800; }
+.final p { color: #C3C8EE; margin-top: 10px; font-size: 16.5px; }
+.install { display: inline-flex; align-items: center; gap: 10px; margin-top: 26px; max-width: 100%; background: rgba(0,0,20,.45); border: 1px solid rgba(255,255,255,.12); border-radius: 12px; padding: 10px 10px 10px 18px; font: 13.5px var(--font-mono); text-align: left; }
+.install pre { margin: 0; overflow-x: auto; min-width: 0; color: #E6E8F5; }
+.install .p { color: #8A90B8; user-select: none; }
+.copy-btn { flex: none; border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.08); color: #E6E8F5; border-radius: 8px; padding: 7px 11px; cursor: pointer; font: 600 12px var(--font-body); }
+.copy-btn:hover { background: rgba(255,255,255,.16); }
+.final .works { margin-top: 18px; font-size: 13.5px; color: #8E95CC; }
+
+footer { padding: 26px 0; font-size: 13px; color: var(--ink-3); }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 22px; align-items: center; }
+footer .fine { margin-left: auto; }
+@media (max-width: 720px) { footer .fine { margin-left: 0; } }
+</style>
+</head>
+<body>
+<div class="stripe" aria-hidden="true"><i></i><i></i><i></i></div>
+<header>
+  <div class="wrap">
+    <span class="brand"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>gftd</span>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-set-lang="vi" aria-pressed="true">VI</button>
+      <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
+    </div>
+    <a class="gh" href="https://github.com/phuongbv00/get-fsa-training-done" aria-label="GitHub">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z"/></svg>
+    </a>
+  </div>
+</header>
+
+<main>
+<div class="hero">
+  <div class="wrap">
+    <div>
+    <h1 class="h1-tri"><span class="vi"><span class="l1">AI soạn.</span><span class="l2">Máy kiểm tra.</span><span class="l3">Trainer duyệt.</span></span><span class="en"><span class="l1">AI drafts.</span><span class="l2">Machines check.</span><span class="l3">Trainers decide.</span></span></h1>
+    <p class="sub"><span class="vi">Skill cho Claude Code và Codex: từ syllabus đến chấm bài, đúng mẫu FSA, kiểm tra tự động.</span><span class="en">A skill for Claude Code and Codex: from syllabus to grading, in FSA templates, checked automatically.</span></p>
+    <div class="ctas">
+      <a class="btn btn-primary" href="#start"><span class="vi">Cài đặt</span><span class="en">Get started</span> →</a>
+      <a class="btn btn-ghost" href="#quiz"><span class="vi">Xem cách hoạt động</span><span class="en">See how it works</span></a>
+    </div>
+    <div class="trio">
+      <span style="--c:var(--green)"><i></i>Quiz &amp; <span class="vi">đề thi</span><span class="en">exams</span></span>
+      <span style="--c:var(--orange)"><i></i>Syllabus → FAMS</span>
+      <span style="--c:var(--blue)"><i></i><span class="vi">Học liệu</span><span class="en">Materials</span></span>
+    </div>
+    </div>
+    <div class="files" aria-hidden="true">
+      <div class="file f1">
+        <div class="fh">ScheduleDetail.csv <span class="tg">program</span></div>
+        <div class="fb">
+          <table class="mini-csv">
+            <tr><td>Lab: paginated CRUD…</td><td>120</td><td class="hl">sbad_lab_02.md</td></tr>
+            <tr><td>Quiz 1 — Spring…</td><td>30</td><td class="hl">sbad_quiz_01.csv</td></tr>
+            <tr><td>Lab: transactional…</td><td>150</td><td class="hl">sbad_lab_04.md</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="file f2">
+        <div class="fh">04_Services_and_Transactions.md <span class="tg">material</span></div>
+        <div class="fb mini-doc">
+          <h5>Service Layer, Transactions &amp; Locking</h5>
+          <p>SBAD-K2 · Spring Boot 3.3</p>
+          <div class="ln" style="width:86%"></div><div class="ln" style="width:64%"></div>
+          <div class="mini-code"><span class="a">@Transactional</span>
+<span class="k">public void</span> cancel(<span class="k">long</span> orderId) {
+    order.cancel();  <span class="c">// dirty checking</span>
+}</div>
+        </div>
+      </div>
+      <div class="file f3">
+        <div class="fh">practice_exam_01.pdf <span class="tg">assessment</span></div>
+        <div class="fb mini-exam">
+          <h5>Practice Exam - StockDesk Order Service</h5>
+          <div class="meta">FR · 3 hours · EN + VI</div>
+          <div class="wbar"><span>Atomic Order</span><span><i style="--w:100%"></i></span><b>40%</b></div>
+          <div class="wbar"><span>Category Report</span><span><i style="--w:50%"></i></span><b>20%</b></div>
+          <div class="wbar"><span>Automated Tests</span><span><i style="--w:37.5%"></i></span><b>15%</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<section class="feat alt" id="quiz" style="--c:var(--green)">
+  <div class="wrap">
+    <div class="copy reveal">
+      <div class="kick">Assessment</div>
+      <h2><span class="vi">Quiz đúng trình độ, xuất từ một bản gốc</span><span class="en">Quizzes pitched to the level, exported from one master</span></h2>
+      <ul class="ticks">
+        <li><span class="vi">Tỉ lệ Bloom và độ khó theo từng cấp, từ CPL đến Senior</span><span class="en">Bloom and difficulty mix set per level, CPL to senior</span></li>
+        <li><span class="vi">Một file gốc → Blooket, Coderbyte, không gõ lại</span><span class="en">One master → Blooket and Coderbyte, never retyped</span></li>
+        <li><span class="vi">Song ngữ EN/VI, đề kèm rubric và PDF</span><span class="en">EN/VI versions, exams with rubric and PDF</span></li>
+      </ul>
+    </div>
+    <div class="visual reveal">
+      <div class="card quiz">
+        <div class="tags"><span class="tag un">Understand</span><span class="tag e">Easy</span><span class="tag t">5s</span></div>
+        <p class="q">Which statement best distinguishes Spring Boot from Spring Framework?</p>
+        <div class="opts">
+          <div class="opt"><b>1</b><span>Spring Boot replaces dependency injection with static factories</span></div>
+          <div class="opt ok"><b>2</b><span>Spring Boot adds opinionated setup and auto-configuration on top of Spring</span></div>
+          <div class="opt"><b>3</b><span>Spring Framework can build only command-line applications</span></div>
+        </div>
+        <div class="bloom" aria-hidden="true"><span style="flex:15;background:#7A5AF8"></span><span style="flex:30;background:var(--blue)"></span><span style="flex:40;background:var(--green)"></span><span style="flex:15;background:var(--orange)"></span></div>
+        <div class="bloom-l"><span>Remember 15</span><span>Understand 30</span><span>Apply 40</span><span>Analyze 15</span></div>
+        <div class="exports">
+          <span class="chip">Blooket</span><span class="chip">Coderbyte</span><span class="chip">EN · VI</span>
+          <span class="badge">verify</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SYLLABUS -->
+<section class="feat flip" id="syllabus" style="--c:var(--orange)">
+  <div class="wrap">
+    <div class="copy reveal">
+      <div class="kick">Program</div>
+      <h2><span class="vi">Syllabus sẵn sàng upload FAMS</span><span class="en">Syllabi ready to upload to FAMS</span></h2>
+      <ul class="ticks">
+        <li><span class="vi">Đủ 11 mục, đúng thứ tự mẫu FSA</span><span class="en">All 11 sections, in FSA's order</span></li>
+        <li><span class="vi">Xuất thẳng vào file Excel import, giữ nguyên định dạng</span><span class="en">Exported straight into the Excel import file, formatting intact</span></li>
+        <li><span class="vi">Giờ học, lịch, mục tiêu tự đối chiếu trước khi xuất</span><span class="en">Hours, schedule and objectives reconciled before export</span></li>
+      </ul>
+    </div>
+    <div class="visual reveal">
+      <div class="sy">
+        <div class="card">
+          <div class="bar">Syllabus.md</div>
+          <div class="doc">
+            <h4>Spring Boot API Development</h4>
+            <ol>
+              <li>Technical Group … Audience</li>
+              <li value="6">Course Objectives</li>
+              <li>Topic Outline</li>
+              <li>Time Allocation</li>
+              <li>Training Materials</li>
+              <li>Assessment Scheme</li>
+              <li>Delivery Principles</li>
+            </ol>
+          </div>
+        </div>
+        <div class="arrow" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+        <div class="card xl">
+          <div class="bar" style="--dc:var(--green)"><span class="dot"></span>Syllabus.xlsx</div>
+          <table>
+            <tr><th></th><th>C</th><th>D</th></tr>
+            <tr><td>2</td><td class="h">Technical Group</td><td>Java</td></tr>
+            <tr><td>9</td><td class="h">SBAD-K1</td><td>Spring application architecture</td></tr>
+            <tr><td>10</td><td class="h">SBAD-K2</td><td>Data integrity and error handling</td></tr>
+            <tr><td>19</td><td class="h">Assignment/Lab</td><td>50.96%</td></tr>
+            <tr><td>28</td><td class="h">Quiz</td><td>10%</td></tr>
+          </table>
+          <div class="tabs"><span class="on">Syllabus</span><span>ScheduleDetail</span><span>Author</span></div>
+        </div>
+      </div>
+      <div class="fams"><span class="vi">sẵn sàng</span><span class="en">ready for</span> <b>FAMS</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- MATERIAL -->
+<section class="feat alt" id="material" style="--c:var(--blue)">
+  <div class="wrap">
+    <div class="copy reveal">
+      <div class="kick">Material</div>
+      <h2><span class="vi">Mỗi buổi học, đủ học liệu</span><span class="en">Materials for every session</span></h2>
+      <ul class="ticks">
+        <li><span class="vi">Lịch học nói buổi nào cần file nào — không sót buổi</span><span class="en">The plan names each session's file — nothing left out</span></li>
+        <li><span class="vi">Một khuôn chung cho bài giảng, lab, handbook</span><span class="en">One template for notes, labs and handbooks</span></li>
+        <li><span class="vi">Code mẫu và sơ đồ có sẵn trong bài</span><span class="en">Code examples and diagrams built in</span></li>
+      </ul>
+    </div>
+    <div class="visual reveal">
+      <div class="mt">
+        <div class="card">
+          <div class="bar">template</div>
+          <div class="skel">
+            <div># <span class="ph">&lt;Title&gt;</span></div>
+            <div>## Objectives</div>
+            <div>## <span class="ph">&lt;Concept&gt;</span></div>
+            <div>## Worked Example</div>
+            <div>## Common Problems</div>
+            <div>## Knowledge Check</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="bar" style="--dc:var(--blue)"><span class="dot"></span>04_Services_and_Transactions.md</div>
+          <div class="note">
+            <h4>Service Layer, Transactions &amp; Locking</h4>
+            <p class="meta">SBAD-K2 · Spring Boot 3.3</p>
+<pre><span class="a">@Transactional</span>
+<span class="k">public void</span> cancel(<span class="k">long</span> orderId) {
+    order.cancel();
+    <span class="d">// dirty checking writes the change</span>
+}</pre>
+            <div class="diagram">
+<pre class="mermaid">sequenceDiagram
+    participant A as Request A
+    participant DB as stock row (on_hand = 10)
+    participant B as Request B
+    A-&gt;&gt;DB: read on_hand = 10
+    B-&gt;&gt;DB: read on_hand = 10
+    A-&gt;&gt;DB: write on_hand = 8
+    B-&gt;&gt;DB: write on_hand = 7
+    Note over DB: A's update is lost</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CAPABILITY MAP -->
+<section class="cap">
+  <div class="wrap reveal">
+    <h2><span class="vi">Từ thiết kế chương trình đến chấm bài</span><span class="en">From programme design to grading</span></h2>
+    <p class="lead"><span class="vi">Chỉ cần nói việc cần làm, agent chọn quy trình phù hợp.</span><span class="en">Describe the job; the agent picks the right workflow.</span></p>
+    <div class="lanes">
+      <div class="lane" style="--c:var(--orange)">
+        <h3>Program</h3>
+        <div class="pills">
+          <span class="vi">Chương trình mới</span><span class="en">New programme</span>
+          <span class="vi">Thêm môn học</span><span class="en">Add a topic</span>
+          <span class="vi">Cập nhật lịch học</span><span class="en">Revise a schedule</span>
+        </div>
+      </div>
+      <div class="lane" style="--c:var(--blue)">
+        <h3>Material</h3>
+        <div class="pills">
+          <span class="vi">Trọn bộ học liệu module</span><span class="en">Full module pack</span>
+          <span class="vi">Bổ sung phần còn thiếu</span><span class="en">Fill the gaps</span>
+        </div>
+      </div>
+      <div class="lane" style="--c:var(--green)">
+        <h3>Assessment</h3>
+        <div class="pills">
+          <span>Quiz</span>
+          <span class="vi">Bài tập ngắn</span><span class="en">Short assignment</span>
+          <span class="vi">Bài tập dài</span><span class="en">Long assignment</span>
+          <span class="vi">Đề lý thuyết</span><span class="en">Theory exam</span>
+          <span class="vi">Đề thực hành</span><span class="en">Practice exam</span>
+          <span>Capstone</span>
+          <span class="vi">Chấm bài</span><span class="en">Grading</span>
+          <span class="vi">Thi lại</span><span class="en">Retakes</span>
+          <span class="vi">Tổng hợp điểm quiz</span><span class="en">Quiz reports</span>
+          <span class="vi">Kiểm tra gian lận</span><span class="en">Cheat check</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="final" id="start">
+  <div class="wrap reveal">
+    <h2><span class="vi">Bắt đầu trong một phút</span><span class="en">Up and running in a minute</span></h2>
+    <p><span class="vi">Cài một lần, rồi nói chuyện với agent như với đồng nghiệp.</span><span class="en">Install once, then talk to the agent like a colleague.</span></p>
+    <div class="install">
+<pre><span class="p">$ </span>pip install get-fsa-training-done && gftd install --platform all</pre>
+      <button class="copy-btn" type="button" data-copy="pip install get-fsa-training-done && gftd install --platform all"><span class="vi">Sao chép</span><span class="en">Copy</span></button>
+    </div>
+    <p class="works">Claude Code · Codex · Python 3.12+</p>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="brand" style="font-size:15px"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>gftd</span>
+    <span>v1.0.0 · MIT</span>
+    <a href="https://github.com/phuongbv00/get-fsa-training-done">GitHub</a>
+    <a href="https://pypi.org/project/get-fsa-training-done/">PyPI</a>
+    <span class="fine"><span class="vi">Công cụ cộng đồng, không phải sản phẩm chính thức của FPT.</span><span class="en">A community tool, not an official FPT product.</span></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var META = {
+    vi: { title: 'get-fsa-training-done | Soạn khoá học FSA',
+          desc: 'Skill cho Claude Code và Codex: soạn chương trình, học liệu, đề thi; xuất Excel để upload FAMS. Từng file được kiểm tra tự động.' },
+    en: { title: 'get-fsa-training-done | Build FSA courses',
+          desc: 'A skill for Claude Code and Codex: design programmes, materials and assessments; export Excel for FAMS. Files checked automatically.' }
+  };
+  function setLang(l) {
+    root.setAttribute('data-lang', l);
+    root.setAttribute('lang', l);
+    document.title = META[l].title;
+    document.querySelector('meta[name="description"]').setAttribute('content', META[l].desc);
+    document.querySelectorAll('[data-set-lang]').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-set-lang') === l));
+    });
+    try { localStorage.setItem('gftd-lang', l); } catch (e) {}
+  }
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+    root.classList.add('motion');
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.18 });
+    document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('gftd-lang'); } catch (e) {}
+  setLang(saved === 'en' ? 'en' : 'vi');
+  document.querySelectorAll('[data-set-lang]').forEach(function (b) {
+    b.addEventListener('click', function () { setLang(b.getAttribute('data-set-lang')); });
+  });
+  document.querySelectorAll('[data-copy]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (!navigator.clipboard) return;
+      navigator.clipboard.writeText(b.getAttribute('data-copy')).then(function () {
+        var old = b.innerHTML; b.textContent = '✓';
+        setTimeout(function () { b.innerHTML = old; }, 1400);
+      }, function () {});
+    });
+  });
+})();
+</script>
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+const t = document.documentElement.dataset.theme;
+const dark = t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+mermaid.initialize({
+  startOnLoad: false, theme: 'base', fontFamily: 'Inter, system-ui, sans-serif',
+  themeVariables: dark ? {
+    primaryColor: '#1B2350', primaryTextColor: '#EEF0FA', primaryBorderColor: '#F37021', lineColor: '#9096B8',
+    actorBkg: '#1B2350', actorBorder: '#F37021', actorTextColor: '#EEF0FA', signalColor: '#C3C7DE', signalTextColor: '#EEF0FA',
+    noteBkgColor: '#3A2414', noteTextColor: '#FFD3B5', noteBorderColor: '#F37021', textColor: '#EEF0FA'
+  } : {
+    primaryColor: '#FFF1E6', primaryTextColor: '#1A1D29', primaryBorderColor: '#F37021', lineColor: '#6B6E80',
+    actorBkg: '#FFF1E6', actorBorder: '#F37021', actorTextColor: '#1A1D29', signalColor: '#44475A', signalTextColor: '#1A1D29',
+    noteBkgColor: '#E8F1FA', noteTextColor: '#0B3A66', noteBorderColor: '#0B67B1', textColor: '#1A1D29'
+  }
+});
+await mermaid.run({ querySelector: 'pre.mermaid' });
+</script>
+</body>
+</html>

@@ -26,6 +26,12 @@ from get_fsa_training_done.errors import GftdError
 
 FONT_DIR = Path(__file__).resolve().parent / "fonts"
 
+#: The faces every brief must carry. Without them the renderer falls back to
+#: Helvetica, which has no Vietnamese letters: the PDF still renders, with
+#: boxes where the diacritics were.
+REQUIRED_FONTS = ("DejaVuSans",)
+
+_BASE_FONT = re.compile(rb"/BaseFont\s*/(?:[A-Z]{6}\+)?([A-Za-z0-9-]+)")
 _PAGE_OBJECT = re.compile(rb"/Type\s*/Page(?![s])")
 _OBJECT = re.compile(rb"\d+\s+\d+\s+obj\b(.*?)\bendobj", re.DOTALL)
 _PAGES_NODE = re.compile(rb"/Type\s*/Pages\b")
@@ -75,6 +81,7 @@ def render_html(document: str, out_pdf: Path) -> int | None:
                 dest=handle,
                 encoding="utf-8",
                 link_callback=link_callback,
+                **_resource_policy(),
             )
     except Exception as exc:
         out_pdf.unlink(missing_ok=True)
@@ -84,7 +91,37 @@ def render_html(document: str, out_pdf: Path) -> int | None:
         out_pdf.unlink(missing_ok=True)
         raise GftdError(f"the PDF renderer reported {status.err} error(s)")
 
+    missing = [name for name in REQUIRED_FONTS if name not in embedded_fonts(out_pdf)]
+    if missing:
+        out_pdf.unlink(missing_ok=True)
+        raise GftdError(
+            f"the PDF did not embed {', '.join(missing)}; Vietnamese text would show as boxes",
+            hint=f"the fonts in {FONT_DIR} could not be read by the renderer",
+        )
+
     return count_pages(out_pdf)
+
+
+def _resource_policy() -> dict:
+    """Let the renderer read our fonts and nothing else.
+
+    xhtml2pdf 0.2.18 and later confine local reads to the working directory by
+    default. Our fonts live in the installed package, outside wherever the user
+    runs the command, so under that default every font was refused and the
+    brief silently fell back to Helvetica. The document needs no other file and
+    nothing from the network, so the policy allows exactly the font directory.
+    Older versions have no policy, and read the paths `link_callback` returns.
+    """
+    try:
+        from xhtml2pdf.config.resources import ResourceAccessPolicy
+    except ImportError:  # pragma: no cover - xhtml2pdf before 0.2.18
+        return {}
+    return {"resource_policy": ResourceAccessPolicy(allow_remote=False, base_dir=FONT_DIR)}
+
+
+def embedded_fonts(pdf: Path) -> set[str]:
+    """The font names the PDF declares, without their subset prefix."""
+    return {match.decode("ascii") for match in _BASE_FONT.findall(pdf.read_bytes())}
 
 
 def count_pages(pdf: Path) -> int | None:

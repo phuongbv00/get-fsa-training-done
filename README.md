@@ -5,6 +5,9 @@ designing a programme, writing its teaching material, and designing and grading
 its assessments. It installs into [Claude Code](https://claude.com/claude-code)
 and the [Codex CLI](https://developers.openai.com/codex/cli).
 
+The [landing page](https://phuongbv00.github.io/get-fsa-training-done/) shows
+how it works, in real files; its source is in `docs/`.
+
 The skill has three features, each with its own CLI namespace:
 
 | Namespace | What it does | Docs |

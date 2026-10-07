@@ -75,6 +75,34 @@ def test_a_vietnamese_brief_survives_the_round_trip(tmp_path):
     assert "\x00" not in text, "a glyph was missing from an embedded font"
 
 
+def test_the_fonts_embed_wherever_the_command_runs(tmp_path, monkeypatch):
+    """Run from a directory that does not contain the package.
+
+    xhtml2pdf confines local reads to the working directory by default, and
+    the installed fonts sit in site-packages. Every test used to run from the
+    repository, which contains the fonts, so the 1.0.0 release shipped briefs
+    that fell back to Helvetica — boxes for Vietnamese — on every real machine.
+    """
+    elsewhere = tmp_path / "project"
+    elsewhere.mkdir()
+    monkeypatch.chdir(elsewhere)
+    out = tmp_path / "brief.pdf"
+    pdf_mod.render_html(html_mod.build_document("# Đề bài\n\nNộp `bài`.\n", "t", lang="vi"), out)
+    assert {"DejaVuSans", "RobotoMono-Regular"} <= pdf_mod.embedded_fonts(out)
+
+
+def test_a_pdf_without_its_fonts_is_refused(tmp_path, monkeypatch):
+    """Falling back to a built-in face still produces a PDF, so the renderer
+    has to look for the faces it needs rather than trust a clean exit."""
+    from get_fsa_training_done.errors import GftdError
+
+    monkeypatch.setattr(pdf_mod, "REQUIRED_FONTS", ("NoSuchFace",))
+    out = tmp_path / "brief.pdf"
+    with pytest.raises(GftdError):
+        pdf_mod.render_html(html_mod.build_document("# T\n", "t"), out)
+    assert not out.exists()
+
+
 def test_page_count_ignores_the_outline_tree(tmp_path):
     """`/Count` appears in the bookmark tree too, and the renderer emits one
     bookmark per heading. Counting those made a one-page brief report as many
