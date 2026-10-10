@@ -127,6 +127,33 @@ for generator in scripts/*/gen_*.py; do python "$generator" --check; done
 `src/get_fsa_training_done/__about__.py` holds the canonical version;
 `sync_version.py` propagates it to the payload's `VERSION`.
 
+### Testing the skill from source
+
+`gftd update` installs the payload of whichever package `gftd` runs from, so
+point `gftd` at the checkout and update:
+
+```bash
+pip install -e .   # replaces a PyPI install of the package
+gftd update        # copies src/.../payload/ into every install it finds
+```
+
+An editable checkout is never upgraded from PyPI, only reported, and the worker
+commands run the checkout's code too. The payload is copied, not linked: run
+`gftd update` again after each payload change (`--dry-run` shows the plan,
+`--force` overwrites files edited in place, keeping `*.bak`).
+
+To go back to a released version:
+
+```bash
+pip uninstall -y get-fsa-training-done   # drops the editable .pth
+pip install get-fsa-training-done        # or ==<version> to pin one
+gftd update                              # syncs the installs to that payload
+```
+
+Add `--no-self-update` to that last `update` when you pinned an older version,
+or it upgrades to the latest release. `gftd --version` and `gftd status`
+confirm what is running and whether the installs match it.
+
 ## Releasing
 
 A release is a pushed `v<version>` tag; nothing else publishes. Ordinary
