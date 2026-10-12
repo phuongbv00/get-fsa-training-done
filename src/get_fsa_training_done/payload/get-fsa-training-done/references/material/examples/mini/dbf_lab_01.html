@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 01 — Model and implement the catalogue</title>
+<meta name="fsa:kind" content="lab">
+<meta name="fsa:module" content="Databases">
+<meta name="fsa:session" content="1">
+<meta name="fsa:objectives" content="DBF-K1 DBF-K2">
+<meta name="fsa:minutes" content="90">
+<link rel="stylesheet" href="_theme/fsa.css">
+<script src="_theme/doc.js" defer></script>
+</head>
+<body class="fsa-doc">
+<main>
+<article class="lab">
+<h1>Lab 01 — Model and implement the catalogue</h1>
+
+<section data-part="objectives" id="objectives">
+  <h2>Objectives</h2>
+  <p>After this lab, learners can:</p>
+  <ul>
+    <li data-objective="DBF-K1">Turn a written domain description into a normalized schema.</li>
+    <li data-objective="DBF-K2">Seed it repeatably and check the result with a query.</li>
+  </ul>
+</section>
+
+<section data-part="before-you-start" id="before-you-start">
+  <h2>Before You Start</h2>
+  <ul>
+    <li>A scratch database you can drop and recreate, as set up in the
+    <a href="00_Study_Guide_Handbook.html#environment">study guide</a>.</li>
+    <li>The schema from <a href="01_Relational_Modelling.html#worked-example">lesson 1's worked example</a>.</li>
+  </ul>
+</section>
+
+<section data-part="steps" id="steps">
+  <h2>Steps</h2>
+  <ol>
+    <li><p>Read the catalogue description and list its entities.</p>
+      <p class="expected">three entities, plus one table for the many-to-many.</p></li>
+    <li><p>Write <code>CREATE TABLE</code> for each, with a primary key on every one, and run the script.</p>
+      <pre class="expected"><code class="language-text">CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE</code></pre>
+      <details class="hint"><summary>Hint</summary><p>Create <code>author</code> and <code>book</code>
+      before <code>book_author</code>: a foreign key needs its target to exist.</p></details></li>
+    <li><p>Write a seed script inserting two authors, three books and one loan. Run it twice from an
+      empty database.</p>
+      <p class="expected">the same row counts both times.</p></li>
+    <li><p>Insert a loan for a book id that does not exist.</p>
+      <pre class="expected"><code class="language-text">ERROR:  insert or update on table "loan" violates foreign key constraint</code></pre></li>
+    <li><p>Count the loans per author with a left join.</p>
+      <p class="expected">every author, including those with zero loans.</p></li>
+  </ol>
+</section>
+
+<section data-part="acceptance" id="acceptance">
+  <h2>Acceptance</h2>
+  <ul class="checklist">
+    <li>The schema script runs from an empty database with no errors.</li>
+    <li>Every table has a primary key, and every relationship a foreign key.</li>
+    <li>The seed script gives the same row counts on a second clean run.</li>
+    <li>A loan for a missing book is rejected by the database.</li>
+  </ul>
+</section>
+
+<section data-part="stretch" id="stretch">
+  <h2>Stretch</h2>
+  <p>Add a <code>member</code> table and make every loan reference one. Which existing rows break,
+  and how do you migrate them?</p>
+</section>
+</article>
+</main>
+</body>
+</html>

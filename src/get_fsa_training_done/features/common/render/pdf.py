@@ -1,6 +1,6 @@
 """Rendering a brief to PDF, and counting the pages it made.
 
-The renderer is `xhtml2pdf` running in the managed venv, so `render` needs
+The renderer is `xhtml2pdf` running in the managed venv, so rendering needs
 nothing installed on the machine. It replaced headless Chrome, which was the one
 piece of this toolchain that required a large external binary and which resolved
 fonts from whatever the host happened to have — fine for English, quietly wrong
@@ -8,7 +8,7 @@ for Vietnamese.
 
 Two consequences worth knowing:
 
-* Fonts are embedded from `core/fonts/` rather than named, so a `_vn` brief
+* Fonts are embedded from `fonts/` rather than named, so a `_vn` brief
   renders identically everywhere. See that directory's README.
 * `xhtml2pdf` implements less print CSS than Chrome — `break-inside` and
   `break-after` are ignored — so pagination differs from PDFs produced before

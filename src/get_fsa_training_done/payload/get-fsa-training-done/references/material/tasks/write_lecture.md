@@ -1,6 +1,7 @@
 # Task — Write a lecture note
 
-A unit of reading that serves one session of the plan.
+The reading behind a lesson: what the slides compress, explained in full, with
+practice after each idea. It serves one session of the plan.
 
 ## Inputs
 
@@ -8,28 +9,35 @@ A unit of reading that serves one session of the plan.
 |---|---|
 | `materials_dir` | the module's folder; never assumed |
 | `schedule` | the topic's ScheduleDetail CSV |
-| the file name | `NN_Topic_Name.md`, from the session row that names it |
+| the file name | `NN_Topic_Name.html`, from the session row that names it |
+| the deck | `NN_Topic_Name.deck.html`, when the session has one |
+| the approved outline | from `references/material/tasks/propose_outline.md` |
 
 ## Produces
 
-`NN_Topic_Name.md` in `materials_dir`.
+`NN_Topic_Name.html` in `materials_dir`.
 
 ## Steps
 
-1. Find the session row that names this file: its objective codes, its minutes,
-   and its one line on what happens. Write to *that*: a note covering more than
-   its session is a note the session cannot deliver. Echo the absolute path and
-   the session it serves, and wait for a go-ahead.
-2. Take the shape from `references/material/structure.md` (the **unit**
-   template), the skeleton `references/material/templates/lecture_note.md`, and
-   `references/material/conventions.md`. Not negotiable, because `verify` checks
-   them: one `#` title on line 1 and no front matter; `## 1. Objectives` opening
-   `After this unit, learners can:`; sections numbered `1..n`; a knowledge
-   check, then somewhere to go next; a language tag on every fence.
-3. Write it to the trainee: explain, then show, in the module's running domain.
-   Pair the wrong and right forms where a mistake is common. Cite the session's
-   objective codes in the objectives.
-4. Draw diagrams by `references/material/conventions.md` § Diagrams.
+1. **Outline first.** Without an approved outline for this note, stop and run
+   `references/material/tasks/propose_outline.md`; write nothing until the user
+   approves it. Write to the session the outline cites: a note covering more
+   than its session is a note the session cannot deliver.
+2. Start from `references/material/templates/lecture_note.html`; the parts and
+   their order are in `references/material/structure.md` and `verify` checks
+   them. When the session has a deck, follow its sections: one `concept` part
+   per section, so a trainee can move between the two.
+3. **Why This Matters** comes before any concept: the problem the lesson solves,
+   in the module's running domain, in a paragraph.
+4. Each concept part: the idea in prose first, then the example (`MAT-D27`),
+   then a `try-it` on exactly that idea, its answer in `<details>` (`MAT-D28`).
+   Pair the wrong and right forms where a mistake is common.
+5. The worked example states the problem and the approach before the code, and
+   says how to read the result.
+6. The summary has one item per objective, and the knowledge check at least five
+   questions; every question carries `data-objective` and its answer, and every
+   objective is asked about (`MAT-D25`, `MAT-D26`).
+7. Draw diagrams by `references/material/conventions.md` § Diagrams.
 
 ## Done when
 

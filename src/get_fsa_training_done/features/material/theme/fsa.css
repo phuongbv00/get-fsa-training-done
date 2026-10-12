@@ -1,0 +1,533 @@
+/* The FSA theme for training material: slide decks and long-form documents.
+ *
+ * Colours and type come from the FSA Training Materials template (v1.1,
+ * 07-Feb-25). Where each slot of each slide layout sits is generated into
+ * layouts.css from core/layouts.py; this file holds everything else. A page
+ * links this one stylesheet and carries no styling of its own (MAT-D22).
+ */
+@import url("layouts.css");
+
+:root {
+  --fsa-blue: #034ea1;
+  --fsa-green: #50b748;
+  --fsa-sky: #5bd4ff;
+  --fsa-teal: #3fa6bf;
+  --fsa-navy: #1b2370;
+  --fsa-orange: #ed7d31;
+
+  /* The template's three faces, each falling back to a metric match. */
+  --font-sans: Arial, "Helvetica Neue", Helvetica, "Liberation Sans", sans-serif;
+  --font-display: "Segoe UI", "Segoe UI Variable", "Selawik", Arial, sans-serif;
+  --font-minor: Calibri, Carlito, Arial, sans-serif;
+  --font-mono: "Roboto Mono", Consolas, "SF Mono", Menlo, "DejaVu Sans Mono", monospace;
+
+  /* Long-form documents; redefined for dark mode below. */
+  --page-bg: #ffffff;
+  --page-fg: #1f2328;
+  --muted: #5b6370;
+  --rule: #d8dee8;
+  --surface: #f3f6fb;
+  --code-bg: #f2f5fa;
+  --link: var(--fsa-blue);
+  --heading: var(--fsa-blue);
+  --accent: var(--fsa-green);
+  --callout-note: var(--fsa-blue);
+  --callout-tip: var(--fsa-green);
+  --callout-warning: var(--fsa-orange);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .fsa-doc {
+    --page-bg: #0f1420;
+    --page-fg: #e6e9ef;
+    --muted: #a4adbd;
+    --rule: #2b3445;
+    --surface: #182033;
+    --code-bg: #141b2b;
+    --link: #7fb2ff;
+    --heading: #8dbbff;
+    --callout-note: #7fb2ff;
+  }
+}
+:root[data-theme="dark"] .fsa-doc {
+  --page-bg: #0f1420;
+  --page-fg: #e6e9ef;
+  --muted: #a4adbd;
+  --rule: #2b3445;
+  --surface: #182033;
+  --code-bg: #141b2b;
+  --link: #7fb2ff;
+  --heading: #8dbbff;
+  --callout-note: #7fb2ff;
+}
+
+* { box-sizing: border-box; }
+
+/* ======================================================================
+ * Slide decks
+ * ==================================================================== */
+
+body.fsa-deck {
+  margin: 0;
+  background: #2b2f36;
+  font-family: var(--font-sans);
+  color: #000000;
+}
+
+/* Without the viewer (or when printing) every slide is laid out in turn. */
+.fsa-deck .slide {
+  position: relative;
+  width: 720pt;
+  height: 405pt;
+  margin: 24px auto;
+  overflow: hidden;
+  background-color: #ffffff;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  counter-increment: slide;
+}
+.fsa-deck { counter-reset: slide section; }
+
+/* Every slot: its box, face, size and colour come from layouts.css, its
+   padding is PowerPoint's default inset, and --fit is the step deck.js picks
+   for a title or text slot that would not otherwise fit. */
+/* A slot is a block, so inline markup in it (<code>, <strong>, <br>) flows as
+   text; `align-content` anchors it top, middle or bottom like PowerPoint. */
+.slide > [data-slot],
+.slide::before {
+  position: absolute;
+  display: block;
+  margin: 0;
+  padding: var(--slot-inset-y) var(--slot-inset-x);
+  font-size: calc(var(--slot-size, 20pt) * var(--fit, 1));
+  line-height: var(--slot-line-height);
+  /* A word longer than its box — a class name, `MethodArgumentNotValidException`
+     — breaks rather than running off the slide, as PowerPoint breaks it. */
+  overflow-wrap: anywhere;
+  /* As in PowerPoint, text that does not fit runs past its box rather than
+     vanishing; `export pdf` reports it (MAT-X02). */
+  overflow: visible;
+}
+.slide > [data-slot] > * { font-weight: inherit; }
+
+/* The copyright line and slide number; layouts.css turns it on for the
+   layouts that carry it. */
+.slide::after {
+  content: "® Copyright FPT Software - FPT Software Academy - Internal Use" "\2003\2003" counter(slide);
+  display: none;
+  position: absolute;
+  left: 4.6%;
+  right: 4.4%;
+  bottom: 1.6%;
+  font: 8pt var(--font-display);
+  color: #a6a6a6;
+  text-align: right;
+  white-space: pre;
+}
+
+.slide[data-number]::after {
+  content: "® Copyright FPT Software - FPT Software Academy - Internal Use" "\2003\2003" attr(data-number);
+}
+
+/* The cover's date sits in the template's translucent rounded box. */
+.slide[data-layout="cover"] > [data-slot="date"] {
+  background: rgba(91, 212, 255, 0.2);
+  border: 0.75pt solid var(--fsa-sky);
+  border-radius: 4.5pt;
+}
+
+/* Section covers number themselves: 01., 02., ... */
+.slide[data-layout="section"] { counter-increment: slide section; }
+.slide[data-layout="section"] > [data-slot="title"]::before {
+  content: counter(section, decimal-leading-zero) ".";
+  display: block;
+}
+.slide > [data-slot="title"][data-section]::before { content: attr(data-section) "."; }
+
+/* --- Inside a body slot -------------------------------------------------- */
+
+.slide [data-slot] p { margin: 0 0 0.35em; }
+.slide [data-slot] ul,
+.slide [data-slot] ol { margin: 0 0 0.3em; padding-left: 1.1em; }
+.slide [data-slot] li { margin: 0 0 0.3em; }
+.slide [data-slot] li::marker { color: var(--fsa-green); }
+.slide [data-slot] li li { font-size: 0.82em; margin-top: 0.15em; list-style-type: disc; }
+.slide [data-slot] li li::marker { color: var(--fsa-blue); }
+.slide [data-slot] strong { color: var(--fsa-blue); }
+/* On the coloured cards of the box layouts, everything is white. */
+.slide[data-layout$="-boxes"] [data-slot^="body-"] strong,
+.slide[data-layout$="-boxes"] [data-slot^="body-"] li::marker { color: #ffffff; }
+.slide [data-slot] code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  /* Tinted from the slot's own text colour, so it reads on a white slide and
+     on the header band or a coloured card alike. */
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  padding: 0 0.2em;
+  border-radius: 2pt;
+}
+.slide [data-slot] pre {
+  margin: 0.2em 0 0.4em;
+  padding: 6pt;
+  background: var(--code-bg);
+  border-left: 4pt solid var(--fsa-blue);
+  border-radius: 3pt;
+  font-family: var(--font-mono);
+  font-size: min(0.62em, 14pt);
+  line-height: 1.35;
+  white-space: pre;
+  overflow: hidden;
+}
+.slide [data-slot] pre code { background: none; padding: 0; font-size: 1em; }
+.slide [data-slot] table { border-collapse: collapse; font-size: 0.7em; width: 100%; }
+.slide [data-slot] th { background: var(--fsa-blue); color: #fff; text-align: left; }
+.slide [data-slot] th,
+.slide [data-slot] td { padding: 3pt 6pt; border: 1px solid #d3dbe8; }
+.slide [data-slot] tr:nth-child(even) td { background: #f5f8fc; }
+.slide [data-slot] figure { margin: 0; display: flex; flex-direction: column; align-items: center; height: 100%; }
+.slide [data-slot] figure img { max-width: 100%; max-height: 88%; object-fit: contain; }
+.slide [data-slot] figcaption { font-size: 0.55em; color: #5b6370; margin-top: 4pt; }
+.slide [data-slot] img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.slide figure:has(img) pre.mermaid { display: none; }
+.slide pre.mermaid { background: none; border: 0; font-family: var(--font-sans); }
+
+/* A wrong/right pair: label the two halves. */
+.slide .wrong::before,
+.slide .right::before {
+  display: block;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 0.7em;
+  margin-bottom: 2pt;
+}
+/* The labels' words are generated into layouts.css, in the page's language. */
+.slide .wrong::before { color: #c62828; }
+.slide .right::before { color: #2e7d32; }
+
+/* A check slide: a question for the room, its answer folded away. Nothing on
+   the slide marks it, as in the exported .pptx; the answer goes to the notes. */
+.slide details { margin-top: 6pt; font-size: 0.85em; }
+.slide details summary {
+  cursor: pointer;
+  color: var(--fsa-blue);
+  font-weight: 700;
+  font-size: 0.8em;
+  list-style: none;
+}
+.slide details summary::before { content: "\25B8  "; }
+.slide details[open] summary::before { content: "\25BE  "; }
+
+/* The table of contents, filled in by deck.js from the section covers: a green
+   circle with a white ring and the section title, both white italic, each where
+   the template's placeholder is (layouts.css). */
+.slide .toc-rows { list-style: none; margin: 0; padding: 0; }
+.slide .toc-rows > li > * {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-style: italic;
+  line-height: 1;
+}
+.slide .toc-rows > li > .toc-num {
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--fsa-green);
+  border: 2.25pt solid #ffffff;
+  box-sizing: border-box;
+}
+.slide .toc-rows > li > .toc-title { padding: 0 var(--slot-inset-x); }
+
+/* Speaker notes are for the presenter, never on the slide. */
+.slide > aside.notes { display: none; }
+
+/* --- The viewer (deck.js adds .is-presenting) ---------------------------- */
+
+.fsa-deck.is-presenting { overflow: hidden; height: 100vh; }
+.fsa-deck.is-presenting .slide {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: 0;
+  transform-origin: center center;
+  transform: translate(-50%, -50%) scale(var(--deck-scale, 1));
+  display: none;
+}
+.fsa-deck.is-presenting .slide.is-current { display: block; }
+.fsa-deck .deck-hud {
+  position: fixed;
+  right: 14px;
+  bottom: 10px;
+  font: 12px/1.4 var(--font-sans);
+  color: #c7ccd6;
+  user-select: none;
+  z-index: 3;
+}
+.fsa-deck .deck-notes {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 30vh;
+  overflow: auto;
+  padding: 12px 20px 28px;
+  background: rgba(14, 18, 26, 0.94);
+  color: #e8ebf1;
+  font: 16px/1.5 var(--font-sans);
+  border-top: 3px solid var(--fsa-green);
+  display: none;
+  z-index: 2;
+}
+.fsa-deck.show-notes .deck-notes { display: block; }
+.fsa-deck.is-overview .slide {
+  display: inline-block !important;
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  margin: 12px;
+  zoom: 0.3;
+  cursor: pointer;
+}
+.fsa-deck.is-overview { overflow: auto; height: auto; text-align: center; padding: 16px; }
+
+@page deck { size: 720pt 405pt; margin: 0; }
+@media print {
+  body.fsa-deck { background: none; }
+  .fsa-deck .slide,
+  .fsa-deck.is-presenting .slide {
+    page: deck;
+    display: block !important;
+    position: relative;
+    transform: none;
+    top: auto;
+    left: auto;
+    margin: 0;
+    box-shadow: none;
+    break-after: page;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .fsa-deck .deck-hud,
+  .fsa-deck .deck-notes { display: none !important; }
+  .slide details > :not(summary) { display: none; }
+}
+
+/* ======================================================================
+ * Long-form documents: handbook, lecture note, lab, appendix, worksheet
+ * ==================================================================== */
+
+body.fsa-doc {
+  margin: 0;
+  background: var(--page-bg);
+  color: var(--page-fg);
+  font: 17px/1.65 var(--font-sans);
+  -webkit-text-size-adjust: 100%;
+}
+.fsa-doc > header.doc-band {
+  height: 64px;
+  background: var(--fsa-blue) url(img/band.jpg) right center / auto 100% no-repeat;
+}
+.fsa-doc main,
+.fsa-doc > article {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 32px 16px 80px;
+  counter-reset: part;
+}
+.fsa-doc h1 {
+  margin: 0 0 6px;
+  font-size: 2.1em;
+  line-height: 1.2;
+  color: var(--heading);
+}
+.fsa-doc .doc-meta {
+  margin: 0 0 28px;
+  padding: 0 0 16px;
+  border-bottom: 3px solid var(--accent);
+  color: var(--muted);
+  font-size: 0.88em;
+}
+.fsa-doc .doc-meta span + span::before { content: "  ·  "; }
+.fsa-doc h2 {
+  margin: 2.2em 0 0.6em;
+  font-size: 1.45em;
+  line-height: 1.3;
+  color: var(--heading);
+  counter-increment: part;
+}
+.fsa-doc section[data-part] > h2::before {
+  content: counter(part) ".";
+  display: inline-block;
+  min-width: 1.6em;
+  color: var(--accent);
+}
+.fsa-doc h3 { margin: 1.6em 0 0.4em; font-size: 1.12em; }
+.fsa-doc p,
+.fsa-doc ul,
+.fsa-doc ol,
+.fsa-doc dl { margin: 0 0 1em; }
+.fsa-doc li { margin: 0.25em 0; }
+.fsa-doc li::marker { color: var(--accent); }
+.fsa-doc a { color: var(--link); text-underline-offset: 2px; }
+.fsa-doc strong { font-weight: 700; }
+.fsa-doc code {
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--code-bg);
+  padding: 0.1em 0.3em;
+  border-radius: 4px;
+}
+.fsa-doc pre {
+  margin: 0 0 1.2em;
+  padding: 14px 16px;
+  background: var(--code-bg);
+  border-left: 4px solid var(--fsa-blue);
+  border-radius: 6px;
+  overflow-x: auto;
+  font: 14px/1.5 var(--font-mono);
+}
+.fsa-doc pre code { background: none; padding: 0; font-size: 1em; }
+.fsa-doc pre.mermaid { background: none; border: 0; text-align: center; font-family: var(--font-sans); }
+.fsa-doc figure { margin: 0 0 1.4em; text-align: center; }
+.fsa-doc figure img { max-width: 100%; height: auto; }
+.fsa-doc figure:has(img) pre.mermaid { display: none; }
+.fsa-doc figcaption { color: var(--muted); font-size: 0.85em; margin-top: 6px; }
+.fsa-doc table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1.4em;
+  font-size: 0.92em;
+  display: block;
+  overflow-x: auto;
+}
+.fsa-doc th { background: var(--fsa-blue); color: #fff; text-align: left; }
+.fsa-doc th,
+.fsa-doc td { padding: 8px 12px; border: 1px solid var(--rule); vertical-align: top; }
+.fsa-doc tr:nth-child(even) td { background: var(--surface); }
+.fsa-doc dt { font-weight: 700; color: var(--heading); }
+.fsa-doc dd { margin: 0 0 0.8em 1.2em; }
+
+/* The objectives, as a card that opens every lesson. */
+.fsa-doc section[data-part="objectives"] {
+  padding: 4px 22px 8px;
+  background: var(--surface);
+  border-radius: 10px;
+  border-top: 4px solid var(--fsa-blue);
+}
+.fsa-doc section[data-part="objectives"] > h2 { margin-top: 0.8em; }
+.fsa-doc [data-objective]::after {
+  content: attr(data-objective);
+  margin-left: 0.5em;
+  padding: 0 0.45em;
+  border-radius: 4px;
+  background: var(--fsa-blue);
+  color: #fff;
+  font: 700 0.68em/1.6 var(--font-sans);
+  vertical-align: 0.15em;
+  white-space: nowrap;
+}
+
+/* Callouts: <aside class="callout note|tip|warning">. */
+.fsa-doc .callout {
+  margin: 0 0 1.2em;
+  padding: 12px 16px;
+  border-left: 4px solid var(--callout-note);
+  background: var(--surface);
+  border-radius: 0 8px 8px 0;
+}
+.fsa-doc .callout.tip { border-left-color: var(--callout-tip); }
+.fsa-doc .callout.warning { border-left-color: var(--callout-warning); }
+.fsa-doc .callout > :last-child { margin-bottom: 0; }
+
+/* Try it: practice straight after an idea, its answer folded away. */
+.fsa-doc .try-it {
+  margin: 1.2em 0 1.6em;
+  padding: 14px 18px 6px;
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+}
+.fsa-doc .try-it::before {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.8em;
+}
+.fsa-doc details {
+  margin: 0.4em 0 1em;
+  padding: 8px 14px;
+  background: var(--surface);
+  border-radius: 8px;
+}
+.fsa-doc details > summary { cursor: pointer; font-weight: 700; color: var(--link); }
+.fsa-doc details[open] > summary { margin-bottom: 6px; }
+.fsa-doc details > :last-child { margin-bottom: 0.2em; }
+
+/* A wrong/right pair of examples. */
+.fsa-doc .wrong,
+.fsa-doc .right { position: relative; }
+.fsa-doc pre.wrong { border-left-color: #c62828; }
+.fsa-doc pre.right { border-left-color: #2e7d32; }
+.fsa-doc pre.wrong::before,
+.fsa-doc pre.right::before {
+  display: block;
+  margin-bottom: 6px;
+  font: 700 12px/1 var(--font-sans);
+}
+.fsa-doc pre.wrong::before { color: #c62828; text-transform: uppercase; }
+.fsa-doc pre.right::before { color: #2e7d32; text-transform: uppercase; }
+
+/* Knowledge check: numbered questions, each with its answer. */
+.fsa-doc section[data-part="knowledge-check"] > ol > li { margin-bottom: 0.8em; }
+.fsa-doc section[data-part="summary"] {
+  padding: 4px 22px 8px;
+  border-radius: 10px;
+  background: var(--surface);
+  border-top: 4px solid var(--accent);
+}
+.fsa-doc section[data-part="summary"] > h2 { margin-top: 0.8em; }
+
+/* Labs: what to expect after each step, hints, and a checklist. */
+.fsa-doc section[data-part="steps"] > ol > li { margin-bottom: 1.2em; }
+.fsa-doc .expected {
+  margin: 0.4em 0 0.6em;
+  padding: 8px 12px;
+  border-left: 4px solid var(--accent);
+  background: var(--surface);
+  border-radius: 0 6px 6px 0;
+}
+.fsa-doc p.expected::before { font-weight: 700; color: var(--accent); }
+.fsa-doc details.hint > summary { color: var(--muted); }
+.fsa-doc ul.checklist { list-style: none; padding-left: 0.2em; }
+.fsa-doc ul.checklist > li { padding-left: 1.8em; position: relative; }
+.fsa-doc ul.checklist > li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.3em;
+  width: 1.05em;
+  height: 1.05em;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+}
+.fsa-doc ul.checklist > li.is-done::before { background: var(--accent); }
+
+@media print {
+  body.fsa-doc { font-size: 11pt; }
+  .fsa-doc main,
+  .fsa-doc > article { max-width: none; padding: 0; }
+  .fsa-doc details { display: block; }
+  .fsa-doc details > * { display: block; }
+  .fsa-doc h2,
+  .fsa-doc h3 { break-after: avoid; }
+  .fsa-doc pre,
+  .fsa-doc figure,
+  .fsa-doc tr { break-inside: avoid; }
+}

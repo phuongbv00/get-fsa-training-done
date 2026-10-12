@@ -13,9 +13,9 @@ import re
 from pathlib import Path
 
 from get_fsa_training_done.features.common.levels import Level
+from get_fsa_training_done.features.common.render.pdf import count_pages
 
 from .. import budget as budget_mod
-from ..pdf import count_pages
 from . import calibration
 from .common import CheckResult, normalize_name, read_text
 

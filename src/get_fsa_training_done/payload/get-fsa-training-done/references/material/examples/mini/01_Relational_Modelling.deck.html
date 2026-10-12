@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relational Modelling</title>
+<meta name="fsa:kind" content="deck">
+<meta name="fsa:module" content="Databases">
+<meta name="fsa:session" content="1">
+<meta name="fsa:objectives" content="DBF-K1">
+<meta name="fsa:minutes" content="60">
+<link rel="stylesheet" href="_theme/fsa.css">
+<script src="_theme/deck.js" defer></script>
+</head>
+<body class="fsa-deck">
+
+<section class="slide" data-layout="cover">
+  <h1 data-slot="title">Databases</h1>
+  <p data-slot="lesson">Lesson 1 · Relational Modelling</p>
+  <p data-slot="date">FSA · Session 1</p>
+</section>
+
+<section class="slide" data-layout="toc"></section>
+
+<section class="slide" data-layout="objectives">
+  <div data-slot="body">
+    <p>After this lesson, you can:</p>
+    <ul>
+      <li data-objective="DBF-K1">Find the entities and relationships in a written description</li>
+      <li data-objective="DBF-K1">Choose a primary key and justify it</li>
+      <li data-objective="DBF-K1">Normalize a table to third normal form</li>
+    </ul>
+  </div>
+  <aside class="notes">Read the three outcomes aloud and tell the room that every example today
+  uses one domain, a small library catalogue, so the pieces build on each other. By the end of
+  the hour they will have the schema they implement in the lab that follows.</aside>
+</section>
+
+<section class="slide" data-layout="section">
+  <h2 data-slot="title">Entities and relationships</h2>
+  <p data-slot="subtitle">What the domain talks about</p>
+</section>
+
+<section class="slide" data-layout="content">
+  <h2 data-slot="title">Entities are nouns with facts</h2>
+  <div data-slot="body">
+    <ul>
+      <li>Read the description and underline the <strong>nouns</strong></li>
+      <li>A noun with its own facts is an entity: <code>book</code>, <code>author</code>, <code>loan</code></li>
+      <li>A verb between two entities is a relationship
+        <ul><li>an author <em>writes</em> a book, a member <em>borrows</em> a book</li></ul>
+      </li>
+      <li>Name entities in the singular</li>
+    </ul>
+  </div>
+  <aside class="notes">Put the catalogue description on screen and underline the nouns together.
+  Point out that "title" is a noun but not an entity: it has no facts of its own, it is a fact
+  about a book. That distinction is the whole skill on this slide.</aside>
+</section>
+
+<section class="slide" data-layout="title-only">
+  <h2 data-slot="title">The catalogue, drawn</h2>
+  <div data-slot="canvas">
+    <figure>
+      <pre class="mermaid">erDiagram
+    AUTHOR ||--o{ BOOK_AUTHOR : "1-n writes"
+    BOOK ||--o{ BOOK_AUTHOR : "1-n is written by"
+    BOOK ||--o{ LOAN : "1-n is lent as"</pre>
+      <img src="img/catalogue_er.png" alt="Author, book, book_author and loan, each relationship labelled 1-n">
+      <figcaption>Each label says the cardinality in words first.</figcaption>
+    </figure>
+  </div>
+  <aside class="notes">Walk the diagram left to right. Read each label aloud, cardinality first:
+  one author writes many books, one book is lent many times. Ask why book and author need the
+  table in the middle before moving on; the answer comes back under normalization.</aside>
+</section>
+
+<section class="slide" data-layout="content" data-role="check">
+  <h2 data-slot="title">Which of these is an entity?</h2>
+  <div data-slot="body">
+    <p>A member borrows a book on a date and returns it by a due date.</p>
+    <ul><li>member</li><li>date</li><li>due date</li></ul>
+    <details><summary>Answer</summary><p>Member: it has facts of its own. The dates are facts about a loan.</p></details>
+  </div>
+  <aside class="notes">Give the room thirty seconds to decide before revealing. If someone says
+  the loan is missing from the list, they are right: the verb "borrows" hides an entity, which
+  is the point to land before the next section.</aside>
+</section>
+
+<section class="slide" data-layout="section">
+  <h2 data-slot="title">Keys</h2>
+  <p data-slot="subtitle">How a row is found again</p>
+</section>
+
+<section class="slide" data-layout="three-boxes">
+  <h2 data-slot="title">Three kinds of key</h2>
+  <p data-slot="heading">Every table has one primary key, chosen from its candidates</p>
+  <p data-slot="label-1">Candidate</p>
+  <p data-slot="label-2">Primary</p>
+  <p data-slot="label-3">Foreign</p>
+  <div data-slot="body-1"><p>Any column set that identifies a row uniquely, such as <code>isbn</code>.</p></div>
+  <div data-slot="body-2"><p>The candidate you choose to identify rows. It never changes.</p></div>
+  <div data-slot="body-3"><p>A column that holds another table's primary key.</p></div>
+  <aside class="notes">Use the book table for all three: id and isbn are both candidates, id is
+  the primary key, and book_author.book_id is a foreign key. Keep coming back to "never changes"
+  because it decides the next slide.</aside>
+</section>
+
+<section class="slide" data-layout="two-content">
+  <h2 data-slot="title">Prefer a surrogate key</h2>
+  <div data-slot="left">
+    <pre class="wrong"><code class="language-sql">CREATE TABLE book (
+  isbn  CHAR(13) PRIMARY KEY,
+  title TEXT NOT NULL
+);</code></pre>
+    <p>An ISBN can be reissued.</p>
+  </div>
+  <div data-slot="right">
+    <pre class="right"><code class="language-sql">CREATE TABLE book (
+  id   BIGINT PRIMARY KEY,
+  isbn CHAR(13) NOT NULL UNIQUE,
+  title TEXT NOT NULL
+);</code></pre>
+    <p>The ISBN stays unique, but nothing points at it.</p>
+  </div>
+  <aside class="notes">Ask what happens to every loan row when a publisher reissues an ISBN in
+  the left version. Then show that the right version keeps the uniqueness guarantee without
+  making the ISBN something other tables depend on.</aside>
+</section>
+
+<section class="slide" data-layout="content" data-role="check">
+  <h2 data-slot="title">Is an email a good primary key?</h2>
+  <div data-slot="body">
+    <p>A member table identifies members by their email address.</p>
+    <details><summary>Answer</summary><p>No. Emails change. Keep it <code>UNIQUE</code> and add a surrogate <code>id</code>.</p></details>
+  </div>
+  <aside class="notes">This is the same question as the ISBN with a more familiar value. Let two
+  or three people answer before revealing, and ask each one what would break when a member
+  changes their address.</aside>
+</section>
+
+<section class="slide" data-layout="section">
+  <h2 data-slot="title">Normalization</h2>
+  <p data-slot="subtitle">Each fact stored once</p>
+</section>
+
+<section class="slide" data-layout="three-rows">
+  <h2 data-slot="title">Three normal forms, one rule each</h2>
+  <p data-slot="label-1">1NF</p>
+  <div data-slot="body-1"><p>One value per cell: no lists packed into a column.</p></div>
+  <p data-slot="label-2">2NF</p>
+  <div data-slot="body-2"><p>Every column depends on the whole key, not part of it.</p></div>
+  <p data-slot="label-3">3NF</p>
+  <div data-slot="body-3"><p>No column depends on another non-key column.</p></div>
+  <aside class="notes">Say each rule as a question the trainee can ask of a table: is there a
+  list in a cell, does this column need the whole key, does this column really describe another
+  column. The worked example on the next slide applies the first one.</aside>
+</section>
+
+<section class="slide" data-layout="two-content">
+  <h2 data-slot="title">A list in a column breaks 1NF</h2>
+  <div data-slot="left">
+    <pre class="wrong"><code class="language-sql">CREATE TABLE book (
+  id      BIGINT PRIMARY KEY,
+  authors TEXT
+);</code></pre>
+  </div>
+  <div data-slot="right">
+    <pre class="right"><code class="language-sql">CREATE TABLE book_author (
+  book_id   BIGINT
+    REFERENCES book(id),
+  author_id BIGINT
+    REFERENCES author(id),
+  PRIMARY KEY (book_id,
+               author_id)
+);</code></pre>
+  </div>
+  <aside class="notes">Ask how to find every book by one author in the left version: string
+  matching, and it breaks on the first comma in a name. The relationship gets its own table,
+  which is the table in the middle of the diagram from the first section.</aside>
+</section>
+
+<section class="slide" data-layout="content" data-role="check">
+  <h2 data-slot="title">Which form does it break?</h2>
+  <div data-slot="body">
+    <p><code>loan(id, book_id, book_title, due_date)</code></p>
+    <details><summary>Answer</summary><p>3NF: <code>book_title</code> depends on <code>book_id</code>, not on the loan.</p></details>
+  </div>
+  <aside class="notes">Point at book_title and ask what it describes. Once someone says "the
+  book", ask where that fact should live. That is third normal form in one sentence, and it is
+  the last idea before the summary.</aside>
+</section>
+
+<section class="slide" data-layout="summary">
+  <div data-slot="body">
+    <ul>
+      <li data-objective="DBF-K1">Entities are the nouns with facts of their own; relationships are the verbs between them</li>
+      <li data-objective="DBF-K1">A primary key never changes, so prefer a surrogate and keep natural values unique</li>
+      <li data-objective="DBF-K1">Normalize until each fact is stored once: no lists, no partial or indirect dependencies</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-layout="closing"></section>
+
+</body>
+</html>

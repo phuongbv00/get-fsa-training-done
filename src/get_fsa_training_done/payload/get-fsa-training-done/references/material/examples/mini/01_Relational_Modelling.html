@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relational Modelling</title>
+<meta name="fsa:kind" content="note">
+<meta name="fsa:module" content="Databases">
+<meta name="fsa:session" content="1">
+<meta name="fsa:objectives" content="DBF-K1">
+<meta name="fsa:stack" content="SQL:2016 · PostgreSQL 16">
+<link rel="stylesheet" href="_theme/fsa.css">
+<script src="_theme/doc.js" defer></script>
+</head>
+<body class="fsa-doc">
+<main>
+<article class="note">
+<h1>Relational Modelling</h1>
+<p>The reading behind the <a href="01_Relational_Modelling.deck.html">lesson 1 slides</a>. Start with the
+<a href="00_Study_Guide_Handbook.html">study guide</a> if you have not set up your database yet.</p>
+
+<section data-part="objectives" id="objectives">
+  <h2>Objectives</h2>
+  <p>After this unit, learners can:</p>
+  <ul>
+    <li data-objective="DBF-K1">Find the entities and relationships in a written domain description.</li>
+    <li data-objective="DBF-K1">Choose a primary key and justify the choice.</li>
+    <li data-objective="DBF-K1">Normalize a table to third normal form and say what each step removed.</li>
+  </ul>
+</section>
+
+<section data-part="why" id="why">
+  <h2>Why This Matters</h2>
+  <p>The library you will model all module lends books to members. If the same author's name is
+  typed into every book row, one typo makes "Le Van A" and "Le Van  A" two different people, and a
+  report of loans per author is quietly wrong. A good model stores each fact once, so there is
+  nowhere for two copies to disagree.</p>
+</section>
+
+<section data-part="concept" id="entities">
+  <h2>Entities and Relationships</h2>
+  <p>An <strong>entity</strong> is a thing the domain talks about and keeps facts about. A
+  <strong>relationship</strong> is how two entities are connected. To find them, read the
+  description and underline the nouns: the ones with facts of their own are entities, and the verbs
+  between them are relationships.</p>
+  <figure>
+    <pre class="mermaid">erDiagram
+    AUTHOR ||--o{ BOOK_AUTHOR : "1-n writes"
+    BOOK ||--o{ BOOK_AUTHOR : "1-n is written by"
+    BOOK ||--o{ LOAN : "1-n is lent as"</pre>
+    <img src="img/catalogue_er.png" alt="Author, book, book_author and loan, each relationship labelled 1-n">
+    <figcaption>The catalogue. Each label says the cardinality in words first.</figcaption>
+  </figure>
+  <aside class="callout note"><p><strong>Note.</strong> "Title" is a noun, but not an entity: it is
+  a fact about a book. An entity needs facts of its own.</p></aside>
+  <div class="try-it">
+    <p>A member borrows a book on a date and returns it by a due date. List the entities.</p>
+    <details><summary>Answer</summary><p>Member, book and loan. The verb "borrows" hides the loan,
+    and the two dates are facts about it.</p></details>
+  </div>
+</section>
+
+<section data-part="concept" id="keys">
+  <h2>Keys</h2>
+  <p>A <strong>primary key</strong> identifies a row uniquely and never changes. Any column set that
+  could identify a row is a <em>candidate</em>; the primary key is the candidate you choose. Prefer
+  a surrogate key, a number with no meaning outside the database, when the natural value can
+  change.</p>
+  <pre class="wrong"><code class="language-sql">CREATE TABLE book (
+    isbn  CHAR(13) PRIMARY KEY,   -- a publisher can reissue it
+    title TEXT NOT NULL
+);</code></pre>
+  <pre class="right"><code class="language-sql">CREATE TABLE book (
+    id    BIGINT PRIMARY KEY,     -- never changes, means nothing else
+    isbn  CHAR(13) NOT NULL UNIQUE,
+    title TEXT NOT NULL
+);</code></pre>
+  <div class="try-it">
+    <p>A member table uses the email address as its primary key. What breaks when a member changes
+    their email?</p>
+    <details><summary>Answer</summary><p>Every loan row that points at the old address. Keep the
+    email <code>UNIQUE</code> and add a surrogate <code>id</code> for other tables to reference.</p></details>
+  </div>
+</section>
+
+<section data-part="concept" id="normalization">
+  <h2>Normalization</h2>
+  <p>Normalizing is moving each fact to the one table it describes. Three questions take a table to
+  third normal form: is there a list packed into a cell (1NF), does every column need the whole key
+  (2NF), and does any column really describe another non-key column (3NF)?</p>
+  <table>
+    <tr><th>Form</th><th>Removes</th><th>Ask</th></tr>
+    <tr><td>1NF</td><td>repeating groups</td><td>Is there a list in a cell?</td></tr>
+    <tr><td>2NF</td><td>partial dependencies</td><td>Does this column need the whole key?</td></tr>
+    <tr><td>3NF</td><td>transitive dependencies</td><td>Does this column describe another column?</td></tr>
+  </table>
+  <pre class="wrong"><code class="language-sql">CREATE TABLE book (id BIGINT PRIMARY KEY, authors TEXT);  -- "Ana, Binh"</code></pre>
+  <pre class="right"><code class="language-sql">CREATE TABLE book_author (
+    book_id   BIGINT REFERENCES book(id),
+    author_id BIGINT REFERENCES author(id),
+    PRIMARY KEY (book_id, author_id)
+);</code></pre>
+  <div class="try-it">
+    <p>Which normal form does <code>loan(id, book_id, book_title, due_date)</code> break?</p>
+    <details><summary>Answer</summary><p>Third: <code>book_title</code> depends on
+    <code>book_id</code>, not on the loan. It belongs in <code>book</code>.</p></details>
+  </div>
+</section>
+
+<section data-part="worked-example" id="worked-example">
+  <h2>Worked Example</h2>
+  <p><strong>The problem.</strong> Model the catalogue: authors write books, a book can have several
+  authors, and books are lent to members.</p>
+  <p><strong>The approach.</strong> One table per entity, each with a surrogate key; the many-to-many
+  between book and author gets a table of its own; every reference is a declared foreign key.</p>
+  <pre><code class="language-sql">CREATE TABLE author (id BIGINT PRIMARY KEY, name TEXT NOT NULL);
+CREATE TABLE book   (id BIGINT PRIMARY KEY, isbn CHAR(13) NOT NULL UNIQUE, title TEXT NOT NULL);
+CREATE TABLE book_author (
+    book_id   BIGINT NOT NULL REFERENCES book(id),
+    author_id BIGINT NOT NULL REFERENCES author(id),
+    PRIMARY KEY (book_id, author_id)
+);</code></pre>
+  <p><strong>What it gives you.</strong> An author's name lives in one row, so a correction is one
+  update; a book with three authors is three rows in <code>book_author</code>, never a list.</p>
+</section>
+
+<section data-part="common-problems" id="common-problems">
+  <h2>Common Problems</h2>
+  <h3>A key that changes</h3>
+  <p>An ISBN is reissued and every referencing row is wrong. Use a surrogate key and keep the ISBN
+  as a unique column.</p>
+  <h3>ERROR: insert or update on table "loan" violates foreign key constraint</h3>
+  <p>The loan points at a book that does not exist. Insert the book first, or check the id you are
+  using.</p>
+</section>
+
+<section data-part="summary" id="summary">
+  <h2>Summary</h2>
+  <ul>
+    <li data-objective="DBF-K1">Entities are nouns with facts of their own; relationships are the verbs between them.</li>
+    <li data-objective="DBF-K1">A primary key never changes: prefer a surrogate and keep natural values unique.</li>
+    <li data-objective="DBF-K1">Normalize until each fact is stored once: no lists, no partial or indirect dependencies.</li>
+  </ul>
+</section>
+
+<section data-part="knowledge-check" id="knowledge-check">
+  <h2>Knowledge Check</h2>
+  <ol>
+    <li data-objective="DBF-K1"><p>What makes a column set a candidate key?</p>
+      <details><summary>Answer</summary><p>It identifies every row uniquely, and no smaller set of its columns does.</p></details></li>
+    <li data-objective="DBF-K1"><p>Why prefer a surrogate key to a natural one?</p>
+      <details><summary>Answer</summary><p>A surrogate never changes, so nothing that references it has to change either.</p></details></li>
+    <li data-objective="DBF-K1"><p>What does third normal form remove that second does not?</p>
+      <details><summary>Answer</summary><p>Transitive dependencies: a non-key column that depends on another non-key column.</p></details></li>
+    <li data-objective="DBF-K1"><p>Where should referential integrity be enforced, and why?</p>
+      <details><summary>Answer</summary><p>In the database, with foreign keys, so every program that writes to it is held to the same rule.</p></details></li>
+    <li data-objective="DBF-K1"><p>A book has three authors. How many rows does it add to <code>book_author</code>?</p>
+      <details><summary>Answer</summary><p>Three, one per author.</p></details></li>
+  </ol>
+</section>
+
+<section data-part="further-reading" id="further-reading">
+  <h2>Further Reading</h2>
+  <ul>
+    <li><a href="https://www.postgresql.org/docs/16/ddl-constraints.html">PostgreSQL 16: Constraints</a></li>
+  </ul>
+</section>
+</article>
+</main>
+</body>
+</html>

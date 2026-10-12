@@ -10,11 +10,11 @@ import argparse
 from pathlib import Path
 
 from get_fsa_training_done.errors import GftdError, UsageError
+from get_fsa_training_done.features.common.render import pdf as pdf_mod
 
 from ..core import budget as budget_mod
 from ..core import html as html_mod
 from ..core import markdown as md
-from ..core import pdf as pdf_mod
 
 
 def add_parser(subparsers: argparse._SubParsersAction) -> None:

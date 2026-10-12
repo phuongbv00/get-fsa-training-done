@@ -166,7 +166,7 @@ marks it as an instructor rubric requires `--allow-rubric`, so a rubric is not
 handed out by accident.
 
 Fonts are **embedded**, not named — see
-[`core/fonts/`](core/fonts). Naming system faces worked while headless Chrome
+[`common/render/fonts/`](../common/render/fonts). Naming system faces worked while headless Chrome
 did the rendering, because it resolved whatever the machine had; the current
 renderer has no such fallback, and a Vietnamese letter with no glyph comes out
 blank rather than raising. Embedding also means a `_vn` brief is byte-identical

@@ -34,8 +34,10 @@ Every `MAT-C01` is either written or handed to the feature that owns it.
 
 ## Hands off to
 
-`references/material/tasks/write_lab.md` or
-`references/material/tasks/write_lecture.md` — the session row already
-specifies the gap. Never invent material the plan did not ask for: if the
+`references/material/tasks/propose_outline.md` for each gap this feature
+owns, then `references/material/tasks/write_deck.md`,
+`references/material/tasks/write_lecture.md` or
+`references/material/tasks/write_lab.md` — the session row already specifies
+the gap. Never invent material the plan did not ask for: if the
 module needs a session that is not there, the program feature changes the plan
 first.

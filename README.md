@@ -15,12 +15,12 @@ The skill has three features, each with its own CLI namespace:
 | Namespace | What it does | Docs |
 | --- | --- | --- |
 | `program` | design a training programme and export its workbooks | [README](src/get_fsa_training_done/features/program/README.md) |
-| `material` | write lecture notes, handbooks, lab guides and worksheets | [README](src/get_fsa_training_done/features/material/README.md) |
+| `material` | write slide decks on the FSA template, handbooks, lecture notes and lab guides in HTML, and export them to `.pptx` and `.pdf` | [README](src/get_fsa_training_done/features/material/README.md) |
 | `assessment` | design and grade quizzes, assignments, exams and capstones | [README](src/get_fsa_training_done/features/assessment/README.md) |
 
 They divide one job. A programme's session plan names, in its
 `Training Materials` column, the file that serves each session — so `program`
-declares that a slot exists and what it weighs, `material` writes the lecture
+declares that a slot exists and what it weighs, `material` writes the slides,
 note or lab guide, and `assessment` writes the quiz, brief or exam. No feature
 authors another's artifact, and each checks its own half of that manifest.
 
@@ -98,7 +98,7 @@ its absence:
   in a disposable container with no network.
 
 Rendering embeds its own fonts (see
-[`core/fonts/`](src/get_fsa_training_done/features/assessment/core/fonts)), so a
+[`features/common/render/fonts/`](src/get_fsa_training_done/features/common/render/fonts)), so a
 Vietnamese brief comes out identical on every machine.
 
 ## Layout

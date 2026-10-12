@@ -7,7 +7,7 @@ foot of a page, and `break-inside: avoid` on table rows and code blocks.
 Fonts are **embedded, not named**. Naming system faces worked while headless
 Chrome did the rendering — it resolved whatever the machine happened to have —
 but the renderer has no such fallback, and a Vietnamese letter with no glyph
-comes out as a blank box rather than an error. `core/fonts/` explains the two
+comes out as a blank box rather than an error. `features/common/render/fonts/` explains the two
 families and why the mono one is not DejaVu's.
 """
 

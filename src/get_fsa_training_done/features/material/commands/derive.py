@@ -14,6 +14,7 @@ from pathlib import Path
 from get_fsa_training_done.errors import UsageError
 
 from ..core import appendix as appendix_mod
+from ..core import dom
 
 
 def add_parser(subparsers: argparse._SubParsersAction) -> None:
@@ -46,7 +47,11 @@ def run_appendix(args: argparse.Namespace) -> int:
     if not syllabus.is_file():
         raise UsageError(f"syllabus not found: {syllabus}")
     directory = Path(args.directory).expanduser()
-    body = appendix_mod.render(syllabus.read_text(encoding="utf-8"), directory)
+    # The map is written in the appendix's own language (`<html lang>`).
+    lang = "en"
+    if args.appendix and Path(args.appendix).expanduser().is_file():
+        lang = dom.parse(Path(args.appendix).expanduser()).lang
+    body = appendix_mod.render(syllabus.read_text(encoding="utf-8"), directory, lang)
 
     if (args.write or args.check) and not args.appendix:
         raise UsageError("--write and --check need --appendix")

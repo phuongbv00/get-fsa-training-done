@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Databases — Study Guide</title>
+<meta name="fsa:kind" content="handbook">
+<meta name="fsa:module" content="Databases">
+<link rel="stylesheet" href="_theme/fsa.css">
+<script src="_theme/doc.js" defer></script>
+</head>
+<body class="fsa-doc">
+<main>
+<article class="handbook">
+<h1>Databases — Study Guide</h1>
+<p>Start here. This page is the map of the module: what each lesson covers, how to work through
+it, and what to install before the first session.</p>
+
+<section data-part="module-map" id="module-map">
+  <h2>Module Map</h2>
+  <table>
+    <tr><th>#</th><th>Lesson</th><th>Slides</th><th>Reading</th><th>Practice</th></tr>
+    <tr><td>01</td><td>Relational Modelling</td>
+      <td><a href="01_Relational_Modelling.deck.html">deck</a></td>
+      <td><a href="01_Relational_Modelling.html">note</a></td>
+      <td><a href="dbf_lab_01.html">lab 01</a></td></tr>
+    <tr><td>02</td><td>Querying</td><td>—</td>
+      <td><a href="02_Querying.html">note</a></td><td>—</td></tr>
+  </table>
+</section>
+
+<section data-part="how-to-study" id="how-to-study">
+  <h2>How to Study This Module</h2>
+  <ol>
+    <li>Before the session, skim the note's objectives and summary: ten minutes.</li>
+    <li>In the session, follow the slides and answer every check question before the reveal.</li>
+    <li>After it, read the note in full and do each <em>Try it</em> before opening its answer.</li>
+    <li>Do the lab, then the note's knowledge check. A question you miss names the section to reread.</li>
+  </ol>
+  <p>The examples build one domain, so a lesson you skip leaves a gap in the next one.</p>
+</section>
+
+<section data-part="environment" id="environment">
+  <h2>Environment Setup</h2>
+  <table>
+    <tr><th>Component</th><th>Version</th><th>Check it works</th></tr>
+    <tr><td>PostgreSQL</td><td>16 (14 or later behaves the same here)</td><td><code>psql --version</code></td></tr>
+    <tr><td>A SQL client</td><td>any</td><td>connects and runs <code>SELECT 1;</code></td></tr>
+  </table>
+  <p>Create a scratch database you can drop and recreate freely:</p>
+  <pre><code class="language-bash">createdb library_scratch</code></pre>
+</section>
+
+<section data-part="running-domain" id="running-domain">
+  <h2>The Running Example</h2>
+  <p>A small library catalogue: authors write books, a book can have several authors, and books are
+  lent to members. Every example and lab in the module uses it.</p>
+</section>
+
+<section data-part="glossary" id="glossary">
+  <h2>Glossary</h2>
+  <dl>
+    <dt>Normalization</dt><dd>Organising columns so each fact is stored once.</dd>
+    <dt>Surrogate key</dt><dd>A key with no meaning outside the database.</dd>
+  </dl>
+</section>
+</article>
+</main>
+</body>
+</html>

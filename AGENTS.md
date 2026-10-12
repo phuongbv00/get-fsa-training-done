@@ -6,17 +6,17 @@ Guidance for coding agents (Codex, Claude Code, and others) working in this repo
 
 `get-fsa-training-done` ships **one agent skill** and the CLI behind it, and the two must stay in sync:
 
-- **The skill** — installed as `get-fsa-training-done`, defined in `src/get_fsa_training_done/skill.py`, with its payload at `src/get_fsa_training_done/payload/get-fsa-training-done/`. It has three **features** dividing one job: `program` (curriculum, schedules, syllabi, vendor workbooks), `material` (lecture notes, handbooks, lab guides and worksheets), and `assessment` (quizzes, assignments, exams, capstones, grading).
+- **The skill** — installed as `get-fsa-training-done`, defined in `src/get_fsa_training_done/skill.py`, with its payload at `src/get_fsa_training_done/payload/get-fsa-training-done/`. It has three **features** dividing one job: `program` (curriculum, schedules, syllabi, vendor workbooks), `material` (slide decks, handbooks, lecture notes, lab guides and worksheets — HTML on the FSA template, exported to `.pptx` and `.pdf`), and `assessment` (quizzes, assignments, exams, capstones, grading).
 - **The CLI** — `get-fsa-training-done`, with the alias `gftd`. Lifecycle commands (`install`, `update`, `uninstall`, `status`, `doctor`, `env`) act on the one skill; each feature's worker commands live under its namespace: `gftd <namespace> <verb>` (e.g. `gftd assessment render`).
 
 The project was renamed from an earlier package that shipped three separate skills. The rename was a clean break, and `tests/test_consistency.py` keeps the old names out of every tracked file.
 
 ## How the three features relate
 
-A programme's `<TOPIC>_ScheduleDetail.csv` has a `Training Materials / Logistics & General Notes` column, and **that column is the manifest binding the three**. A row says a session exists, runs 90 minutes, serves objective `FEF-K1`, and will be served by a file called `fef_lab_01.md`.
+A programme's `<TOPIC>_ScheduleDetail.csv` has a `Training Materials / Logistics & General Notes` column, and **that column is the manifest binding the three**. A row says a session exists, runs 90 minutes, serves objective `FEF-K1`, and will be served by a file called `fef_lab_01.html`.
 
 - `program` declares the **slot** — that it exists, what it weighs, what will fill it.
-- `material` produces `fef_lab_01.md`; `assessment` produces `dbf_quiz_01.csv`.
+- `material` produces `fef_lab_01.html`; `assessment` produces `dbf_quiz_01.csv`.
 
 No feature authors another's artifact. Each verifies its own half of the manifest and, when a finding is really about someone else's file, names the feature that owns it. Keep that boundary when adding checks: `program verify` reports a missing *slot*, `material coverage` reports a missing *material*, and neither writes the other's file.
 
@@ -52,10 +52,10 @@ src/get_fsa_training_done/
 ### CLI: lifecycle vs feature workers
 
 - **Lifecycle** commands run in whatever interpreter invoked them — they must work before any environment exists — and act on `skill.SKILL`; there is no `--skill`.
-- **Feature workers** — `features/__init__.py` lists `FEATURES`; each feature package exports `NAMESPACE`, `add_parsers(subparsers)` and optionally `doctor_extra()`. Workers re-exec via `lifecycle/envmgr/reexec` into a managed virtualenv keyed by `SKILL.dep_group`, bootstrapped on first use. The package is never installed into the venv — its parent dir goes on `PYTHONPATH`. The **package** declares zero runtime dependencies; the libraries the workers need are declared in `lifecycle/envmgr/requirements/core.txt` and pre-warmed by `install`.
+- **Feature workers** — `features/__init__.py` lists `FEATURES`; each feature package exports `NAMESPACE`, `add_parsers(subparsers)` and optionally `doctor_extra()`. Workers re-exec via `lifecycle/envmgr/reexec` into a managed virtualenv keyed by `SKILL.dep_group`, bootstrapped on first use. The package is never installed into the venv — its parent dir goes on `PYTHONPATH`. The **package** declares zero runtime dependencies; the libraries the workers need (`xhtml2pdf`, `py7zr`, `python-pptx`) are declared in `lifecycle/envmgr/requirements/core.txt` and pre-warmed by `install`.
 - **No feature shells out to an external binary**, with two optional, allow-listed exceptions (`BINARY_ALLOWLIST` in `tests/test_consistency.py`): a `.rar` extractor in `grade preprocess`, because `.rar` has no pure-Python reader, and Docker in `features/assessment/core/sandbox.py`, because running code that is not ours — an exam's seed script, a submission's tests — needs a container. The sandbox's safety rules (no network for the run, read-only root filesystem and dependency volume, size-bounded tmpfs scratch, CPU/memory/pids/time limits, init files and command passed as arguments, forced cleanup, and a prefetch that refuses anything able to run project code online) live in that module, not in a workflow. A submitted `.git` is read only between commits with external diff, textconv, fsmonitor and hooks off (`references/assessment/tasks/grade/preprocess.md`).
 
-Each feature owns its `core/`, `commands/` and `README.md`; `features/common/` holds only what more than one feature reads (the finding shape, the level table). Detailed per-feature documentation belongs in that `README.md`, not the root one.
+Each feature owns its `core/`, `commands/` and `README.md`; `features/common/` holds only what more than one feature reads (the finding shape, the level table, and `render/` — the `xhtml2pdf` driver and the embedded fonts that `assessment render` and `material export` share). Detailed per-feature documentation belongs in that `README.md`, not the root one.
 
 ### The payload: tasks and workflows
 
@@ -76,6 +76,7 @@ Writing rules that apply to every feature (plain words, digits, tone, the exampl
 - `references/assessment/levels.md` ← `features/common/levels.py`, by `scripts/assessment/gen_levels_md.py`.
 - `references/program/rules.md` ← `features/program/core/rules.py`, and `references/program/schemas.md` ← `core/schemas.py` + `core/schedule.py`, by `scripts/program/`.
 - `references/material/structure.md` ← `features/material/core/grammar.py` + `core/rules.py`, by `scripts/material/gen_structure_md.py`.
+- `references/material/layouts.md` and `features/material/theme/layouts.css` ← `features/material/core/layouts.py`, by `scripts/material/gen_layouts.py`.
 - The version is canonical in `src/get_fsa_training_done/__about__.py`; `scripts/sync_version.py` propagates it to the payload's `VERSION`.
 
 Every `scripts/<feature>/gen_*.py` is covered by one globbed gate in `tests/test_consistency.py` and one loop in CI.
@@ -90,7 +91,17 @@ Derived tables are never typed by hand: `derive allocation` computes a syllabus'
 
 ### Feature contract (material)
 
-The template a lecture note follows lives once, in `core/grammar.py`, and `structure.md` is generated from it — prose describing a rule the checker does not enforce would calibrate the model to a constraint nothing holds it to. That is why diagram conventions are rules (`MAT-D19` cardinality in words, `MAT-D20` theme colours) rather than advice.
+Material is **HTML on the FSA theme**, one file per artifact, and the HTML is the single source of truth: `export pptx` and `export pdf` derive the files handed out, which are never edited by hand. In order of how much a trainee learns from them: the slide deck (`NN_Topic.deck.html`), the handbook, the lecture note (`NN_Topic.html`), the lab guide.
+
+**Outline first.** Every task that creates a document opens on `references/material/tasks/propose_outline.md`: the outline is shown and explicitly approved before any file is written or overwritten. `tests/features/material/test_consistency.py` holds each writing task, the standing rules and both workflows to it; keep that gate as the first step of any new writing task.
+
+The theme is read from the FSA Training Materials template by `scripts/material/build_theme.py`, run by hand once per template version: it writes `features/material/theme/fsa_base.pptx` (master and mapped layouts, no slides, images recompressed, the embedded Microsoft fonts dropped) and the backgrounds under `theme/img/`. **Committing this theme is a deliberate exception** to "a customer's template is never committed", chosen by the owner so the skill is self-contained; the program feature's `.xlsx` templates are still never committed. `fsa.css`, `deck.js` and `doc.js` are hand-written; `layouts.css` is generated.
+
+`core/layouts.py` is the single source for a deck's shape: each `data-layout` is a template layout and each `data-slot` one of its placeholders, with its box, type size and limits. The stylesheet, the deck rules (`MAT-S*`), the generated `layouts.md` and the exporter all read it, and `tests/features/material/test_layouts.py` holds it to `fsa_base.pptx`. `export pptx` adds slides to a copy of the template from its own layouts, so an exported deck *is* the template. `export pdf` draws a deck with reportlab (an HTML-to-PDF converter cannot pin a slot to a position) and doubles as the overflow check (`MAT-X02`); a long-form document goes through `features/common/render/pdf.py`.
+
+The parts a long-form document carries live once, in `core/grammar.py`, and `structure.md` is generated from it — prose describing a rule the checker does not enforce would calibrate the model to a constraint nothing holds it to. That is why the learning rules are rules: answers to every question (`MAT-D25`), each objective tested (`MAT-D26`), a try-it after each concept (`MAT-D28`), a check slide per section (`MAT-S07`), speaker notes (`MAT-S06`), and why diagram conventions are rules (`MAT-D19` cardinality in words, `MAT-D20` theme colours).
+
+Every word the skill writes into a document on the author's behalf — slide defaults, theme labels, a PDF's session line, the appendix heading — comes from `core/i18n.py` in the language `<html lang>` declares; the stylesheet's labels and the script words are generated from it into `layouts.css`. Add a language there, never as a string in CSS, JS or an exporter.
 
 `material coverage` reads a programme's `ScheduleDetail` **by column name, tolerating any superset**, and deliberately does not enforce that CSV's schema — that is `program verify`'s job.
 

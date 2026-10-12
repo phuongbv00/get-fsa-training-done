@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Topic Title</title>
+<meta name="fsa:kind" content="note">
+<meta name="fsa:module" content="Module Name">
+<meta name="fsa:session" content="1">
+<meta name="fsa:objectives" content="CODE-K1 CODE-K2">
+<meta name="fsa:stack" content="the versions this note is written against">
+<link rel="stylesheet" href="_theme/fsa.css">
+<script src="_theme/doc.js" defer></script>
+</head>
+<body class="fsa-doc">
+<main>
+<article class="note">
+<h1>Topic Title</h1>
+<p>One line placing the note: the slides it goes with, what to have read first.</p>
+
+<section data-part="objectives" id="objectives">
+  <h2>Objectives</h2>
+  <p>After this unit, learners can:</p>
+  <ul>
+    <li data-objective="CODE-K1">Verb-initial outcome.</li>
+    <li data-objective="CODE-K2">Verb-initial outcome.</li>
+  </ul>
+</section>
+
+<section data-part="why" id="why">
+  <h2>Why This Matters</h2>
+  <p>The problem this lesson solves, told in the module's running domain.</p>
+</section>
+
+<!-- One concept part per idea: explain, show, then let the trainee try. -->
+<section data-part="concept" id="first-idea">
+  <h2>First Idea</h2>
+  <p>The idea in prose first. The example comes after it, never before.</p>
+  <pre><code class="language-java">// Comments carry the teaching point, not a restatement of the line.</code></pre>
+  <aside class="callout note"><p><strong>Note.</strong> A short aside worth pulling out.</p></aside>
+  <div class="try-it">
+    <p>A small exercise on exactly this idea.</p>
+    <details><summary>Answer</summary><p>The answer, with the reason.</p></details>
+  </div>
+</section>
+
+<section data-part="concept" id="second-idea">
+  <h2>Second Idea</h2>
+  <p>Where a mistake is common, pair the forms.</p>
+  <pre class="wrong"><code class="language-java">// the mistake</code></pre>
+  <pre class="right"><code class="language-java">// the fix</code></pre>
+  <figure>
+    <pre class="mermaid">sequenceDiagram
+    Client->>Server: request
+    Server-->>Client: response</pre>
+    <figcaption>What the diagram shows. Add an &lt;img&gt; of it before exporting.</figcaption>
+  </figure>
+  <div class="try-it">
+    <p>A small exercise on exactly this idea.</p>
+    <details><summary>Answer</summary><p>The answer, with the reason.</p></details>
+  </div>
+</section>
+
+<section data-part="worked-example" id="worked-example">
+  <h2>Worked Example</h2>
+  <p><strong>The problem.</strong> One task that needs every idea above.</p>
+  <p><strong>The approach.</strong> How to break it down, before any code.</p>
+  <pre><code class="language-java">// one runnable thing</code></pre>
+  <p><strong>Reading the result.</strong> What the output means and how to check it.</p>
+</section>
+
+<section data-part="common-problems" id="common-problems">
+  <h2>Common Problems</h2>
+  <h3>The symptom, or the literal error text</h3>
+  <p>What causes it, and what to do.</p>
+</section>
+
+<section data-part="summary" id="summary">
+  <h2>Summary</h2>
+  <ul>
+    <li data-objective="CODE-K1">The point that closes CODE-K1.</li>
+    <li data-objective="CODE-K2">The point that closes CODE-K2.</li>
+  </ul>
+</section>
+
+<section data-part="knowledge-check" id="knowledge-check">
+  <h2>Knowledge Check</h2>
+  <ol>
+    <li data-objective="CODE-K1"><p>A question.</p>
+      <details><summary>Answer</summary><p>Its answer.</p></details></li>
+    <li data-objective="CODE-K2"><p>At least five questions, every objective asked about.</p>
+      <details><summary>Answer</summary><p>Its answer.</p></details></li>
+  </ol>
+</section>
+
+<section data-part="further-reading" id="further-reading">
+  <h2>Further Reading</h2>
+  <ul>
+    <li><a href="https://example.org">A primary source</a></li>
+  </ul>
+</section>
+</article>
+</main>
+</body>
+</html>

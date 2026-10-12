@@ -29,7 +29,11 @@ from ..platforms import registry
 RAR_TOOLS = ("unar", "7z", "bsdtar")
 
 #: Imported by the workers inside the managed venv, not by the CLI itself.
-VENV_LIBRARIES = (("xhtml2pdf", "assessment render"), ("py7zr", "assessment grade preprocess"))
+VENV_LIBRARIES = (
+    ("xhtml2pdf", "assessment render, material export pdf"),
+    ("py7zr", "assessment grade preprocess"),
+    ("pptx", "material export pptx"),
+)
 
 
 def add_parser(subparsers: argparse._SubParsersAction) -> None:

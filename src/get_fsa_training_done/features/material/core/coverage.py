@@ -27,12 +27,20 @@ OBJECTIVES_COLUMN = "Learning Objectives"
 CONTENT_COLUMN = "Content"
 
 #: A materials cell is prose that names files: "dbf_assignment_01.md and rubric".
-FILENAME = re.compile(r"\b[\w.-]+\.(?:md|csv|json|xlsx|pdf)\b")
+FILENAME = re.compile(r"\b[\w.-]+\.(?:html|md|csv|json|xlsx|pdf)\b")
 
 #: Which feature owns a named file, by the shape of its name.
 MATERIAL_KINDS = (
-    re.compile(r"_lab_\d+\.md$"),
+    re.compile(r"_lab_\d+(?:_vn)?\.html$"),
     WORKSHEET_FILENAME,
+    re.compile(r"_lecture_\d+\.html$"),
+    re.compile(r"^\d{2}[a-z]?_.+\.html$"),
+)
+#: Material named with a `.md` extension: a plan written before material became
+#: HTML. Still this feature's, and reported missing with the name it should have.
+STALE_MARKDOWN = (
+    re.compile(r"_lab_\d+(?:_vn)?\.md$"),
+    re.compile(r"_lab_\d+_worksheet(?:_vn)?\.md$"),
     re.compile(r"_lecture_\d+\.md$"),
     re.compile(r"^\d{2}[a-z]?_.+\.md$"),
 )
@@ -56,7 +64,7 @@ def owns(filename: str) -> bool:
     """Is this a file this feature is responsible for producing?"""
     if any(pattern.search(filename) for pattern in ASSESSMENT_KINDS):
         return False
-    return any(pattern.search(filename) for pattern in MATERIAL_KINDS)
+    return any(pattern.search(filename) for pattern in (*MATERIAL_KINDS, *STALE_MARKDOWN))
 
 
 def read_demands(path: Path) -> list[Demand]:
@@ -92,7 +100,7 @@ def check(
     defined_objectives: set[str] | None = None,
 ) -> dict:
     """Both directions: what the plan asks for, and what the folder holds."""
-    present = {path.name for path in directory.glob("*.md")} if directory.is_dir() else set()
+    present = {path.name for path in directory.glob("*.html")} if directory.is_dir() else set()
     wanted = {demand.filename for demand in demands if owns(demand.filename)}
     others = {demand.filename for demand in demands if not owns(demand.filename)}
 
@@ -108,6 +116,11 @@ def check(
             "MAT-C01",
             where,
             f"session {demand.session or '?'} names {filename}, which does not exist"
+            + (
+                f"; material is HTML, so the plan should name {filename[:-3]}.html"
+                if filename.endswith(".md")
+                else ""
+            )
             + (f" — {demand.content[:60]}" if demand.content else ""),
         )
 
@@ -145,20 +158,20 @@ def check(
 
 
 def _lab_of(worksheet: str) -> str:
-    """`dbf_lab_01_worksheet_vn.md` serves `dbf_lab_01.md`."""
-    return re.sub(r"_worksheet(_vn)?\.md$", ".md", worksheet)
+    """`dbf_lab_01_worksheet_vn.html` serves `dbf_lab_01.html`."""
+    return re.sub(r"_worksheet(_vn)?\.html$", ".html", worksheet)
 
 
 def check_objectives(demands: list[Demand], directory: Path, report: Report) -> None:
     """A material should serve the objectives its session claims."""
-    from . import notes
+    from . import dom
 
     by_name = {demand.filename: demand for demand in demands}
     for filename, demand in sorted(by_name.items()):
         path = directory / filename
         if not owns(filename) or not path.is_file() or not demand.objectives:
             continue
-        cited = set(OBJECTIVE_CODE.findall(notes.parse(path).text))
+        cited = set(OBJECTIVE_CODE.findall(dom.parse(path).source))
         if not cited:
             continue
         stray = sorted(set(demand.objectives) - cited)

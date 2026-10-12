@@ -303,7 +303,7 @@ body, .card, .lane, .file, header { transition: background-color .3s ease, borde
 .tl i { flex: 1; min-width: 12px; height: 2px; background: var(--line-2); border-radius: 1px; }
 .aprog { height: 3px; background: var(--line); }
 .aprog i { display: block; height: 100%; width: 0; background: var(--green); }
-.aprog i.run { animation: prog var(--dur, 5s) linear forwards; }
+.aprog i.run { animation: prog var(--dur, 3s) linear forwards; }
 @keyframes prog { from { width: 0; } to { width: 100%; } }
 .apanel .opt.ok { animation: glow 2.4s ease-in-out .6s infinite; }
 @media (max-width: 480px) { .ws .wbar { grid-template-columns: 110px 1fr 34px; } }
@@ -333,7 +333,9 @@ body, .card, .lane, .file, header { transition: background-color .3s ease, borde
 .toc .row { display: flex; align-items: center; gap: 8px; padding: 5px 8px; margin: 2px 0; border-left: 3px solid var(--k); border-radius: 0 6px 6px 0; background: color-mix(in srgb, var(--k) 7%, transparent); }
 .toc .row code { flex: 1; min-width: 0; font-size: 12px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .toc .row .s { flex: none; font: 600 10.5px var(--font-mono); color: var(--ink-3); border: 1px solid var(--line-2); border-radius: 5px; padding: 0 5px; }
-.toc .hb { --k: var(--orange); } .toc .ln { --k: var(--blue); } .toc .lb { --k: var(--green); } .toc .ap { --k: var(--ink-3); }
+.toc .hb { --k: var(--orange); } .toc .dk { --k: var(--re-ink); } .toc .ln { --k: var(--blue); } .toc .lb { --k: var(--green); } .toc .ap { --k: var(--ink-3); }
+.toc .ex { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 2px 11px; }
+.toc .ex span { font: 600 10.5px var(--font-mono); color: var(--re-ink); background: var(--re); border-radius: 5px; padding: 1px 7px; }
 .toc .open { background: color-mix(in srgb, var(--k) 14%, transparent); }
 .toc .secs { margin: 4px 0 0 11px; padding: 2px 0 2px 22px; border-left: 1px dashed var(--line-2); font-size: 12.5px; color: var(--ink-2); display: grid; gap: 2px; }
 .toc .secs li::marker { color: var(--blue); font: 600 11px var(--font-mono); }
@@ -429,7 +431,7 @@ footer nav a:hover, .fbottom a:hover { color: var(--ink); }
     <div class="trio">
       <span style="--c:var(--green)"><i></i>Quiz · Assignment · Exam</span>
       <span style="--c:var(--orange)"><i></i>Syllabus → FAMS</span>
-      <span style="--c:var(--blue)"><i></i><span class="vi">Học liệu</span><span class="en">Materials</span></span>
+      <span style="--c:var(--blue)"><i></i>Slide · Handbook · <span class="vi">Bài giảng</span><span class="en">Notes</span></span>
     </div>
     </div>
     <div class="files" aria-hidden="true">
@@ -437,14 +439,14 @@ footer nav a:hover, .fbottom a:hover { color: var(--ink); }
         <div class="fh">ScheduleDetail.csv <span class="tg">program</span></div>
         <div class="fb">
           <table class="mini-csv">
-            <tr><td>Lab: paginated CRUD…</td><td>120</td><td class="hl">sbad_lab_02.md</td></tr>
+            <tr><td>Lab: paginated CRUD…</td><td>120</td><td class="hl">sbad_lab_02.html</td></tr>
             <tr><td>Quiz 1 — Spring…</td><td>30</td><td class="hl">sbad_quiz_01.csv</td></tr>
-            <tr><td>Lab: transactional…</td><td>150</td><td class="hl">sbad_lab_04.md</td></tr>
+            <tr><td>Lab: transactional…</td><td>150</td><td class="hl">sbad_lab_04.html</td></tr>
           </table>
         </div>
       </div>
       <div class="file f2">
-        <div class="fh">04_Transactions.md <span class="tg">material</span></div>
+        <div class="fh">04_Transactions.html <span class="tg">material</span></div>
         <div class="fb mini-doc">
           <h5>Service Layer, Transactions &amp; Locking</h5>
           <p>SBAD-K2 · Spring Boot 3.3</p>
@@ -523,11 +525,11 @@ footer nav a:hover, .fbottom a:hover { color: var(--ink); }
         <div class="bar" style="--dc:var(--green)"><span class="dot"></span>Syllabus.xlsx</div>
         <table class="sched">
           <tr><th style="width:30px"></th><th>Content</th><th style="width:114px">Delivery Type</th><th style="width:38px">Mins</th><th style="width:142px">Training Materials</th></tr>
-          <tr><td>2</td><td>REST controllers &amp; DTOs</td><td>Concept/Lecture</td><td>60</td><td class="hl">01_REST_APIs.md</td></tr>
-          <tr><td>3</td><td>Lab: paginated CRUD</td><td>Assignment/Lab</td><td>120</td><td class="hl">sbad_lab_02.md</td></tr>
+          <tr><td>2</td><td>REST controllers &amp; DTOs</td><td>Concept/Lecture</td><td>60</td><td class="hl">01_REST_APIs.html</td></tr>
+          <tr><td>3</td><td>Lab: paginated CRUD</td><td>Assignment/Lab</td><td>120</td><td class="hl">sbad_lab_02.html</td></tr>
           <tr><td>4</td><td>Quiz 1 — Spring Boot basics</td><td>Test/Quiz</td><td>30</td><td class="hl">sbad_quiz_01.csv</td></tr>
-          <tr><td>5</td><td>Transactions &amp; locking</td><td>Concept/Lecture</td><td>90</td><td class="hl">04_Transactions.md</td></tr>
-          <tr><td>6</td><td>Lab: cancel an order</td><td>Assignment/Lab</td><td>150</td><td class="hl">sbad_lab_04.md</td></tr>
+          <tr><td>5</td><td>Transactions &amp; locking</td><td>Concept/Lecture</td><td>90</td><td class="hl">04_Transactions.html</td></tr>
+          <tr><td>6</td><td>Lab: cancel an order</td><td>Assignment/Lab</td><td>150</td><td class="hl">sbad_lab_04.html</td></tr>
         </table>
         <div class="tabs"><span>Syllabus</span><span class="on">ScheduleDetail</span><span>Author</span></div>
       </div>
@@ -540,11 +542,13 @@ footer nav a:hover, .fbottom a:hover { color: var(--ink); }
   <div class="wrap">
     <div class="copy reveal">
       <div class="kick">Material</div>
-      <h2><span class="vi">Học liệu đầy đủ cho từng buổi học</span><span class="en">Materials for every session</span></h2>
+      <h2><span class="vi">Slide, handbook và bài giảng cho từng buổi học</span><span class="en">Slides, handbook and notes for every session</span></h2>
       <ul class="ticks">
-        <li><span class="vi">Ghi rõ file học liệu cho từng buổi trong lịch học</span><span class="en">The plan names each session's file — nothing left out</span></li>
-        <li><span class="vi">Dùng chung 1 template cho bài giảng, lab, handbook</span><span class="en">One template for notes, labs and handbooks</span></li>
-        <li><span class="vi">Code mẫu và sơ đồ có sẵn trong bài</span><span class="en">Code examples and diagrams built in</span></li>
+        <li><span class="vi">Slide đúng template FSA, xuất ra .pptx và .pdf</span><span class="en">Slides on the FSA template, exported to .pptx and .pdf</span></li>
+        <li><span class="vi">Duyệt dàn ý trước khi viết bất kỳ tài liệu nào</span><span class="en">Every document starts as an outline you approve</span></li>
+        <li><span class="vi">Bài giảng có bài tập Thử ngay kèm đáp án; lab ghi rõ kết quả từng bước</span><span class="en">Notes with try-its and answers; labs with the result of every step</span></li>
+        <li><span class="vi">Viết bằng tiếng Việt hay tiếng Anh: slide, nhãn và PDF đều theo đúng ngôn ngữ</span><span class="en">Written in Vietnamese or English: slides, labels and PDFs follow the document's language</span></li>
+        <li><span class="vi">Tự kiểm tra: mục tiêu, câu hỏi, thời lượng, cỡ chữ và trình bày</span><span class="en">Checked for objectives, questions, timing, type size and layout</span></li>
       </ul>
     </div>
     <div class="visual reveal">
@@ -552,35 +556,41 @@ footer nav a:hover, .fbottom a:hover { color: var(--ink); }
         <div class="bar" style="--dc:var(--blue)"><span class="dot"></span>SBAD · Spring Boot API Development</div>
         <div class="toc">
           <div class="col">
+            <div class="grp">Slides</div>
+            <div class="row dk"><code>01_REST_APIs.deck.html</code><span class="s">S1</span></div>
+            <div class="row dk"><code>04_Transactions.deck.html</code><span class="s">S3</span></div>
+            <div class="ex"><span>.pptx</span><span>.pdf</span></div>
             <div class="grp">Handbook</div>
-            <div class="row hb"><code>00_Study_Guide_Handbook.md</code></div>
+            <div class="row hb"><code>00_Study_Guide_Handbook.html</code></div>
             <div class="grp">Lecture notes</div>
-            <div class="row ln"><code>01_REST_APIs.md</code><span class="s">S1</span></div>
-            <div class="row ln"><code>02_Data_Access.md</code><span class="s">S2</span></div>
-            <div class="row ln"><code>03_Validation.md</code><span class="s">S2</span></div>
-            <div class="row ln open"><code>04_Transactions.md</code><span class="s">S3</span></div>
+            <div class="row ln"><code>01_REST_APIs.html</code><span class="s">S1</span></div>
+            <div class="row ln open"><code>04_Transactions.html</code><span class="s">S3</span></div>
             <ol class="secs">
               <li>Objectives</li>
-              <li>Service Layer</li>
-              <li>Transactions &amp; Locking</li>
+              <li>Why This Matters</li>
+              <li>Service Layer <i>try it</i></li>
+              <li>Transactions &amp; Locking <i>try it</i></li>
               <li>Worked Example <i>code</i><i>diagram</i></li>
-              <li>Common Problems</li>
-              <li>Knowledge Check</li>
+              <li>Summary</li>
+              <li>Knowledge Check <i>answers</i></li>
             </ol>
           </div>
           <div class="col">
             <div class="grp">Labs</div>
-            <div class="row lb"><code>sbad_lab_01.md</code><span class="s">S1</span></div>
-            <div class="row lb"><code>sbad_lab_02.md</code><span class="s">S1</span></div>
-            <div class="row lb"><code>sbad_lab_03.md</code><span class="s">S2</span></div>
-            <div class="row lb"><code>sbad_lab_04.md</code><span class="s">S3</span></div>
+            <div class="row lb"><code>sbad_lab_01.html</code><span class="s">S1</span></div>
+            <div class="row lb"><code>sbad_lab_02.html</code><span class="s">S1</span></div>
+            <div class="row lb"><code>sbad_lab_03.html</code><span class="s">S2</span></div>
+            <div class="row lb open"><code>sbad_lab_04.html</code><span class="s">S3</span></div>
+            <ol class="secs">
+              <li>Steps <i>expected</i><i>hints</i></li>
+              <li>Acceptance</li>
+              <li>Stretch</li>
+            </ol>
             <div class="grp">Appendix</div>
-            <div class="row ap"><code>99_Appendix.md</code></div>
+            <div class="row ap"><code>99_Appendix.html</code></div>
             <ol class="secs plain">
               <li>Full Syllabus Map</li>
-              <li>Key Topics</li>
               <li>References</li>
-              <li>Glossary</li>
             </ol>
           </div>
         </div>
@@ -609,6 +619,8 @@ footer nav a:hover, .fbottom a:hover { color: var(--ink); }
           <div class="pills">
             <span class="vi">Soạn học liệu cả module</span><span class="en">Full module pack</span>
             <span class="vi">Bổ sung học liệu thiếu</span><span class="en">Fill the gaps</span>
+            <span class="vi">Slide bài giảng</span><span class="en">Lesson slides</span>
+            <span class="vi">Xuất PPTX / PDF</span><span class="en">Export PPTX / PDF</span>
           </div>
         </div>
       </div>
@@ -736,15 +748,26 @@ footer nav a:hover, .fbottom a:hover { color: var(--ink); }
   (function () {
     var tabs = [].slice.call(document.querySelectorAll('.atab'));
     var panels = [].slice.call(document.querySelectorAll('.apanel'));
+    var strip = document.querySelector('.atabs');
     var bar = document.querySelector('.aprog i');
+    // Bring a tab into view by scrolling the tab strip sideways only. scrollIntoView
+    // would also scroll the page, pulling the reader back up from a later section
+    // every time the tabs rotate.
+    function reveal(tab) {
+      if (!strip) return;
+      var left = tab.getBoundingClientRect().left - strip.getBoundingClientRect().left + strip.scrollLeft;
+      var right = left + tab.offsetWidth;
+      if (left < strip.scrollLeft) strip.scrollTo({ left: left - 8, behavior: 'smooth' });
+      else if (right > strip.scrollLeft + strip.clientWidth) strip.scrollTo({ left: right - strip.clientWidth + 8, behavior: 'smooth' });
+    }
     if (!tabs.length) return;
-    var cur = 0, timer = null, DUR = 5000;
+    var cur = 0, timer = null, DUR = 3500;
     var auto = !matchMedia('(prefers-reduced-motion: reduce)').matches;
     function show(i) {
       cur = i;
       tabs.forEach(function (t, k) { t.classList.toggle('on', k === i); t.setAttribute('aria-selected', String(k === i)); });
       panels.forEach(function (p, k) { p.classList.toggle('on', k === i); });
-      tabs[i].scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      reveal(tabs[i]);
       if (bar) { bar.classList.remove('run'); void bar.offsetWidth; if (auto && timer) bar.classList.add('run'); }
     }
     function start() { if (!auto) return; stop(); timer = setInterval(function () { show((cur + 1) % tabs.length); }, DUR); bar.style.setProperty('--dur', DUR + 'ms'); bar.classList.remove('run'); void bar.offsetWidth; bar.classList.add('run'); }

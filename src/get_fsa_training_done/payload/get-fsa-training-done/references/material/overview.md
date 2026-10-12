@@ -3,6 +3,21 @@
 Writes the teaching material a session plan calls for, and checks that what the
 plan promises exists.
 
+Material is HTML on the FSA theme — the slide template's layouts, colours and
+backgrounds — one file per artifact. The HTML is the source of truth; the
+`.pptx` and `.pdf` handed out are exported from it. In order of how much a
+trainee learns from them, a lesson has:
+
+| Kind | File | Read where |
+|---|---|---|
+| slide deck | `NN_Topic_Name.deck.html` | in the session, presented from the browser or the exported `.pptx` |
+| module handbook | `00_Study_Guide_Handbook.html` | first, and whenever lost |
+| lecture note | `NN_Topic_Name.html` | after the session, doing each try-it |
+| lab guide | `<subject>_lab_NN.html` | in the lab session |
+
+A recorded video is a later addition: a deck's speaker notes are written so they
+can become its script.
+
 Read this before any material workflow or task: it holds the commands and the
 rules every one of them assumes. Each task lists its own inputs, and each
 document serves a session — find the row in the topic's ScheduleDetail CSV that
@@ -18,7 +33,7 @@ otherwise.
 |---|---|
 | quiz questions, assignment briefs, exams, rubrics, grading | the assessment feature |
 | session plans, syllabi, schedules, module structure | the program feature |
-| lecture notes, handbooks, appendices, lab guides and their worksheets | this one |
+| slide decks, lecture notes, handbooks, appendices, lab guides and their worksheets | this one |
 
 A lab guide is the guided middle: shorter than an assignment, step-numbered,
 checkable by the learner. If it carries marks and a rubric it is an assignment,
@@ -28,21 +43,36 @@ and it belongs to the assessment feature. Say so rather than writing it here.
 
 | Command | Does |
 |---|---|
-| `FSA material verify PATH...` | check documents against the template their names claim |
+| `FSA material init --dir DIR` | put the theme in `DIR/_theme/`, which every page links |
+| `FSA material verify PATH...` | check documents against the shape their names claim |
 | `FSA material coverage --schedule CSV --dir DIR` | what the plan asks for versus what exists |
-| `FSA material derive appendix --syllabus MD --dir DIR --appendix MD --write` | rebuild the appendix's syllabus map |
+| `FSA material derive appendix --syllabus MD --dir DIR --appendix HTML --write` | rebuild the appendix's syllabus map |
+| `FSA material export pptx\|pdf FILE` | derive the `.pptx` (a deck) or `.pdf` from the HTML |
 
 ## Standing rules
 
+- **Outline first, always.** Before any document is created or overwritten,
+  its outline is shown and explicitly approved:
+  `references/material/tasks/propose_outline.md`. No draft file "to show what it
+  would look like". Exports, `verify`, `coverage` and refreshing a derived map
+  write no document and need no outline.
 - **Write to the session, not to the topic.** A note covering more than the
   session it serves is a note that session cannot deliver.
 - **The syllabus map is derived, never typed.** Its deep anchors break silently
   when a heading is renamed.
-- **Written for the trainee.** Direct, plain, and never trainer notes; see
-  `references/material/conventions.md` and `references/common/style.md`.
-- **English by default.** A translation is a separate file whose stem ends
-  `_vn`, never a rewrite of the original — everything else links to the original.
-  Write it with `references/common/tasks/translate_vn.md`.
+- **Written for the trainee.** Direct and plain; see
+  `references/material/conventions.md` and `references/common/style.md`. A
+  deck's speaker notes are the one place written to the trainer.
+- **The theme decides how it looks.** No inline styling, no colours or fonts of
+  a page's own: a module then reads as one, in light and dark mode, and exports
+  cleanly.
+- **Exports are outputs.** Never edit a `.pptx` or `.pdf` by hand; change the
+  HTML and export again.
+- **One declared language per module.** `<html lang>` says it — `en` by
+  default, `vi` for a module written in Vietnamese — and the theme and the
+  exporters write their own words in it. A translation of an English original
+  is a separate file ending `_vn`; see `references/material/conventions.md`
+  § Language.
 - **Report measurements, not impressions.** "12 of 12 notes pass, 3 labs the
   plan names are missing" is a measurement.
 - **Do not invent work the plan did not ask for.** If a module needs a session

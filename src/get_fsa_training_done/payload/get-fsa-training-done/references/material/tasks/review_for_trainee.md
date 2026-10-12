@@ -6,7 +6,8 @@ Read finished material the way a trainee will, before it is published.
 
 | Input | Notes |
 |---|---|
-| the documents | notes, labs, starter code they link to |
+| the documents | decks, notes, labs, and the starter code they link to |
+| the level | from the programme: `CPL`, `FR`, `UP_SKILL` or `RE_SKILL` |
 
 ## Produces
 
@@ -14,16 +15,24 @@ A list of changes, then the changes made.
 
 ## Steps
 
-1. **Who it speaks to.** Rewrite anything addressed to the instructor ("ask the
-   class to...", "spend ten minutes on") as what the trainee reads and does.
-2. **Correctness.** A claim about a tool's behaviour must be one you can stand
+1. **Work through it as the trainee.** Read only this lesson and the ones
+   before it, at the programme's level. Do every try-it and the knowledge check
+   before opening an answer, and every lab step in order. Note each place you
+   stalled: a term used before it was defined, a step that assumed one not
+   written, an exercise its section did not prepare you for. Those are the
+   findings that matter most.
+2. **Slides and note agree.** The note explains each section of the deck, in
+   the same order and the same words for the same things.
+3. **Who it speaks to.** On slides and in notes, write to the trainee. Speaker
+   notes are the one place written to the trainer. Rewrite anything else
+   addressed to the instructor ("ask the class to...") as what the trainee does.
+4. **Correctness.** A claim about a tool's behaviour must be one you can stand
    behind; where it can be shown, show it — run the snippet through
    `references/common/tasks/run_in_sandbox.md` rather than asserting what a
    compiler or a database does.
-3. **Diagrams** follow `references/material/conventions.md` § Diagrams: the right
-   type, cardinality in words, theme colours, readable in light and dark mode.
-4. **Plain words** per `references/common/style.md`.
-5. Leave what was not asked about alone: a review of the content does not
+5. **Diagrams** follow `references/material/conventions.md` § Diagrams.
+6. **Plain words** per `references/common/style.md`.
+7. Leave what was not asked about alone: a review of the content does not
    restyle code that was not in scope.
 
 ## Done when
@@ -32,4 +41,4 @@ The changes are made and `FSA material verify` still passes.
 
 ## Hands off to
 
-Nothing.
+`references/material/tasks/export.md`.

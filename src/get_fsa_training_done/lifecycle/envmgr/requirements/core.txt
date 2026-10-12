@@ -6,8 +6,13 @@
 # machine after the first install, which is the property that matters for an
 # exam room.
 #
-# Both entries exist to remove an external binary, not to add a feature:
-# xhtml2pdf replaced headless Chrome for `assessment render`, and py7zr
-# replaced the shell extractors for `.7z` in `assessment grade preprocess`.
+# xhtml2pdf and py7zr exist to remove an external binary: xhtml2pdf replaced
+# headless Chrome for `assessment render`, and py7zr replaced the shell
+# extractors for `.7z` in `assessment grade preprocess`. xhtml2pdf also brings
+# reportlab, which `material export pdf` draws slides with.
+#
+# python-pptx writes a deck into the FSA template for `material export pptx`;
+# it is pure Python, and its own dependencies (lxml, Pillow) ship wheels.
 xhtml2pdf>=0.2.16,<0.3
 py7zr>=0.20,<2
+python-pptx>=1.0,<2

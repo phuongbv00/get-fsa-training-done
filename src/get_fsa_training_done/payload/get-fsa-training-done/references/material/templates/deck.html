@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Topic Title</title>
+<meta name="fsa:kind" content="deck">
+<meta name="fsa:module" content="Module Name">
+<meta name="fsa:session" content="1">
+<meta name="fsa:objectives" content="CODE-K1 CODE-K2">
+<meta name="fsa:minutes" content="60">
+<link rel="stylesheet" href="_theme/fsa.css">
+<script src="_theme/deck.js" defer></script>
+</head>
+<body class="fsa-deck">
+<!-- Skeleton: cover, toc, objectives; then per section a section cover, its
+     content slides and at least one check slide; then summary and closing.
+     Every layout and slot is listed in references/material/layouts.md. -->
+
+<section class="slide" data-layout="cover">
+  <h1 data-slot="title">Module Name</h1>
+  <p data-slot="lesson">Lesson N · Topic Title</p>
+  <p data-slot="date">FSA · Session N</p>
+</section>
+
+<!-- Left empty: the viewer and the exporter list the section covers. -->
+<section class="slide" data-layout="toc"></section>
+
+<section class="slide" data-layout="objectives">
+  <div data-slot="body">
+    <p>After this lesson, you can:</p>
+    <ul>
+      <li data-objective="CODE-K1">Verb-initial outcome</li>
+      <li data-objective="CODE-K2">Verb-initial outcome</li>
+    </ul>
+  </div>
+  <aside class="notes">What the trainer says: why these outcomes matter and how the
+  lesson gets there. At least fifteen words on every objectives and content slide.</aside>
+</section>
+
+<section class="slide" data-layout="section">
+  <h2 data-slot="title">First Section</h2>
+  <p data-slot="subtitle">One line of framing</p>
+</section>
+
+<!-- One idea per slide: a title that states the point, then the evidence. -->
+<section class="slide" data-layout="content">
+  <h2 data-slot="title">A title that states the point</h2>
+  <div data-slot="body">
+    <ul>
+      <li>At most six items, two levels deep
+        <ul><li>a detail under its point</li></ul>
+      </li>
+      <li>Code is at most twelve lines: <code>inline</code> or a block</li>
+    </ul>
+  </div>
+  <aside class="notes">The explanation the slide compresses, in the trainer's words.</aside>
+</section>
+
+<!-- A wrong/right pair, or code beside its output. -->
+<section class="slide" data-layout="two-content">
+  <h2 data-slot="title">Prefer the right form</h2>
+  <div data-slot="left">
+    <pre class="wrong"><code class="language-java">// the common mistake</code></pre>
+  </div>
+  <div data-slot="right">
+    <pre class="right"><code class="language-java">// the fix</code></pre>
+  </div>
+  <aside class="notes">Ask the room what goes wrong on the left before revealing the right.</aside>
+</section>
+
+<!-- A retrieval question after each section, its answer folded away. -->
+<section class="slide" data-layout="content" data-role="check">
+  <h2 data-slot="title">A question for the room</h2>
+  <div data-slot="body">
+    <p>The scenario or code to reason about.</p>
+    <details><summary>Answer</summary><p>The answer, and why.</p></details>
+  </div>
+  <aside class="notes">Give thirty seconds before revealing; ask two people for their reasoning.</aside>
+</section>
+
+<section class="slide" data-layout="summary">
+  <div data-slot="body">
+    <ul>
+      <li data-objective="CODE-K1">The main point that closes CODE-K1</li>
+      <li data-objective="CODE-K2">The main point that closes CODE-K2</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide" data-layout="closing"></section>
+
+</body>
+</html>

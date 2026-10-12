@@ -8,14 +8,13 @@ would notice.
 
 from __future__ import annotations
 
+import html
 import re
 from pathlib import Path
 
-from . import notes
+from . import dom, i18n
 from .grammar import APPENDIX_INDEX, HANDBOOK_INDEX, NOTE_FILENAME
 
-MAP_HEADING = "## A. Full Syllabus Map"
-NEXT_HEADING = re.compile(r"^## [B-Z]\. ", re.MULTILINE)
 OUTLINE_HEADING = "### 7. Topic Outline"
 TIME_HEADING = "### 8. Time Allocation"
 
@@ -33,66 +32,69 @@ def outline_items(syllabus_text: str) -> list[str]:
     ]
 
 
+MAP_SECTION = re.compile(
+    r'(<section\b[^>]*data-part="syllabus-map"[^>]*>)(.*?)(</section>)', re.DOTALL
+)
+
+
 def teaching_notes(directory: Path) -> list[Path]:
     found = []
-    for path in sorted(directory.glob("*.md")):
+    for path in sorted(directory.glob("*.html")):
         match = NOTE_FILENAME.match(path.name)
         if match and match.group(1) not in (HANDBOOK_INDEX, APPENDIX_INDEX):
             found.append(path)
     return found
 
 
-def _score(item: str, note: notes.Note) -> tuple[int, str]:
-    """How well a note covers an outline item, and which heading covers it best.
+def _words(text: str) -> set[str]:
+    return {word for word in re.findall(r"[a-z]+", text.lower()) if len(word) > 3}
 
-    Word overlap rather than anything cleverer: the outline and the headings are
-    written by the same person about the same thing, and a wrong guess costs a
-    link the author will correct, not a silent error.
-    """
-    words = {word for word in re.findall(r"[a-z]+", item.lower()) if len(word) > 3}
+
+def _score(item: str, document: dom.Document) -> tuple[int, str]:
+    """Like `_score`, against the note's title and its parts' headings and ids."""
+    words = _words(item)
     if not words:
         return 0, ""
-    best = (0, "")
-    for heading in note.headings:
-        if heading.level not in (1, 2):
+    best = (len(words & _words(document.title)), "")
+    for section in document.body.find_all("section"):
+        heading = section.find("h2")
+        if heading is None or not section.get("id"):
             continue
-        target = {word for word in re.findall(r"[a-z]+", heading.text.lower()) if len(word) > 3}
-        overlap = len(words & target)
+        overlap = len(words & _words(heading.text()))
         if overlap > best[0]:
-            best = (overlap, heading.slug())
+            best = (overlap, section.get("id"))
     return best
 
 
-def render(syllabus_text: str, directory: Path) -> str:
-    """The `## A. Full Syllabus Map` section body."""
-    parsed = [(path, notes.parse(path)) for path in teaching_notes(directory)]
-    lines = []
+def render(syllabus_text: str, directory: Path, lang: str = "en") -> str:
+    """The syllabus-map section's content: a heading and a checklist of links."""
+    parsed = [(path, dom.parse(path)) for path in teaching_notes(directory)]
+    heading = html.escape(i18n.t(lang, "Full Syllabus Map"))
+    lines = ["", f"  <h2>{heading}</h2>", '  <ul class="checklist">']
     for item in outline_items(syllabus_text):
-        best_path, best_slug, best_score = None, "", 0
-        for path, note in parsed:
-            score, slug = _score(item, note)
+        best_path, best_id, best_score = None, "", 0
+        for path, document in parsed:
+            score, anchor = _score(item, document)
             if score > best_score:
-                best_path, best_slug, best_score = path, slug, score
+                best_path, best_id, best_score = path, anchor, score
+        label = html.escape(item)
         if best_path is None:
-            lines.append(f"- [ ] {item}")
+            lines.append(f"    <li>{label}</li>")
         else:
             index = NOTE_FILENAME.match(best_path.name).group(1)
-            anchor = f"#{best_slug}" if best_slug else ""
-            lines.append(f"- [ ] {item} → [{index}]({best_path.name}{anchor})")
-    return "\n".join(lines)
+            href = best_path.name + (f"#{best_id}" if best_id else "")
+            lines.append(f'    <li>{label} → <a href="{href}">{index}</a></li>')
+    lines.append("  </ul>")
+    return "\n".join(lines) + "\n"
 
 
 def patch(text: str, body: str) -> str:
-    """Replace the map section, leaving the rest of the appendix alone."""
     from get_fsa_training_done.errors import UsageError
 
-    start = text.find(MAP_HEADING)
-    if start < 0:
-        raise UsageError(f"the appendix has no {MAP_HEADING!r} section")
-    after = start + len(MAP_HEADING)
-    match = NEXT_HEADING.search(text, after)
-    end = match.start() if match else len(text)
-    return f"{text[:after]}\n\n{body}\n\n{text[end:]}" if match else f"{text[:after]}\n\n{body}\n"
+    match = MAP_SECTION.search(text)
+    if match is None:
+        raise UsageError('the appendix has no <section data-part="syllabus-map">')
+    return text[: match.start(2)] + body + text[match.end(2) :]
 
 
-__all__ = ["MAP_HEADING", "outline_items", "patch", "render", "teaching_notes"]
+__all__ = ["outline_items", "patch", "render", "teaching_notes"]

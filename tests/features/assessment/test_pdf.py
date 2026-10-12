@@ -17,7 +17,7 @@ import unicodedata
 import pytest
 
 from get_fsa_training_done.features.assessment.core import html as html_mod
-from get_fsa_training_done.features.assessment.core import pdf as pdf_mod
+from get_fsa_training_done.features.common.render import pdf as pdf_mod
 
 pytest.importorskip("xhtml2pdf")
 pypdf = pytest.importorskip("pypdf")
