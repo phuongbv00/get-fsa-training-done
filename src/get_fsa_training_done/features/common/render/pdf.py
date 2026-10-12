@@ -46,9 +46,16 @@ def link_callback(uri: str, rel: str = "") -> str:
     that is not one of ours is handed back untouched; the document is otherwise
     self-contained, so there is nothing else to fetch.
     """
-    candidate = FONT_DIR / Path(uri).name
-    if candidate.is_file():
-        return str(candidate)
+    # An inlined image is not a file name: its base64 can hold a run of 255+
+    # characters with no `/`, which Linux refuses to even stat (ENAMETOOLONG).
+    if uri.startswith("data:") or "://" in uri:
+        return uri
+    try:
+        candidate = FONT_DIR / Path(uri).name
+        if candidate.is_file():
+            return str(candidate)
+    except OSError:
+        pass
     return uri
 
 

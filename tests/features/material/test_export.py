@@ -251,6 +251,23 @@ def test_a_note_pdf_draws_each_of_its_images(module, edit):
     assert len({hashlib.sha256(s).hexdigest() for s in streams}) >= 3
 
 
+def test_an_inlined_image_is_never_looked_up_as_a_font(monkeypatch):
+    """xhtml2pdf 0.2.22 hands data URIs to the link callback, and a flat-colour
+    PNG's base64 has runs of 255+ characters with no `/`: Linux refused to stat
+    that as a font file name, and the export failed (ENAMETOOLONG)."""
+    from pathlib import Path
+
+    from get_fsa_training_done.features.common.render import pdf as pdf_mod
+
+    def refuse(self):
+        raise OSError(36, "File name too long")
+
+    monkeypatch.setattr(Path, "is_file", refuse)
+    uri = "data:image/png;base64,iVBOR/" + "A" * 300
+    assert pdf_mod.link_callback(uri) == uri
+    assert pdf_mod.link_callback("x" * 300 + ".ttf") == "x" * 300 + ".ttf"
+
+
 def test_a_note_pdf_sets_a_caption_under_its_picture(module):
     """Without block rules a figure's caption ran on beside its image."""
     from get_fsa_training_done.features.material.core import export_pdf
