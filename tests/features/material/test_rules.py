@@ -588,14 +588,14 @@ def test_x06_a_document_with_no_pdf_is_not_handed_out(module, capsys):
     assert _handout(module) == 1
     found = json.loads(capsys.readouterr().out)["findings"]
     assert {f["rule"] for f in found} == {"MAT-X06"}
-    assert {f["where"] for f in found} == {NOTE, LAB}
+    assert {f["where"] for f in found} == {DECK, NOTE, LAB}
 
 
 def test_x06_a_pdf_older_than_its_html_is_refused(module, capsys):
     import json
     import os
 
-    for name in (NOTE, LAB):
+    for name in (DECK, NOTE, LAB):
         (module / name).with_suffix(".pdf").write_bytes(b"%PDF-1.4")
     os.utime(module / LAB, None)  # edited after its export
     old = (module / LAB).stat().st_mtime - 60
@@ -605,13 +605,15 @@ def test_x06_a_pdf_older_than_its_html_is_refused(module, capsys):
     found = json.loads(capsys.readouterr().out)["findings"]
     assert [f["where"] for f in found if f["rule"] == "MAT-X06"] == [LAB]
     assert (module / "handout" / "dbf_lecture_note.pdf").is_file()
+    assert (module / "handout" / "01_Relational_Modelling.deck.pdf").is_file()
     assert not (module / "handout" / "dbf_lab_01.pdf").exists()
 
 
-def test_x07_a_deck_in_the_handout_warns_and_prune_removes_it(module, capsys):
+def test_x07_a_pptx_in_the_handout_warns_and_prune_removes_it(module, capsys):
+    """Trainees get the slides as a PDF; the .pptx is the trainer's."""
     import json
 
-    for name in (NOTE, LAB):
+    for name in (DECK, NOTE, LAB):
         (module / name).with_suffix(".pdf").write_bytes(b"%PDF-1.4")
     (module / "handout").mkdir()
     (module / "handout" / "01_Relational_Modelling.deck.pptx").write_bytes(b"pptx")
@@ -621,6 +623,7 @@ def test_x07_a_deck_in_the_handout_warns_and_prune_removes_it(module, capsys):
     assert [f["rule"] for f in found] == ["MAT-X07"]
     assert _handout(module, "--prune") == 0
     assert sorted(p.name for p in (module / "handout").iterdir()) == [
+        "01_Relational_Modelling.deck.pdf",
         "dbf_lab_01.pdf",
         "dbf_lecture_note.pdf",
     ]

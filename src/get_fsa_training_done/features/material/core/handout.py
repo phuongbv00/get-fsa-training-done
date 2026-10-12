@@ -1,8 +1,8 @@
-"""What a trainee is handed: the lecture note and the labs, as PDFs.
+"""What a trainee is handed: the slides, the lecture note and the labs, as PDFs.
 
-A deck is the trainer's — presented in the room, never sent — so neither its
-`.pptx` nor its `.pdf` is in the hand-out. The PDFs are copies: the HTML stays
-the source, and a PDF older than it is an export that has not been re-run.
+A deck's `.pptx` is the trainer's, to present from; trainees get its `.pdf`.
+The PDFs are copies: the HTML stays the source, and a PDF older than it is an
+export that has not been re-run.
 """
 
 from __future__ import annotations
@@ -14,8 +14,8 @@ from get_fsa_training_done.features.common.findings import Report
 
 from . import grammar
 
-#: The kinds a trainee reads: everything but the trainer's decks.
-HANDOUT_KINDS = (grammar.NOTE, grammar.LAB, grammar.WORKSHEET)
+#: The kinds a trainee is sent, as PDFs; only a deck's `.pptx` stays with the trainer.
+HANDOUT_KINDS = (grammar.DECK, grammar.NOTE, grammar.LAB, grammar.WORKSHEET)
 DEFAULT_FOLDER = "handout"
 
 
@@ -66,8 +66,8 @@ def build(directory: Path, out: Path, report: Report, *, prune: bool = False) ->
         report.warn(
             "MAT-X07",
             where,
-            f"{path.name} is not part of the hand-out — trainees get the lecture note and "
-            "the labs, not the decks; `--prune` removes it",
+            f"{path.name} is not part of the hand-out — trainees get the slides, the lecture "
+            "note and the labs as PDFs, never a .pptx; `--prune` removes it",
         )
     return {
         "hand-out files": len(wanted),

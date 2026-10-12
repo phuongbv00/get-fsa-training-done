@@ -52,8 +52,8 @@ lecture note is handed out as its HTML and that PDF only.
    FSA material handout --dir "<materials_dir>"
    ```
 
-   It copies the lecture note's, labs' and worksheets' PDFs into
-   `<materials_dir>/handout/`; decks are the trainer's and stay out. `MAT-X06`
+   It copies the decks', lecture note's, labs' and worksheets' PDFs into
+   `<materials_dir>/handout/`; a deck's `.pptx` stays with the trainer. `MAT-X06`
    is a document whose PDF is missing or older than its HTML — export it again;
    `MAT-X07` a file in the folder that is not part of the hand-out (`--prune`
    removes it).

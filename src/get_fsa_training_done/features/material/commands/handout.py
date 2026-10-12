@@ -1,8 +1,8 @@
 """`gftd material handout` — gather what a trainee is handed.
 
-The lecture note's and the labs' PDFs, copied into one folder to send. The
-decks stay with the trainer. A document with no PDF, or one older than its
-HTML, is refused rather than handed out stale.
+The decks', the lecture note's and the labs' PDFs, copied into one folder to
+send; a deck's `.pptx` stays with the trainer. A document with no PDF, or one
+older than its HTML, is refused rather than handed out stale.
 """
 
 from __future__ import annotations
@@ -19,10 +19,10 @@ from ..core import handout as handout_mod
 def add_parser(subparsers: argparse._SubParsersAction) -> None:
     parser = subparsers.add_parser(
         "handout",
-        help="copy the lecture note's and labs' PDFs into the folder sent to trainees",
+        help="copy the slides', lecture note's and labs' PDFs into the folder sent to trainees",
         description=(
-            "Copy every lecture note, lab and worksheet PDF of a module into one folder. "
-            "Decks are the trainer's and are left out; a missing or stale PDF is reported."
+            "Copy every deck, lecture note, lab and worksheet PDF of a module into one "
+            "folder. A deck's .pptx is the trainer's; a missing or stale PDF is reported."
         ),
     )
     parser.add_argument("--dir", required=True, dest="directory", help="the materials folder")

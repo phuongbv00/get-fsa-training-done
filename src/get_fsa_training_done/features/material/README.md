@@ -181,9 +181,8 @@ gftd material handout --dir ./Lectures            # fills ./Lectures/handout/
 gftd material handout --dir ./Lectures --prune    # and removes anything else in it
 ```
 
-Copies the lecture note's, labs' and worksheets' PDFs into one folder. Decks are
-the trainer's, presented in the room: neither their `.pptx` nor their `.pdf` is
-sent. A document with no PDF, or one older than its HTML, is refused
+Copies the decks', lecture note's, labs' and worksheets' PDFs into one folder.
+A deck's `.pptx` is the trainer's, to present from, and is never sent. A document with no PDF, or one older than its HTML, is refused
 (`MAT-X06`); a file in the folder that is not part of the hand-out is reported
 (`MAT-X07`).
 

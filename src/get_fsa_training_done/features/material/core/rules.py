@@ -417,7 +417,7 @@ RULES: tuple[Rule, ...] = (
         "export",
         ERROR,
         "Every document handed to trainees has its current PDF",
-        "`material handout` copies the lecture note's and the labs' PDFs. A document "
+        "`material handout` copies the decks', the lecture note's and the labs' PDFs. A document "
         "with no PDF, or one older than its HTML, would hand trainees nothing or last "
         "week's version, so it is refused until it is exported again.",
     ),
@@ -426,9 +426,9 @@ RULES: tuple[Rule, ...] = (
         "export",
         WARNING,
         "The hand-out holds only what a trainee is given",
-        "Trainees get the lecture note and the labs; the decks — `.pptx` and their "
-        "`.pdf` — are the trainer's, presented in the room. Anything else in the "
-        "hand-out folder would be sent with it.",
+        "Trainees get the slides, the lecture note and the labs as PDFs; a deck's "
+        "`.pptx` is the trainer's, to present from. Anything else in the hand-out "
+        "folder would be sent with it.",
     ),
     Rule(
         "MAT-C01",
