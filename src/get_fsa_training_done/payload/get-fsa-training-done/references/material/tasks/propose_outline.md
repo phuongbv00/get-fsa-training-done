@@ -47,7 +47,8 @@ approval of each. No files.
 
 - The slide budget: minutes ÷ slides, inside the 1.5–6 minutes a slide `verify`
   allows.
-- Per slide, in order: number · `data-layout` · the title as a statement · one
+- Per slide, in order: number · `data-layout` · the title as a statement, within
+  its layout's character budget in `references/material/layouts.md` · one
   line on what it says · **the illustration it shows** (a diagram to draw, a
   screenshot, a table of rows, code) or "none" · for a check slide, the
   question and its answer. Every section has at least one illustration.

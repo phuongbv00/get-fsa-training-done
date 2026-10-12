@@ -355,6 +355,17 @@ RULES: tuple[Rule, ...] = (
         "back to. Each section carries at least one.",
     ),
     Rule(
+        "MAT-S13",
+        "deck",
+        WARNING,
+        "A picture is drawn for its slot",
+        "A picture scaled to fit a slot of another shape leaves the slot part empty, "
+        "and the text in it shrinks with it: a 3:2 drawing in `content-picture`'s "
+        "near-square slot is cut to two thirds, its 15-unit labels to 7pt. Draw at "
+        "the slot's shape (`references/material/layouts.md` gives each box) so the "
+        "picture fills 60% or more of it and its smallest text is 12pt on the slide.",
+    ),
+    Rule(
         "MAT-X01",
         "export",
         WARNING,
@@ -391,6 +402,33 @@ RULES: tuple[Rule, ...] = (
         "patterns, text paths or HTML inside the SVG. Each would vanish from the slide "
         "handed out while the browser still shows it: draw an arrowhead as a polygon, "
         "and leave out the shadow.",
+    ),
+    Rule(
+        "MAT-X05",
+        "export",
+        WARNING,
+        "A line of code fits the printed page",
+        "The PDF writer neither wraps nor shrinks a code block: a line past the page's "
+        "width (about 95 characters, fewer inside a list) is cut at the margin while "
+        "everything still passes. Break the line where the language allows.",
+    ),
+    Rule(
+        "MAT-X06",
+        "export",
+        ERROR,
+        "Every document handed to trainees has its current PDF",
+        "`material handout` copies the lecture note's and the labs' PDFs. A document "
+        "with no PDF, or one older than its HTML, would hand trainees nothing or last "
+        "week's version, so it is refused until it is exported again.",
+    ),
+    Rule(
+        "MAT-X07",
+        "export",
+        WARNING,
+        "The hand-out holds only what a trainee is given",
+        "Trainees get the lecture note and the labs; the decks — `.pptx` and their "
+        "`.pdf` — are the trainer's, presented in the room. Anything else in the "
+        "hand-out folder would be sent with it.",
     ),
     Rule(
         "MAT-C01",

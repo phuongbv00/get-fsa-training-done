@@ -22,6 +22,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from get_fsa_training_done.features.material.core import i18n  # noqa: E402
 from get_fsa_training_done.features.material.core import layouts as L  # noqa: E402
+from get_fsa_training_done.features.material.core.checks import MIN_FIT  # noqa: E402
 
 PACKAGE = ROOT / "src" / "get_fsa_training_done"
 CSS = PACKAGE / "features" / "material" / "theme" / "layouts.css"
@@ -246,19 +247,32 @@ def render_md() -> str:
         lines += ["", f"### `{layout.name}`", "", layout.summary, ""]
         if not layout.slots:
             continue
-        lines.append("| `data-slot` | Holds | Required | Limit | Size |")
-        lines.append("|---|---|---|---|---|")
+        lines.append("| `data-slot` | Holds | Required | Limit | Size | Box (pt) |")
+        lines.append("|---|---|---|---|---|---|")
         for slot in layout.slots:
             required = (
                 "yes" if slot.required else (f"default: {slot.default}" if slot.default else "no")
             )
-            limit = (
-                f"{slot.max_items} items"
-                if slot.max_items
-                else ("shrinks to fit" if slot.fits else "—")
-            )
+            if slot.max_items:
+                limit = f"{slot.max_items} items"
+            elif slot.fits:
+                # The same estimate `verify` measures MAT-S10 with.
+                limit = (
+                    f"≈{L.title_budget(slot)} characters at full size, "
+                    f"≈{L.title_budget(slot, MIN_FIT)} before `MAT-S10`"
+                )
+            else:
+                limit = "—"
             size = f"{slot.size} pt" if slot.size else "—"
-            lines.append(f"| `{slot.name}` | {slot.kind} | {required} | {limit} | {size} |")
+            box = f"{slot.box.width_pt:.0f} × {slot.box.height_pt:.0f}"
+            lines.append(f"| `{slot.name}` | {slot.kind} | {required} | {limit} | {size} | {box} |")
+        if layout.role == L.TOC:
+            lines += [
+                "",
+                f"A row holds ≈{L.toc_budget()} characters of a section title on one line "
+                "and never shrinks it: a longer one wraps onto a second line in the `.pptx`, "
+                "and is reported (`MAT-S08`).",
+            ]
     return "\n".join(lines) + "\n"
 
 

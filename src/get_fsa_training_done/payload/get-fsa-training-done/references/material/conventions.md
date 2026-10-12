@@ -114,13 +114,19 @@ and `export` draws it to a PNG for the `.pptx` and the `.pdf` — no tool to run
   dark page too.
 - **Type**: `font-family="sans-serif"` on the root, or `monospace` for code;
   the export draws them in the module's own fonts, so Vietnamese keeps its
-  diacritics. Text no smaller than 14 at a 600-wide `viewBox`.
+  diacritics. No text below 12pt on the slide (`MAT-S13`): at a 400-wide
+  `viewBox` in `content-picture`, `font-size` 18 or more.
 - **Shapes only**: rectangles, circles, lines, paths, polygons, text and
   groups. No `<marker>` (draw an arrowhead as a small `<polygon>`), filters,
   masks, patterns, text paths or HTML inside — the export cannot draw them and
   they vanish from the file handed out (`MAT-X04`).
-- One idea per drawing, labelled in the lesson's words, with a `viewBox`
-  close to the slot's shape: about 3:2 beside a body, 2:1 for a whole slide.
+- **Draw at the slot's shape** (`MAT-S13`): `references/material/layouts.md`
+  gives every slot's box. `content-picture`'s picture is near square (285 × 298
+  pt — a `viewBox` of 400 × 420); `title-only`'s canvas is wide (655 × 299 pt —
+  about 880 × 400). A drawing of another shape is shrunk to fit, leaving the
+  slot part empty and its text too small.
+- One idea per drawing, labelled in the lesson's words; at most about five
+  boxes, and detail left to the speaker notes.
 - Every `<img>` says what it shows in `alt` (`MAT-D24`).
 
 ## A running domain

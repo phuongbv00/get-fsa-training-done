@@ -48,7 +48,10 @@ No Prerequisites, no global Constraints, no rules section. A constraint goes in
 the task it constrains, where the trainee reads it at the moment it matters.
 The banner carries only Code, Level, Duration and Topics.
 
-**Problem Statement.** Under half a page. One or two sentences of business
+**Problem Statement.** A theory exam's is one line — "Answer the interview
+questions below." (`_vn`: "Trả lời các câu hỏi phỏng vấn bên dưới.") — with no
+scoring hints or per-question instructions: how deep an answer must go lives in
+the rubric's bands. Every other brief's: under half a page. One or two sentences of business
 setting, one clause naming the technical shape ("a REST API over a relational
 database"), then the defining rules as **bullets**. Field lists, endpoint tables
 and status codes belong in the tasks. When the input is a conversation — a

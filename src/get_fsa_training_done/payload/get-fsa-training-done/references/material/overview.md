@@ -47,6 +47,7 @@ and it belongs to the assessment feature. Say so rather than writing it here.
 | `FSA material coverage --schedule CSV --dir DIR` | what the plan asks for versus what exists |
 | `FSA material derive syllabus-map --syllabus MD --note HTML --write` | rebuild the lecture note's syllabus map |
 | `FSA material export pptx\|pdf FILE` | derive the `.pptx` (a deck) or `.pdf` from the HTML |
+| `FSA material handout --dir DIR` | copy the lecture note's and labs' PDFs into `DIR/handout/`, the folder sent to trainees |
 
 ## Standing rules
 
@@ -72,6 +73,9 @@ and it belongs to the assessment feature. Say so rather than writing it here.
   cleanly.
 - **Exports are outputs.** Never edit a `.pptx` or `.pdf` by hand; change the
   HTML and export again.
+- **Decks stay with the trainer.** Trainees are handed the lecture note and the
+  labs as PDFs — never a deck's `.pptx` or `.pdf`. `FSA material handout`
+  gathers exactly those, refusing a PDF older than its HTML.
 - **One declared language per module.** `<html lang>` says it — `en` by
   default, `vi` for a module written in Vietnamese — and the theme and the
   exporters write their own words in it. A translation of an English original

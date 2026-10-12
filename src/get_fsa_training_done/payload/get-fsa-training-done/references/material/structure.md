@@ -253,6 +253,7 @@ Applied to a deck, against the FSA template.
 | `MAT-S10` | warning | A title or short text keeps close to the template's size |
 | `MAT-S11` | warning | A content slide fills its space |
 | `MAT-S12` | warning | Every section shows something, not only tells |
+| `MAT-S13` | warning | A picture is drawn for its slot |
 
 ### `MAT-S01` — The deck follows the template's order
 
@@ -302,10 +303,14 @@ Measured as `export pdf` lays the slide out (`--min-fill`, 60% by default): thre
 
 A section of bullets is heard and forgotten; a diagram, a screenshot, a table of real rows or code beside its output is what a trainee remembers and comes back to. Each section carries at least one.
 
+### `MAT-S13` — A picture is drawn for its slot
+
+A picture scaled to fit a slot of another shape leaves the slot part empty, and the text in it shrinks with it: a 3:2 drawing in `content-picture`'s near-square slot is cut to two thirds, its 15-unit labels to 7pt. Draw at the slot's shape (`references/material/layouts.md` gives each box) so the picture fills 60% or more of it and its smallest text is 12pt on the slide.
+
 
 ## Rules — exporting
 
-Applied by `export`, and by `verify --export`: what a .pptx or .pdf cannot carry.
+Applied by `export`, `handout` and `verify --export`: what a .pptx or .pdf cannot carry, and what reaches trainees.
 
 | Rule | Severity | Checks |
 |---|---|---|
@@ -313,6 +318,9 @@ Applied by `export`, and by `verify --export`: what a .pptx or .pdf cannot carry
 | `MAT-X02` | warning | Every slot's content fits its placeholder |
 | `MAT-X03` | warning | Every image an export embeds is a PNG, JPEG, GIF or SVG inside the module |
 | `MAT-X04` | warning | An SVG uses only what the exporters can draw |
+| `MAT-X05` | warning | A line of code fits the printed page |
+| `MAT-X06` | error | Every document handed to trainees has its current PDF |
+| `MAT-X07` | warning | The hand-out holds only what a trainee is given |
 
 ### `MAT-X01` — A diagram exported to a file has a rendered image
 
@@ -329,6 +337,18 @@ PowerPoint and the PDF writer place raster images: an SVG is drawn to a PNG for 
 ### `MAT-X04` — An SVG uses only what the exporters can draw
 
 The export draws an SVG with svglib, which has no markers, filters, masks, patterns, text paths or HTML inside the SVG. Each would vanish from the slide handed out while the browser still shows it: draw an arrowhead as a polygon, and leave out the shadow.
+
+### `MAT-X05` — A line of code fits the printed page
+
+The PDF writer neither wraps nor shrinks a code block: a line past the page's width (about 95 characters, fewer inside a list) is cut at the margin while everything still passes. Break the line where the language allows.
+
+### `MAT-X06` — Every document handed to trainees has its current PDF
+
+`material handout` copies the lecture note's and the labs' PDFs. A document with no PDF, or one older than its HTML, would hand trainees nothing or last week's version, so it is refused until it is exported again.
+
+### `MAT-X07` — The hand-out holds only what a trainee is given
+
+Trainees get the lecture note and the labs; the decks — `.pptx` and their `.pdf` — are the trainer's, presented in the room. Anything else in the hand-out folder would be sent with it.
 
 
 ## Rules — material against the session plan
@@ -360,4 +380,4 @@ A code the syllabus does not list is a typo or a missing objective.
 
 ---
 
-45 rules: 21 errors, 24 warnings.
+49 rules: 22 errors, 27 warnings.

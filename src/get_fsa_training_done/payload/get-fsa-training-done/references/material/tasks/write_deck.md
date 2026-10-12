@@ -41,6 +41,10 @@ condenses the theory of every deck into one file to revise from.
    its slot shrinks in steps, the same in the browser, the `.pptx` and the
    `.pdf`. Keep titles short enough to stay near the template's size: `MAT-S10`
    reports one shrunk below 70%, and `MAT-S08` one that does not fit at all.
+   `references/material/layouts.md` gives each title's budget — about 32
+   characters on the content layouts — and a section title must also fit one
+   table-of-contents row, about 30, or it wraps there. Vietnamese runs long:
+   count before writing.
    At most six items, two levels deep; at most twelve lines of code, each short
    enough for its column. Use `two-content` with `pre class="wrong"`/`"right"` for a
    common mistake, and the box, column and row layouts for three or four parallel

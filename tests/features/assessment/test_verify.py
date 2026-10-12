@@ -81,6 +81,24 @@ def test_canonical_brief_and_rubric_pass(long_form_pair):
     assert result.errors == []
 
 
+def test_a_code_line_the_rendered_page_cuts_warns(long_form_pair, tmp_path):
+    """The renderer neither wraps nor shrinks code: a long line is cut at the margin."""
+    brief, rubric = long_form_pair
+    long_line = "    " + "x" * (long_form.MAX_CODE_COLUMNS + 4)
+    edited = tmp_path / "edited"
+    edited.mkdir()
+    copy = edited / brief.name
+    copy.write_text(
+        brief.read_text(encoding="utf-8") + f"\n```java\n{long_line}\n```\n", encoding="utf-8"
+    )
+    (edited / rubric.name).write_text(rubric.read_text(encoding="utf-8"), encoding="utf-8")
+    result = verify_long_form(copy, edited / rubric.name)
+    assert any("the rendered PDF cuts it" in warning for warning in result.warnings)
+    assert not any(
+        "the rendered PDF cuts it" in w for w in verify_long_form(*long_form_pair).warnings
+    )
+
+
 def test_canonical_capstone_trio_passes(capstone_trio):
     result = verify_capstone(*capstone_trio)
     assert result.errors == []

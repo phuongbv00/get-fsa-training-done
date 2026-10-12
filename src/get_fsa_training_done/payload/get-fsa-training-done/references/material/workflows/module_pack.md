@@ -17,7 +17,7 @@ module, so it is written once, after the decks.
 | 8 | `references/material/tasks/coverage.md` | no `MAT-C01` left |
 | 9 | `references/material/tasks/review_for_trainee.md` | before publishing |
 | 10 | `references/material/tasks/verify.md` | the whole folder, with `--export` |
-| 11 | `references/material/tasks/export.md` | the `.pptx` and `.pdf` handed out; the note as `.pdf` only |
+| 11 | `references/material/tasks/export.md` | the decks' `.pptx` and `.pdf` for the trainer; the note and labs as `.pdf`, gathered by `handout` for trainees |
 
 Steps 3–5 repeat per lesson. Never write a lesson's files before their outlines
 are approved, and never take one lesson's approval as the next one's.

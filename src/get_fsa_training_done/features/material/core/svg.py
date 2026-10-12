@@ -77,6 +77,66 @@ def unsupported(path: Path) -> list[str]:
     return list(found.values())
 
 
+LENGTH = re.compile(r"^\s*([0-9.]+)\s*(px|pt)?\s*$")
+FONT_SIZE_CSS = re.compile(r"font-size\s*:\s*([0-9.]+)\s*(px|pt)?")
+
+
+def _length(value: str | None) -> float | None:
+    match = LENGTH.match(value or "")
+    if not match:
+        return None
+    number = float(match.group(1))
+    return number * 4 / 3 if match.group(2) == "pt" else number
+
+
+def natural_size(path: Path) -> tuple[float, float] | None:
+    """An image's own width and height: an SVG's `viewBox` (or its width and
+    height), a raster image's pixels. None when it cannot be told."""
+    if path.suffix.lower() == ".svg":
+        try:
+            root = ET.parse(path).getroot()
+        except (ET.ParseError, OSError):
+            return None
+        box = (root.get("viewBox") or "").replace(",", " ").split()
+        if len(box) == 4:
+            width, height = float(box[2]), float(box[3])
+        else:
+            width, height = _length(root.get("width")), _length(root.get("height"))
+        return (width, height) if width and height else None
+    try:
+        from PIL import Image
+
+        with Image.open(path) as image:
+            return float(image.width), float(image.height)
+    except Exception:  # Pillow raises its own kinds for a file it cannot read
+        return None
+
+
+def smallest_text(path: Path) -> float | None:
+    """The smallest font size an SVG sets on text it draws, in its own units.
+    Text with no size of its own is drawn at 16, the browser's default."""
+    try:
+        root = ET.parse(path).getroot()
+    except (ET.ParseError, OSError):
+        return None
+    sizes: list[float] = []
+
+    def walk(element: ET.Element, inherited: float) -> None:
+        size = _length(element.get("font-size"))
+        css = FONT_SIZE_CSS.search(element.get("style") or "")
+        if css:
+            size = _length(css.group(1) + (css.group(2) or ""))
+        size = size or inherited
+        tag = element.tag.removeprefix(SVG_NS) if isinstance(element.tag, str) else ""
+        if tag in ("text", "tspan") and "".join(element.itertext()).strip():
+            sizes.append(size)
+        for child in element:
+            walk(child, size)
+
+    walk(root, 16.0)
+    return min(sizes) if sizes else None
+
+
 def _cache() -> Path:
     base = os.environ.get("XDG_CACHE_HOME") or tempfile.gettempdir()
     folder = Path(base) / "get-fsa-training-done" / "svg"
@@ -136,4 +196,11 @@ def _register_svg_fonts() -> None:
         fonts.register_font(family, str(pdf_mod.FONT_DIR / file), weight=weight, rlgFontName=name)
 
 
-__all__ = ["UNSUPPORTED", "normalise_fonts", "to_png", "unsupported"]
+__all__ = [
+    "UNSUPPORTED",
+    "natural_size",
+    "normalise_fonts",
+    "smallest_text",
+    "to_png",
+    "unsupported",
+]

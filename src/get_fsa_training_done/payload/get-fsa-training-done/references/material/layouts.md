@@ -63,203 +63,205 @@ then its content slides, at least one of them a check → `summary` →
 
 The first slide: the module, the lesson, where and when.
 
-| `data-slot` | Holds | Required | Limit | Size |
-|---|---|---|---|---|
-| `title` | title | yes | shrinks to fit | 48 pt |
-| `lesson` | text | yes | shrinks to fit | 24 pt |
-| `date` | text | no | shrinks to fit | 9 pt |
+| `data-slot` | Holds | Required | Limit | Size | Box (pt) |
+|---|---|---|---|---|---|
+| `title` | title | yes | ≈28 characters at full size, ≈63 before `MAT-S10` | 48 pt | 395 × 114 |
+| `lesson` | text | yes | ≈26 characters at full size, ≈38 before `MAT-S10` | 24 pt | 333 × 30 |
+| `date` | text | no | ≈42 characters at full size, ≈85 before `MAT-S10` | 9 pt | 104 × 27 |
 
 ### `toc`
 
 Derived from the section covers: write the slide empty, and the viewer and the exporter fill in up to five section titles.
 
-| `data-slot` | Holds | Required | Limit | Size |
-|---|---|---|---|---|
-| `title` | title | default: Table of Contents | shrinks to fit | 40 pt |
+| `data-slot` | Holds | Required | Limit | Size | Box (pt) |
+|---|---|---|---|---|---|
+| `title` | title | default: Table of Contents | ≈24 characters at full size, ≈57 before `MAT-S10` | 40 pt | 243 × 141 |
+
+A row holds ≈30 characters of a section title on one line and never shrinks it: a longer one wraps onto a second line in the `.pptx`, and is reported (`MAT-S08`).
 
 ### `objectives`
 
 Mandatory in the template. What a trainee can do after this lesson, each item citing the objective code it serves.
 
-| `data-slot` | Holds | Required | Limit | Size |
-|---|---|---|---|---|
-| `title` | title | default: Lesson Objectives | shrinks to fit | 36 pt |
-| `body` | body | no | 5 items | 24 pt |
+| `data-slot` | Holds | Required | Limit | Size | Box (pt) |
+|---|---|---|---|---|---|
+| `title` | title | default: Lesson Objectives | ≈22 characters at full size, ≈32 before `MAT-S10` | 36 pt | 446 × 44 |
+| `body` | body | no | 5 items | 24 pt | 655 × 303 |
 
 ### `section`
 
 Opens a section. The number is added from the section's position.
 
-| `data-slot` | Holds | Required | Limit | Size |
-|---|---|---|---|---|
-| `title` | title | yes | shrinks to fit | 48 pt |
-| `subtitle` | text | no | shrinks to fit | 21 pt |
+| `data-slot` | Holds | Required | Limit | Size | Box (pt) |
+|---|---|---|---|---|---|
+| `title` | title | yes | ≈42 characters at full size, ≈85 before `MAT-S10` | 48 pt | 535 × 114 |
+| `subtitle` | text | no | ≈22 characters at full size, ≈32 before `MAT-S10` | 21 pt | 246 × 34 |
 
 ### `content`
 
 The workhorse: a title and one body.
 
-| `data-slot` | Holds | Required | Limit | Size |
-|---|---|---|---|---|
-| `title` | title | yes | shrinks to fit | 36 pt |
-| `body` | body | no | 6 items | 24 pt |
+| `data-slot` | Holds | Required | Limit | Size | Box (pt) |
+|---|---|---|---|---|---|
+| `title` | title | yes | ≈22 characters at full size, ≈32 before `MAT-S10` | 36 pt | 446 × 44 |
+| `body` | body | no | 6 items | 24 pt | 655 × 299 |
 
 ### `two-content`
 
 Two bodies side by side: a comparison, a wrong/right pair, code beside its output.
 
-| `data-slot` | Holds | Required | Limit | Size |
-|---|---|---|---|---|
-| `title` | title | yes | shrinks to fit | 36 pt |
-| `left` | body | no | 5 items | 24 pt |
-| `right` | body | no | 5 items | 24 pt |
+| `data-slot` | Holds | Required | Limit | Size | Box (pt) |
+|---|---|---|---|---|---|
+| `title` | title | yes | ≈22 characters at full size, ≈32 before `MAT-S10` | 36 pt | 446 × 44 |
+| `left` | body | no | 5 items | 24 pt | 302 × 298 |
+| `right` | body | no | 5 items | 24 pt | 302 × 298 |
 
 ### `three-content`
 
 Three bodies side by side.
 
-| `data-slot` | Holds | Required | Limit | Size |
-|---|---|---|---|---|
-| `title` | title | yes | shrinks to fit | 36 pt |
-| `left` | body | no | 4 items | 18 pt |
-| `middle` | body | no | 4 items | 18 pt |
-| `right` | body | no | 4 items | 18 pt |
+| `data-slot` | Holds | Required | Limit | Size | Box (pt) |
+|---|---|---|---|---|---|
+| `title` | title | yes | ≈22 characters at full size, ≈32 before `MAT-S10` | 36 pt | 446 × 44 |
+| `left` | body | no | 4 items | 18 pt | 217 × 299 |
+| `middle` | body | no | 4 items | 18 pt | 215 × 299 |
+| `right` | body | no | 4 items | 18 pt | 215 × 299 |
 
 ### `subtitle-content`
 
 A title, a one-line framing under it, and a body.
 
-| `data-slot` | Holds | Required | Limit | Size |
-|---|---|---|---|---|
-| `title` | title | yes | shrinks to fit | 36 pt |
-| `subtitle` | text | yes | shrinks to fit | 28 pt |
-| `body` | body | no | 5 items | 24 pt |
+| `data-slot` | Holds | Required | Limit | Size | Box (pt) |
+|---|---|---|---|---|---|
+| `title` | title | yes | ≈22 characters at full size, ≈32 before `MAT-S10` | 36 pt | 446 × 44 |
+| `subtitle` | text | yes | ≈46 characters at full size, ≈67 before `MAT-S10` | 28 pt | 657 × 34 |
+| `body` | body | no | 5 items | 24 pt | 655 × 259 |
 
 ### `title-only`
 
 A title and a free canvas: a diagram, a screenshot, a table.
 
-| `data-slot` | Holds | Required | Limit | Size |
-|---|---|---|---|---|
-| `title` | title | yes | shrinks to fit | 36 pt |
-| `canvas` | body | no | 6 items | 24 pt |
+| `data-slot` | Holds | Required | Limit | Size | Box (pt) |
+|---|---|---|---|---|---|
+| `title` | title | yes | ≈22 characters at full size, ≈32 before `MAT-S10` | 36 pt | 446 × 44 |
+| `canvas` | body | no | 6 items | 24 pt | 655 × 299 |
 
 ### `content-picture`
 
 A body beside a picture.
 
-| `data-slot` | Holds | Required | Limit | Size |
-|---|---|---|---|---|
-| `title` | title | yes | shrinks to fit | 36 pt |
-| `body` | body | no | 5 items | 18 pt |
-| `picture` | picture | yes | — | — |
+| `data-slot` | Holds | Required | Limit | Size | Box (pt) |
+|---|---|---|---|---|---|
+| `title` | title | yes | ≈22 characters at full size, ≈32 before `MAT-S10` | 36 pt | 446 × 44 |
+| `body` | body | no | 5 items | 18 pt | 350 × 299 |
+| `picture` | picture | yes | — | — | 285 × 298 |
 
 ### `three-boxes`
 
 Three labelled ideas on coloured cards, each explained under its card's label.
 
-| `data-slot` | Holds | Required | Limit | Size |
-|---|---|---|---|---|
-| `title` | title | yes | shrinks to fit | 32 pt |
-| `heading` | text | no | shrinks to fit | 24 pt |
-| `label-1` | text | yes | shrinks to fit | 20 pt |
-| `label-2` | text | yes | shrinks to fit | 20 pt |
-| `label-3` | text | yes | shrinks to fit | 20 pt |
-| `body-1` | body | no | 4 items | 12 pt |
-| `body-2` | body | no | 4 items | 12 pt |
-| `body-3` | body | no | 4 items | 12 pt |
+| `data-slot` | Holds | Required | Limit | Size | Box (pt) |
+|---|---|---|---|---|---|
+| `title` | title | yes | ≈25 characters at full size, ≈36 before `MAT-S10` | 32 pt | 446 × 32 |
+| `heading` | text | no | ≈54 characters at full size, ≈78 before `MAT-S10` | 24 pt | 659 × 32 |
+| `label-1` | text | yes | ≈30 characters at full size, ≈65 before `MAT-S10` | 20 pt | 174 × 64 |
+| `label-2` | text | yes | ≈30 characters at full size, ≈65 before `MAT-S10` | 20 pt | 174 × 64 |
+| `label-3` | text | yes | ≈30 characters at full size, ≈65 before `MAT-S10` | 20 pt | 174 × 64 |
+| `body-1` | body | no | 4 items | 12 pt | 174 × 143 |
+| `body-2` | body | no | 4 items | 12 pt | 174 × 143 |
+| `body-3` | body | no | 4 items | 12 pt | 174 × 143 |
 
 ### `four-boxes`
 
 Four labelled ideas on coloured cards.
 
-| `data-slot` | Holds | Required | Limit | Size |
-|---|---|---|---|---|
-| `title` | title | yes | shrinks to fit | 32 pt |
-| `heading` | text | no | shrinks to fit | 24 pt |
-| `label-1` | text | yes | shrinks to fit | 20 pt |
-| `label-2` | text | yes | shrinks to fit | 20 pt |
-| `label-3` | text | yes | shrinks to fit | 20 pt |
-| `label-4` | text | yes | shrinks to fit | 20 pt |
-| `body-1` | body | no | 4 items | 12 pt |
-| `body-2` | body | no | 4 items | 12 pt |
-| `body-3` | body | no | 4 items | 12 pt |
-| `body-4` | body | no | 4 items | 12 pt |
+| `data-slot` | Holds | Required | Limit | Size | Box (pt) |
+|---|---|---|---|---|---|
+| `title` | title | yes | ≈25 characters at full size, ≈36 before `MAT-S10` | 32 pt | 446 × 32 |
+| `heading` | text | no | ≈54 characters at full size, ≈78 before `MAT-S10` | 24 pt | 657 × 32 |
+| `label-1` | text | yes | ≈18 characters at full size, ≈45 before `MAT-S10` | 20 pt | 133 × 64 |
+| `label-2` | text | yes | ≈18 characters at full size, ≈45 before `MAT-S10` | 20 pt | 133 × 64 |
+| `label-3` | text | yes | ≈18 characters at full size, ≈45 before `MAT-S10` | 20 pt | 133 × 64 |
+| `label-4` | text | yes | ≈18 characters at full size, ≈45 before `MAT-S10` | 20 pt | 133 × 64 |
+| `body-1` | body | no | 4 items | 12 pt | 133 × 143 |
+| `body-2` | body | no | 4 items | 12 pt | 133 × 143 |
+| `body-3` | body | no | 4 items | 12 pt | 133 × 143 |
+| `body-4` | body | no | 4 items | 12 pt | 133 × 143 |
 
 ### `three-columns`
 
 Three ruled columns, each with a heading, a body and an optional caption.
 
-| `data-slot` | Holds | Required | Limit | Size |
-|---|---|---|---|---|
-| `title` | title | yes | shrinks to fit | 32 pt |
-| `head-1` | text | yes | shrinks to fit | 20 pt |
-| `head-2` | text | yes | shrinks to fit | 20 pt |
-| `head-3` | text | yes | shrinks to fit | 20 pt |
-| `body-1` | body | no | 5 items | 12 pt |
-| `body-2` | body | no | 5 items | 12 pt |
-| `body-3` | body | no | 5 items | 12 pt |
-| `caption-1` | text | no | shrinks to fit | 10 pt |
-| `caption-2` | text | no | shrinks to fit | 10 pt |
-| `caption-3` | text | no | shrinks to fit | 10 pt |
+| `data-slot` | Holds | Required | Limit | Size | Box (pt) |
+|---|---|---|---|---|---|
+| `title` | title | yes | ≈25 characters at full size, ≈36 before `MAT-S10` | 32 pt | 446 × 31 |
+| `head-1` | text | yes | ≈18 characters at full size, ≈25 before `MAT-S10` | 20 pt | 192 × 26 |
+| `head-2` | text | yes | ≈18 characters at full size, ≈25 before `MAT-S10` | 20 pt | 192 × 26 |
+| `head-3` | text | yes | ≈18 characters at full size, ≈25 before `MAT-S10` | 20 pt | 192 × 26 |
+| `body-1` | body | no | 5 items | 12 pt | 192 × 207 |
+| `body-2` | body | no | 5 items | 12 pt | 192 × 207 |
+| `body-3` | body | no | 5 items | 12 pt | 192 × 207 |
+| `caption-1` | text | no | ≈36 characters at full size, ≈101 before `MAT-S10` | 10 pt | 192 × 23 |
+| `caption-2` | text | no | ≈36 characters at full size, ≈101 before `MAT-S10` | 10 pt | 192 × 23 |
+| `caption-3` | text | no | ≈36 characters at full size, ≈101 before `MAT-S10` | 10 pt | 192 × 23 |
 
 ### `four-columns`
 
 A heading and an introduction across the top, four short bodies underneath.
 
-| `data-slot` | Holds | Required | Limit | Size |
-|---|---|---|---|---|
-| `title` | title | yes | shrinks to fit | 32 pt |
-| `heading` | text | no | shrinks to fit | 26 pt |
-| `intro` | body | no | 3 items | 12 pt |
-| `body-1` | body | no | 4 items | 14 pt |
-| `body-2` | body | no | 4 items | 14 pt |
-| `body-3` | body | no | 4 items | 14 pt |
-| `body-4` | body | no | 4 items | 14 pt |
+| `data-slot` | Holds | Required | Limit | Size | Box (pt) |
+|---|---|---|---|---|---|
+| `title` | title | yes | ≈25 characters at full size, ≈36 before `MAT-S10` | 32 pt | 446 × 34 |
+| `heading` | text | no | ≈50 characters at full size, ≈72 before `MAT-S10` | 26 pt | 659 × 26 |
+| `intro` | body | no | 3 items | 12 pt | 659 × 88 |
+| `body-1` | body | no | 4 items | 14 pt | 143 × 143 |
+| `body-2` | body | no | 4 items | 14 pt | 143 × 143 |
+| `body-3` | body | no | 4 items | 14 pt | 143 × 143 |
+| `body-4` | body | no | 4 items | 14 pt | 143 × 143 |
 
 ### `three-rows`
 
 Three ruled rows, a label on the left of each.
 
-| `data-slot` | Holds | Required | Limit | Size |
-|---|---|---|---|---|
-| `title` | title | yes | shrinks to fit | 32 pt |
-| `label-1` | text | yes | shrinks to fit | 20 pt |
-| `label-2` | text | yes | shrinks to fit | 20 pt |
-| `label-3` | text | yes | shrinks to fit | 20 pt |
-| `body-1` | body | no | 3 items | 14 pt |
-| `body-2` | body | no | 3 items | 14 pt |
-| `body-3` | body | no | 3 items | 14 pt |
+| `data-slot` | Holds | Required | Limit | Size | Box (pt) |
+|---|---|---|---|---|---|
+| `title` | title | yes | ≈25 characters at full size, ≈36 before `MAT-S10` | 32 pt | 446 × 37 |
+| `label-1` | text | yes | ≈24 characters at full size, ≈57 before `MAT-S10` | 20 pt | 122 × 74 |
+| `label-2` | text | yes | ≈24 characters at full size, ≈57 before `MAT-S10` | 20 pt | 122 × 74 |
+| `label-3` | text | yes | ≈24 characters at full size, ≈57 before `MAT-S10` | 20 pt | 122 × 74 |
+| `body-1` | body | no | 3 items | 14 pt | 523 × 74 |
+| `body-2` | body | no | 3 items | 14 pt | 523 × 74 |
+| `body-3` | body | no | 3 items | 14 pt | 523 × 74 |
 
 ### `summary`
 
 The template asks for the main points compared to the lesson objectives: one item per objective, each carrying `data-objective`.
 
-| `data-slot` | Holds | Required | Limit | Size |
-|---|---|---|---|---|
-| `title` | title | default: Lesson Summary | shrinks to fit | 36 pt |
-| `body` | body | no | 6 items | 24 pt |
+| `data-slot` | Holds | Required | Limit | Size | Box (pt) |
+|---|---|---|---|---|---|
+| `title` | title | default: Lesson Summary | ≈33 characters at full size, ≈47 before `MAT-S10` | 36 pt | 659 × 44 |
+| `body` | body | no | 6 items | 24 pt | 655 × 303 |
 
 ### `closing`
 
 The last slide, on the template's photograph — the one its own sample uses.
 
-| `data-slot` | Holds | Required | Limit | Size |
-|---|---|---|---|---|
-| `title` | title | default: Thank you! | shrinks to fit | 48 pt |
+| `data-slot` | Holds | Required | Limit | Size | Box (pt) |
+|---|---|---|---|---|---|
+| `title` | title | default: Thank you! | ≈24 characters at full size, ≈57 before `MAT-S10` | 48 pt | 289 × 166 |
 
 ### `closing-gradient`
 
 The last slide, on the gradient.
 
-| `data-slot` | Holds | Required | Limit | Size |
-|---|---|---|---|---|
-| `title` | title | default: Thank you! | shrinks to fit | 48 pt |
+| `data-slot` | Holds | Required | Limit | Size | Box (pt) |
+|---|---|---|---|---|---|
+| `title` | title | default: Thank you! | ≈24 characters at full size, ≈57 before `MAT-S10` | 48 pt | 289 × 166 |
 
 ### `closing-illustration`
 
 The last slide, white, with the template's illustration on the right.
 
-| `data-slot` | Holds | Required | Limit | Size |
-|---|---|---|---|---|
-| `title` | title | default: Thank you! | shrinks to fit | 48 pt |
+| `data-slot` | Holds | Required | Limit | Size | Box (pt) |
+|---|---|---|---|---|---|
+| `title` | title | default: Thank you! | ≈24 characters at full size, ≈57 before `MAT-S10` | 48 pt | 289 × 166 |

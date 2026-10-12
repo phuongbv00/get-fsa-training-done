@@ -23,7 +23,8 @@ lecture note is handed out as its HTML and that PDF only.
    FSA material verify "<materials_dir>" --export
    ```
 
-   `MAT-X01` is a diagram with no image: PowerPoint and the PDF writer cannot
+   `MAT-X05` is a line of code too long for the printed page: the PDF cuts
+   it, so break it. `MAT-X01` is a diagram with no image: PowerPoint and the PDF writer cannot
    run Mermaid, so put a PNG of it in the same `<figure>` (`<img src="…png"
    alt="…">`), or accept that the export shows its source. `MAT-X03` is an image
    an export will not embed: not PNG, JPEG, GIF or SVG, an SVG that cannot be
@@ -45,7 +46,18 @@ lecture note is handed out as its HTML and that PDF only.
    the lecture note.
 4. Answers folded into `<details>` on a check slide go into that slide's notes in
    the `.pptx`, never onto the slide.
-5. In a document's PDF, a link inside it — the module map's and the syllabus
+5. Gather what trainees are sent:
+
+   ```bash
+   FSA material handout --dir "<materials_dir>"
+   ```
+
+   It copies the lecture note's, labs' and worksheets' PDFs into
+   `<materials_dir>/handout/`; decks are the trainer's and stay out. `MAT-X06`
+   is a document whose PDF is missing or older than its HTML — export it again;
+   `MAT-X07` a file in the folder that is not part of the hand-out (`--prune`
+   removes it).
+6. In a document's PDF, a link inside it — the module map's and the syllabus
    map's `#topic` links — jumps to its place. A PDF cannot open a file beside
    it, so a link to a deck or a lab keeps its words and names the PDF to open
    (`dbf_lab_01.pdf`): export every file the note links, and hand them out

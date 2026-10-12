@@ -506,6 +506,21 @@ def _draw_slot(pdf, spec: L.Slot, content, document: Document, width, height) ->
 
 # --- A long-form document ---------------------------------------------------
 
+#: The printed page as `PRINT_CSS` sets it: A4, 16mm side margins, code in
+#: Roboto Mono at 8.5pt (0.6em a character) inside 6pt padding and a 3pt rule;
+#: each list or quote it sits in indents it about 24pt more.
+A4_WIDTH_PT = 595.28
+SIDE_MARGIN_PT = 16 / 25.4 * 72
+CODE_PT, CODE_PADDING_PT, NESTED_INDENT_PT = 8.5, 6 * 2 + 3, 24
+
+
+def doc_code_columns(depth: int = 0) -> int:
+    """How many characters of a code line fit the printed page at a nesting depth;
+    xhtml2pdf neither wraps nor shrinks a `<pre>`, so the rest is cut."""
+    room = A4_WIDTH_PT - 2 * SIDE_MARGIN_PT - CODE_PADDING_PT - NESTED_INDENT_PT * depth
+    return int(room // (CODE_PT * 0.6))
+
+
 FONT_CSS = """
 @font-face { font-family: "FsaSans"; src: url("DejaVuSans.ttf"); }
 @font-face { font-family: "FsaSans"; src: url("DejaVuSans-Bold.ttf"); font-weight: bold; }
@@ -534,6 +549,10 @@ pre { font-family: FsaMono; font-size: 8.5pt; background-color: #f2f5fa;
 table { border: 0.5pt solid #d8dee8; margin: 4pt 0 8pt 0; }
 th { background-color: #034ea1; color: #ffffff; padding: 3pt; text-align: left; }
 td { padding: 3pt; border: 0.5pt solid #d8dee8; }
+td code, th code { -pdf-word-wrap: CJK; }
+figure { display: block; margin: 6pt 0 10pt 0; text-align: center; }
+figure img { display: block; }
+figcaption { display: block; font-size: 9pt; color: #5b6370; margin-top: 3pt; }
 .try-it { border: 1.5pt solid #50b748; padding: 6pt; margin: 6pt 0 10pt 0; }
 .callout { border-left: 3pt solid #034ea1; background-color: #f3f6fb; padding: 6pt; }
 .answer { color: #2e5d2a; background-color: #f3f6fb; padding: 4pt; margin: 2pt 0 6pt 0; }

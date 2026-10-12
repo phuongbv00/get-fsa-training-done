@@ -9,7 +9,7 @@ the judgement half of grading; every other grading task is arithmetic.
 |---|---|
 | `brief_path`, `rubric_path` | the assessment being graded |
 | a batch of folders | from `references/assessment/tasks/grade/plan_batches.md` |
-| comment language | English unless the user asks for another |
+| comment language | the language of the score sheets already graded for this module, when there are any — open one before writing; otherwise English unless the user asks for another |
 
 ## Produces
 

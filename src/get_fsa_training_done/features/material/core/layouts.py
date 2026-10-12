@@ -192,6 +192,32 @@ def fit_scale(slot: Slot, text: str) -> float:
     return FIT_SCALES[-1]
 
 
+def _sample(chars: int) -> str:
+    """Prose-like text of `chars` characters: six-letter words and spaces."""
+    return ("abcdef " * (chars // 7 + 1))[:chars].rstrip()
+
+
+def title_budget(slot: Slot, scale: float = 1.0) -> int:
+    """About how many characters a title or text slot holds before its type
+    shrinks below `scale` of the template's size — the same estimate `verify`
+    measures `MAT-S10` with, so a title written to it does not warn."""
+    chars = 1
+    while chars < 400 and fit_scale(slot, _sample(chars + 1)) >= scale:
+        chars += 1
+    return chars
+
+
+def toc_budget() -> int:
+    """About how many characters of a section title fit one table-of-contents
+    row, which never shrinks its text: past that the .pptx wraps it."""
+    _, (_, label) = TOC_ROWS[0]
+    width = label.width_pt - 2 * INSET_X
+    chars = 1
+    while chars < 200 and lines_needed(_sample(chars + 1), width, TOC_SIZE, False) == 1:
+        chars += 1
+    return chars
+
+
 def overflows(slot: Slot, text: str) -> bool:
     """Does `text` still not fit at the smallest step?"""
     return slot.fits and bool(text.strip()) and not _fits_at(slot, text, FIT_SCALES[-1])
@@ -775,6 +801,8 @@ __all__ = [
     "TITLE",
     "TOC",
     "TOC_ROWS",
+    "title_budget",
+    "toc_budget",
     "TOC_SIZE",
     "Box",
     "Layout",

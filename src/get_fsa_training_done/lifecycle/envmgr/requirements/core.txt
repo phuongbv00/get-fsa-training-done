@@ -18,7 +18,11 @@
 # svglib (which xhtml2pdf already brings) reads the SVG, reportlab writes it as
 # a PDF page, pdfium renders the page. Its wheels carry pdfium, so no browser
 # or system library is needed — reportlab's own raster backend needs Cairo.
-xhtml2pdf>=0.2.16,<0.3
+#
+# xhtml2pdf 0.2.23 prints every image after a document's first as a copy of the
+# first: a lecture note with three diagrams hands out three copies of one.
+# 0.2.21 and 0.2.22 draw each; `test_export.py` holds the next release to it.
+xhtml2pdf>=0.2.16,<0.2.23
 py7zr>=0.20,<2
 python-pptx>=1.0,<2
 pypdfium2>=4.30,<6

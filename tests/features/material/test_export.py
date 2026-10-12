@@ -228,6 +228,38 @@ def test_a_note_pdf_carries_its_images_not_the_diagram_source(module):
     assert b"erDiagram" not in data
 
 
+def test_a_note_pdf_draws_each_of_its_images(module, edit):
+    """xhtml2pdf 0.2.23 printed every image after the first as a copy of it."""
+    pytest.importorskip("xhtml2pdf")
+    import hashlib
+    import re
+
+    from PIL import Image
+
+    for name, colour in (("green.png", (80, 183, 72)), ("blue.png", (3, 78, 161))):
+        Image.new("RGB", (300, 120), colour).save(module / "img" / name)
+    edit(
+        module,
+        NOTE,
+        "<h3>Keys</h3>",
+        '<h3>Keys</h3>\n  <figure><img src="img/green.png" alt="green"><figcaption>One.'
+        '</figcaption></figure>\n  <figure><img src="img/blue.png" alt="blue"></figure>',
+    )
+    assert main(["material", "export", "pdf", str(module / NOTE)]) == 0
+    data = (module / "dbf_lecture_note.pdf").read_bytes()
+    streams = re.findall(rb"/Subtype /Image.*?stream\r?\n(.*?)endstream", data, re.S)
+    assert len({hashlib.sha256(s).hexdigest() for s in streams}) >= 3
+
+
+def test_a_note_pdf_sets_a_caption_under_its_picture(module):
+    """Without block rules a figure's caption ran on beside its image."""
+    from get_fsa_training_done.features.material.core import export_pdf
+
+    html = export_pdf._print_html(dom.parse(module / NOTE))
+    for rule in ("figure { display: block", "figcaption { display: block", "td code, th code"):
+        assert rule in html
+
+
 def test_a_backslash_in_the_metadata_does_not_break_the_pdf(module, edit):
     pytest.importorskip("xhtml2pdf")
     edit(module, NOTE, 'content="SQL:2016 · PostgreSQL 16"', r'content="C:\dev\tools"')

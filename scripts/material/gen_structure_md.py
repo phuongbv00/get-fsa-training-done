@@ -111,7 +111,8 @@ def render() -> str:
         (
             "export",
             "Rules — exporting",
-            "Applied by `export`, and by `verify --export`: what a .pptx or .pdf cannot carry.",
+            "Applied by `export`, `handout` and `verify --export`: what a .pptx or .pdf "
+            "cannot carry, and what reaches trainees.",
         ),
         (
             "coverage",

@@ -174,6 +174,19 @@ reportlab and pypdfium2, in the managed venv), in the module's fonts. Its
 links to `#ids` jump inside the PDF; a link to a sibling file names the PDF to
 open instead, since a PDF cannot open the file beside it.
 
+### `handout` — what trainees are sent
+
+```bash
+gftd material handout --dir ./Lectures            # fills ./Lectures/handout/
+gftd material handout --dir ./Lectures --prune    # and removes anything else in it
+```
+
+Copies the lecture note's, labs' and worksheets' PDFs into one folder. Decks are
+the trainer's, presented in the room: neither their `.pptx` nor their `.pdf` is
+sent. A document with no PDF, or one older than its HTML, is refused
+(`MAT-X06`); a file in the folder that is not part of the hand-out is reported
+(`MAT-X07`).
+
 ## Language
 
 A document is written in the language its `<html lang>` declares — `en` by
@@ -193,7 +206,7 @@ declare it (`MAT-D16`).
 
 ```
 features/material/
-├── commands/            # init, verify, coverage, derive, export
+├── commands/            # init, verify, coverage, derive, export, handout
 ├── core/
 │   ├── grammar.py       # the kinds and their parts — source for structure.md
 │   ├── layouts.py       # the template's slide layouts — source for layouts.md/.css
@@ -206,6 +219,7 @@ features/material/
 │   ├── export_pdf.py    # slides with reportlab, documents with xhtml2pdf
 │   ├── coverage.py      # MAT-C*, the cross-feature half
 │   ├── svg.py           # SVG illustrations drawn to PNG for the exports
+│   ├── handout.py       # the PDFs trainees are sent
 │   └── syllabus_map.py  # the derived syllabus map
 └── theme/               # fsa.css, layouts.css (GENERATED), deck.js, doc.js, img/, fsa_base.pptx
 

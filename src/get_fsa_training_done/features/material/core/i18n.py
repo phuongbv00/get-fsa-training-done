@@ -45,7 +45,7 @@ STRINGS: dict[str, dict[str, str]] = {
 AFTER = {
     "en": re.compile(r"^After this (unit|lesson|lab|module), (learners|you) can:", re.IGNORECASE),
     "vi": re.compile(
-        r"^Sau ((bài|buổi) (học|lab|thực hành)|module|học phần)( này)?, "
+        r"^Sau ((bài|buổi) (học|lab|thực hành)|module|mô-đun|mô đun|học phần)( này)?, "
         r"(học viên|bạn) (có thể|sẽ):",
         re.IGNORECASE,
     ),

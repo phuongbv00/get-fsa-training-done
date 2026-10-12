@@ -30,12 +30,14 @@ FSA material verify "<materials_dir>" --json
    `MAT-S01` (a deck out of the template's order), `MAT-S06`
    (a slide with no speaker notes), `MAT-S07` (a section with no check slide),
    `MAT-S11` (a slide half empty), `MAT-S12` (a section with no illustration),
+   `MAT-S13` (a drawing of the wrong shape, or with text too small for the room),
    `MAT-D22` (inline styling), `MAT-D25` (a question with no answer), `MAT-D32`
    (a second lecture note in the module), `MAT-D12`/`D13` (a renamed file or id still
    linked), `MAT-D16` (Vietnamese outside a `_vn` file), `MAT-D19`/`D20` (a
    diagram's cardinality or colours).
 4. `--export` adds what a `.pptx` or `.pdf` cannot carry (`MAT-X*`), including
-   an SVG feature the export cannot draw (`MAT-X04`).
+   an SVG feature the export cannot draw (`MAT-X04`) and a line of code the
+   printed page cuts (`MAT-X05`).
 
 ## Done when
 

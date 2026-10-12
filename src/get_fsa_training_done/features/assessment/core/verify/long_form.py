@@ -64,6 +64,11 @@ REQUIRED_BANNER_LINES = ["> **Code:**", "> **Duration:**", "> **Topics:**"]
 #: lead with bullets stating outcomes, and prose past this length means the
 #: learner has to extract requirements from a wall of text.
 MAX_PARAGRAPH_WORDS = 70
+#: How many characters of a code line the rendered A4 page shows: 16mm margins,
+#: the block's padding and rule, Roboto Mono at 8.6pt (0.6em a character), as
+#: `core/html.py` sets them. The renderer neither wraps nor shrinks code, so the
+#: rest of a longer line is cut while the brief still renders.
+MAX_CODE_COLUMNS = 92
 
 #: Types whose task list is fixed by the programme rather than by the level.
 #: A capstone always scores D01-D05, the sprint process, and the individual, so
@@ -336,6 +341,21 @@ def check_prose_density(brief_text: str, result: CheckResult) -> None:
         )
 
 
+def check_code_width(brief_text: str, result: CheckResult) -> None:
+    """Warn on a code line the rendered PDF would cut at its margin."""
+    in_fence = False
+    for number, line in enumerate(brief_text.splitlines(), 1):
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        width = len(line.expandtabs(4))
+        if in_fence and width > MAX_CODE_COLUMNS:
+            result.warn(
+                f"Line {number} of code is {width} characters; the rendered PDF cuts it "
+                f"after {MAX_CODE_COLUMNS} — break it"
+            )
+
+
 def verify(
     *,
     assessment_type: str,
@@ -380,6 +400,7 @@ def verify(
 
     check_page_budget(brief_text, pdf_path, max_pages, result)
     check_prose_density(brief_text, result)
+    check_code_width(brief_text, result)
 
     for needle in ["> **Code:**", "DO NOT distribute"]:
         if needle not in rubric_text:

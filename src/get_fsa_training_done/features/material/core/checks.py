@@ -61,7 +61,8 @@ def check(document: Document, kind: grammar.Kind, report: Report, **options) -> 
     _declared_kind(document, kind, report, where)
     _theme(document, kind, report, where)
     export = options.pop("export", False)
-    _code(document, report, where, export=export)
+    # A deck's code is held to its slot by MAT-S08; a long-form PDF's to its page.
+    _code(document, report, where, export=export, printed=export and kind is not grammar.DECK)
     _images(document, report, where, export=export)
     _links(document, report, where)
     _language(document, report, where)
@@ -127,11 +128,15 @@ def _theme(document: Document, kind: grammar.Kind, report: Report, where: str) -
             report.error("MAT-D22", where, f"a deck loads {grammar.DECK_JS}")
 
 
-def _code(document: Document, report: Report, where: str, *, export: bool) -> None:
+def _code(
+    document: Document, report: Report, where: str, *, export: bool, printed: bool = False
+) -> None:
     for pre in document.root.find_all("pre"):
         if "mermaid" in pre.classes:
             _diagram(pre, report, where, export=export)
             continue
+        if printed:
+            _code_width(pre, report, where)
         code = pre.find("code")
         classes = " ".join(sorted((code.classes if code is not None else set()) | pre.classes))
         match = grammar.CODE_LANGUAGE.search(classes)
@@ -143,6 +148,30 @@ def _code(document: Document, report: Report, where: str, *, export: bool) -> No
             )
         elif match.group(1).lower() not in grammar.CODE_LANGUAGES:
             report.warn("MAT-D11", where, f"line {pre.line}: unknown language {match.group(1)!r}")
+
+
+def _code_width(pre: Element, report: Report, where: str) -> None:
+    """A long-form PDF neither wraps nor shrinks code: a long line is cut."""
+    from .export_pdf import doc_code_columns
+
+    depth = sum(1 for _ in _ancestors(pre, ("li", "blockquote", "td", "th")))
+    room = doc_code_columns(depth)
+    lines = pre.raw_text().strip("\n").splitlines()
+    widest = max((len(line.expandtabs(4)) for line in lines), default=0)
+    if widest > room:
+        report.warn(
+            "MAT-X05",
+            where,
+            f"line {pre.line}: a line of code is {widest} characters; the PDF cuts it after {room}",
+        )
+
+
+def _ancestors(element: Element, tags: tuple[str, ...]):
+    node = element.parent
+    while node is not None:
+        if getattr(node, "tag", None) in tags:
+            yield node
+        node = node.parent
 
 
 def _diagram(pre: Element, report: Report, where: str, *, export: bool) -> None:
@@ -445,6 +474,8 @@ def check_deck(
     _deck_objectives(document, slides, report, where)
     _checks_per_section(slides, report, where)
     _shows_per_section(slides, report, where)
+    _toc_titles(slides, report, where)
+    _pictures(document, slides, report, where)
     _fill(document, slides, report, where, min_fill)
     _slide_budget(document, slides, report, where, minutes_per_slide)
     return slides
@@ -469,6 +500,81 @@ def _shows_per_section(slides: list[deck_mod.Slide], report: Report, where: str)
                 f"section {cover.title()!r} has no picture, diagram, table or code: "
                 "show what its slides describe",
             )
+
+
+def _toc_titles(slides: list[deck_mod.Slide], report: Report, where: str) -> None:
+    """A table-of-contents row does not shrink its section title: the template sets
+    no autofit, so PowerPoint wraps a long one onto a second line."""
+    if not any(slide.role_kind == L.TOC for slide in slides):
+        return
+    _, (_, label) = L.TOC_ROWS[0]
+    width = label.width_pt - 2 * L.INSET_X
+    budget = L.toc_budget()
+    for cover, _ in deck_mod.sections(slides):
+        title = cover.title()
+        if L.lines_needed(title, width, L.TOC_SIZE, False) > 1:
+            report.warn(
+                "MAT-S08",
+                where,
+                f"{cover.where()}: the section title {title!r} is longer than a "
+                f"table-of-contents row (about {budget} characters): it wraps onto a second "
+                "line in the .pptx",
+            )
+
+
+#: A picture smaller than this share of its slot leaves the slot visibly empty;
+#: text in it smaller than this many points is unreadable from the room.
+MIN_PICTURE_AREA = 0.6
+MIN_PICTURE_TEXT_PT = 12.0
+
+
+def _picture_slots(slide: deck_mod.Slide):
+    """Each slot whose content is a picture: a picture slot, or a canvas that
+    holds a figure — with its `<img>`."""
+    for name, element in slide.slots.items():
+        spec = slide.layout.slot(name) if slide.layout else None
+        if spec is None:
+            continue
+        image = element if element.tag == "img" else element.find("img")
+        if image is None:
+            continue
+        if spec.kind == L.PICTURE or (slide.layout.name == "title-only" and spec.kind == L.BODY):
+            yield spec, image
+
+
+def _pictures(document: Document, slides: list[deck_mod.Slide], report: Report, where: str) -> None:
+    from . import svg
+
+    for slide in slides:
+        if slide.layout is None:
+            continue
+        for spec, image in _picture_slots(slide):
+            path = assets.resolve(document.path, image.get("src"))
+            if path is None or not path.is_file():
+                continue
+            size = svg.natural_size(path)
+            if size is None:
+                continue
+            width, height = size
+            room_w, room_h = spec.box.width_pt, spec.box.height_pt
+            scale = min(room_w / width, room_h / height)
+            area = (width * scale) * (height * scale) / (room_w * room_h)
+            if area < MIN_PICTURE_AREA:
+                report.warn(
+                    "MAT-S13",
+                    where,
+                    f"{slide.where()}: {path.name} fills {area:.0%} of slot {spec.name!r} "
+                    f"({room_w:.0f} × {room_h:.0f} pt); draw it at that shape",
+                )
+            smallest = svg.smallest_text(path) if path.suffix.lower() in assets.VECTOR else None
+            if smallest is not None and smallest * scale < MIN_PICTURE_TEXT_PT:
+                report.warn(
+                    "MAT-S13",
+                    where,
+                    f"{slide.where()}: {path.name}'s smallest text is {smallest * scale:.0f} pt "
+                    f"on the slide; at least {MIN_PICTURE_TEXT_PT:.0f} pt reads from the room — "
+                    f"font-size {MIN_PICTURE_TEXT_PT / scale:.0f} or more at this drawing's size",
+                )
 
 
 def _fill(

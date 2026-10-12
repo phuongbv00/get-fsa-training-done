@@ -175,6 +175,12 @@ def test_d16_a_document_written_in_vietnamese_declares_it(fired, module, edit):
     assert "MAT-D16" not in rules_fired and "MAT-D06" not in rules_fired
 
 
+def test_d06_the_vietnamese_spelling_of_module_opens_the_objectives(fired, module, edit):
+    edit(module, NOTE, '<html lang="en">', '<html lang="vi">')
+    edit(module, NOTE, "After this module, learners can:", "Sau mô-đun này, học viên có thể:")
+    assert "MAT-D06" not in fired(module / NOTE)
+
+
 def test_d19_an_er_relationship_without_cardinality_words_warns(fired, module, edit):
     edit(module, NOTE, '"1-n writes"', "writes")
     assert "MAT-D19" in fired(module / NOTE)
@@ -479,6 +485,41 @@ def test_s12_every_shipped_section_shows_something(fired, module):
     assert "MAT-S12" not in fired(module / DECK)
 
 
+def test_s13_a_drawing_of_the_wrong_shape_warns(fired, module):
+    path = module / "img" / "loan_slip.svg"
+    text = path.read_text(encoding="utf-8")
+    path.write_text(
+        text.replace('viewBox="0 0 400 420" width="400" height="420"', 'viewBox="0 0 1200 300"'),
+        encoding="utf-8",
+    )
+    assert "MAT-S13" in fired(module / DECK)
+
+
+def test_s13_text_too_small_for_the_room_warns(verify, module):
+    path = module / "img" / "loan_slip.svg"
+    path.write_text(
+        path.read_text(encoding="utf-8").replace('font-size="18"', 'font-size="11"', 1),
+        encoding="utf-8",
+    )
+    found = [f for f in verify(module / DECK)["findings"] if f["rule"] == "MAT-S13"]
+    assert len(found) == 1 and "smallest text" in found[0]["message"]
+
+
+def test_s13_the_shipped_drawings_are_made_for_their_slots(fired, module):
+    assert "MAT-S13" not in fired(module / DECK)
+
+
+def test_s08_a_section_title_too_long_for_the_contents_warns(verify, module, edit):
+    edit(
+        module,
+        DECK,
+        '<h2 data-slot="title">Normalization</h2>',
+        '<h2 data-slot="title">Normalization and the dependencies it removes</h2>',
+    )
+    found = [f for f in verify(module / DECK)["findings"] if f["rule"] == "MAT-S08"]
+    assert len(found) == 1 and "table-of-contents row" in found[0]["message"]
+
+
 # --- Exporting --------------------------------------------------------------
 
 
@@ -513,6 +554,76 @@ def test_x04_the_shipped_drawings_use_only_what_the_export_draws(module, verify)
     pytest.importorskip("pypdfium2")
     rules_fired = {f["rule"] for f in verify(module / DECK, "--export")["findings"]}
     assert not rules_fired & {"MAT-X03", "MAT-X04"}
+
+
+def test_x05_a_code_line_the_printed_page_cuts_warns_for_export(module, edit, verify):
+    edit(
+        module,
+        NOTE,
+        "    title TEXT NOT NULL\n);</code></pre>",
+        "    title TEXT NOT NULL, -- " + "x" * 90 + "\n);</code></pre>",
+    )
+    found = [f for f in verify(module / NOTE, "--export")["findings"] if f["rule"] == "MAT-X05"]
+    assert len(found) == 1 and "cuts it" in found[0]["message"]
+    assert "MAT-X05" not in {f["rule"] for f in verify(module / NOTE)["findings"]}
+
+
+def test_x05_the_page_is_narrower_inside_a_list():
+    from get_fsa_training_done.features.material.core import export_pdf
+
+    assert export_pdf.doc_code_columns(1) < export_pdf.doc_code_columns(0) <= 96
+
+
+def _handout(module, *extra):
+
+    from get_fsa_training_done.cli import main
+
+    return main(["material", "handout", "--dir", str(module), "--json", *extra])
+
+
+def test_x06_a_document_with_no_pdf_is_not_handed_out(module, capsys):
+    import json
+
+    capsys.readouterr()
+    assert _handout(module) == 1
+    found = json.loads(capsys.readouterr().out)["findings"]
+    assert {f["rule"] for f in found} == {"MAT-X06"}
+    assert {f["where"] for f in found} == {NOTE, LAB}
+
+
+def test_x06_a_pdf_older_than_its_html_is_refused(module, capsys):
+    import json
+    import os
+
+    for name in (NOTE, LAB):
+        (module / name).with_suffix(".pdf").write_bytes(b"%PDF-1.4")
+    os.utime(module / LAB, None)  # edited after its export
+    old = (module / LAB).stat().st_mtime - 60
+    os.utime(module / LAB.replace(".html", ".pdf"), (old, old))
+    capsys.readouterr()
+    assert _handout(module) == 1
+    found = json.loads(capsys.readouterr().out)["findings"]
+    assert [f["where"] for f in found if f["rule"] == "MAT-X06"] == [LAB]
+    assert (module / "handout" / "dbf_lecture_note.pdf").is_file()
+    assert not (module / "handout" / "dbf_lab_01.pdf").exists()
+
+
+def test_x07_a_deck_in_the_handout_warns_and_prune_removes_it(module, capsys):
+    import json
+
+    for name in (NOTE, LAB):
+        (module / name).with_suffix(".pdf").write_bytes(b"%PDF-1.4")
+    (module / "handout").mkdir()
+    (module / "handout" / "01_Relational_Modelling.deck.pptx").write_bytes(b"pptx")
+    capsys.readouterr()
+    assert _handout(module) == 0
+    found = json.loads(capsys.readouterr().out)["findings"]
+    assert [f["rule"] for f in found] == ["MAT-X07"]
+    assert _handout(module, "--prune") == 0
+    assert sorted(p.name for p in (module / "handout").iterdir()) == [
+        "dbf_lab_01.pdf",
+        "dbf_lecture_note.pdf",
+    ]
 
 
 # --- Against the session plan --------------------------------------------

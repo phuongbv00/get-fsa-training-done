@@ -110,7 +110,7 @@ in `references/program/examples/`.
 | find out what material is missing | `references/material/tasks/coverage.md` |
 | verify material, or read a verification report | `references/material/tasks/verify.md` |
 | review material before it is published | `references/material/tasks/review_for_trainee.md` |
-| export a deck to .pptx/.pdf, or a document to .pdf | `references/material/tasks/export.md` |
+| export a deck to .pptx/.pdf, or a document to .pdf; gather the trainees' hand-out | `references/material/tasks/export.md` |
 
 Reference material, read as a task points to it: `references/material/structure.md`,
 `references/material/layouts.md`, `references/material/conventions.md`, the
