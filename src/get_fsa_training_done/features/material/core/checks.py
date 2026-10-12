@@ -184,6 +184,9 @@ def _links(document: Document, report: Report, where: str) -> None:
     from . import dom
 
     own_ids = document.ids()
+    # A module map links every deck and lab: parse each target once, and only
+    # when a fragment needs its ids.
+    targets: dict[Path, set[str]] = {}
     for anchor in document.root.find_all("a"):
         href = anchor.get("href")
         if not href or assets.is_external(href):
@@ -194,7 +197,11 @@ def _links(document: Document, report: Report, where: str) -> None:
             if not resolved.exists():
                 report.error("MAT-D12", where, f"line {anchor.line}: {target} does not exist")
                 continue
-            ids = dom.parse(resolved).ids() if resolved.suffix == ".html" else None
+            ids = None
+            if fragment and resolved.suffix == ".html":
+                if resolved not in targets:
+                    targets[resolved] = dom.parse(resolved).ids()
+                ids = targets[resolved]
         else:
             ids = own_ids
         if fragment and ids is not None and fragment not in ids:
@@ -689,15 +696,6 @@ def check_folder(paths: list[Path], report: Report) -> None:
                 "MAT-D02",
                 names[0],
                 f"index {index} is claimed by {len(names)} decks: " + ", ".join(sorted(names)),
-            )
-    numeric = sorted({int(index[:2]) for index in decks})
-    if numeric:
-        missing = [n for n in range(1, max(numeric) + 1) if n not in numeric]
-        if missing:
-            report.warn(
-                "MAT-D03",
-                paths[0].parent.name or ".",
-                "no deck at index " + ", ".join(f"{n:02d}" for n in missing),
             )
 
 

@@ -84,8 +84,6 @@ def test_every_shipped_template_parses_as_the_kind_it_names(tmp_path, capsys):
         "deck.html": "01_Topic.deck.html",
         "lecture_note.html": "subj_lecture_note.html",
         "lab_guide.html": "subj_lab_01.html",
-        "handbook.html": "00_Study_Guide_Handbook.html",
-        "appendix.html": "99_Appendix.html",
     }
     for template, name in names.items():
         shutil.copy(FEATURE / "templates" / template, tmp_path / name)
@@ -95,13 +93,7 @@ def test_every_shipped_template_parses_as_the_kind_it_names(tmp_path, capsys):
     errors = [
         f"{f['rule']} {f['where']}: {f['message']}"
         for f in findings
-        if f["severity"] == "error" and f["rule"] not in ("MAT-D12", "MAT-D29")
-    ]
-    # The appendix's map is empty until `derive appendix` fills it.
-    errors += [
-        f"{f['rule']} {f['where']}: {f['message']}"
-        for f in findings
-        if f["rule"] == "MAT-D29" and f["where"] != "99_Appendix.html"
+        if f["severity"] == "error" and f["rule"] != "MAT-D12"
     ]
     assert errors == []
 
@@ -111,9 +103,7 @@ WRITING_TASKS = (
     "write_deck.md",
     "write_lecture.md",
     "write_lab.md",
-    "write_handbook.md",
     "write_worksheet.md",
-    "derive_appendix.md",
 )
 OUTLINE_TASK = "references/material/tasks/propose_outline.md"
 

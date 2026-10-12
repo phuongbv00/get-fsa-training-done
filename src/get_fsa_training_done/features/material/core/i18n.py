@@ -2,7 +2,7 @@
 
 A document declares its language with `<html lang="…">`. Everything the skill
 writes on the author's behalf — a slide's default title, the theme's "Answer"
-label, a PDF's "Session 3 · 90 min" line, the appendix's map heading — follows
+label, a PDF's "Session 3 · 90 min" line, the syllabus map's heading — follows
 that declaration, so a module written in Vietnamese does not come out with
 English chrome around it.
 

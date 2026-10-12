@@ -40,8 +40,8 @@ executes, so nothing here is a constraint the tool does not enforce.
 
 Material is **HTML on the FSA theme**: one file per artifact, the source of
 truth, from which `FSA material export` derives the `.pptx` and `.pdf`. In order
-of how much a trainee learns from them: the slide deck, the handbook, the
-lecture note, then the lab guide. The slide layouts are in
+of how much a trainee learns from them: the slide deck, the lecture note, then
+the lab guide. The slide layouts are in
 `references/material/layouts.md`.
 
 Universal, whatever the kind:
@@ -71,11 +71,11 @@ def render() -> str:
         lines.append(f"| {kind.title} | `{kind.filename.pattern}` |")
     lines.append("")
     lines.append(
-        f"Index `{G.HANDBOOK_INDEX}` is the handbook and `{G.APPENDIX_INDEX}` the appendix. "
         "A lesson's deck carries its index: `01_Relational_Modelling.deck.html`. A "
         "trailing letter marks an aside outside the syllabus (`02b_...`). The lecture "
         "note is one file per module, named for its subject like the labs: "
-        f"`dbf_lecture_note.html`. `{G.TRANSLATION_SUFFIX}` before the extension marks "
+        "`dbf_lecture_note.html` — the handbook and the appendix older modules had "
+        f"are parts of it. `{G.TRANSLATION_SUFFIX}` before the extension marks "
         "a translation.\n"
     )
 

@@ -3,7 +3,7 @@
 The HTML is the source; these files are outputs, rebuilt whenever it changes and
 never edited by hand. A deck exports to the FSA template as `.pptx` (its own
 layouts, so trainers can present and QA can file it) and to a 16:9 `.pdf`; a
-note, lab or handbook exports to an A4 `.pdf`.
+lecture note or a lab exports to an A4 `.pdf`.
 
 Export verifies first and refuses a document with errors: a file handed out is
 harder to correct than the HTML it came from.
@@ -29,7 +29,7 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
     sub = parser.add_subparsers(dest="export_format", required=True, metavar="<format>")
     for name, helptext in (
         ("pptx", "a deck, into the FSA template"),
-        ("pdf", "a deck (16:9) or a note, lab or handbook (A4)"),
+        ("pdf", "a deck (16:9), or a lecture note, lab or worksheet (A4)"),
     ):
         command = sub.add_parser(name, help=helptext, description=f"Export {helptext}.")
         command.add_argument("input", help="the HTML file")
@@ -46,7 +46,7 @@ def run(args: argparse.Namespace) -> int:
         raise UsageError(f"input not found: {source}")
     kind = grammar.kind_for(source.name)
     if kind is None:
-        raise UsageError(f"{source.name} is not named like a deck, note, lab or handbook")
+        raise UsageError(f"{source.name} is not named like a deck, lecture note, lab or worksheet")
     if args.export_format == "pptx" and kind is not grammar.DECK:
         raise UsageError(f"{source.name} is a {kind.key}; only a deck exports to .pptx")
 

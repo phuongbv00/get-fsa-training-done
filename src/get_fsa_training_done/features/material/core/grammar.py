@@ -1,8 +1,8 @@
 """What a teaching document is shaped like.
 
 Material is written in HTML, one file per artifact, to the `KINDS` below: a
-slide deck, a lecture note, a lab guide, the module handbook and appendix, and a
-lab's worksheet. Each kind lists the `data-part` sections it carries, in order;
+slide deck per lesson, the module's one lecture note, a lab guide, and a lab's
+worksheet. Each kind lists the `data-part` sections it carries, in order;
 a deck's slides are described by `core/layouts.py` instead, because their shape
 is the FSA template's.
 
@@ -44,10 +44,6 @@ CODE_LANGUAGES = (
     "yml",
 )
 
-#: Reserved filename slots.
-HANDBOOK_INDEX = "00"
-APPENDIX_INDEX = "99"
-
 #: A translation, not a rewrite: English is the default for everything.
 TRANSLATION_SUFFIX = "_vn"
 
@@ -69,13 +65,15 @@ THEME_DIR = "_theme"
 THEME_CSS = f"{THEME_DIR}/fsa.css"
 DECK_JS = f"{THEME_DIR}/deck.js"
 
-#: `NN_Topic_Name.deck.html` per lesson, `<subject>_lecture_note.html` once per
-#: module; `_vn` before the extension marks a translation.
+#: `NN_Topic_Name.deck.html` per lesson; the module's one lecture note is named
+#: for its subject, like its labs: `dbf_lecture_note.html`. `_vn` before the
+#: extension marks a translation.
 DECK_FILENAME = re.compile(r"^(\d{2})([a-z]?)_[A-Za-z0-9_&+-]+?(?:_vn)?\.deck\.html$")
 NOTE_FILENAME = re.compile(r"^([a-z0-9]+)_lecture_note(?:_vn)?\.html$")
-#: `00_*` and `99_*`, and — before the note was one file per module — a
-#: lesson's `NN_Topic_Name.html` beside its deck.
-INDEXED_FILENAME = re.compile(r"^(\d{2})([a-z]?)_[A-Za-z0-9_&+-]+?(?:_vn)?(?<!\.deck)\.html$")
+#: The names older modules used: `00_*` the handbook, `99_*` the appendix, and
+#: any other `NN_*` beside a deck a lecture note per session. All three are the
+#: lecture note now.
+INDEXED_FILENAME = re.compile(r"^(\d{2})[a-z]?_[A-Za-z0-9_&+-]+?(?:_vn)?(?<!\.deck)\.html$")
 LAB_FILENAME = re.compile(r"^[a-z0-9]+_lab_(\d{2})(?:_vn)?\.html$")
 WORKSHEET_FILENAME = re.compile(r"^[a-z0-9]+_lab_\d{2}_worksheet(?:_vn)?\.html$")
 
@@ -131,56 +129,21 @@ DECK = Kind(
     rank=1,
 )
 
-HANDBOOK = Kind(
-    key="handbook",
-    title="Module handbook",
-    summary=(
-        "Slot `00`: the first page a trainee opens and the only one about the "
-        "module as a whole — the lesson map, how to study, what to install."
-    ),
-    filename=re.compile(r"^00_[A-Za-z0-9_&+-]+?(?:_vn)?\.html$"),
-    body_class="fsa-doc",
-    required_meta=(META_KIND, META_MODULE),
-    rank=2,
-    parts=(
-        Part(
-            "module-map",
-            "Module Map",
-            description=(
-                "A table, one row per lesson in order: its title, then a link to "
-                "its deck, its topic in the lecture note and its lab where they exist."
-            ),
-        ),
-        Part("how-to-study", "How to Study This Module", description="A routine per lesson."),
-        Part(
-            "environment",
-            "Environment Setup",
-            description="What to install, pinned to versions, and how to check it works.",
-        ),
-        Part(
-            "running-domain",
-            "The Running Example",
-            required=False,
-            description="The one domain every lesson's examples share.",
-        ),
-        Part("glossary", "Glossary", required=False, description="A `<dl>` of the module's terms."),
-    ),
-)
-
 NOTE = Kind(
     key="note",
     title="Lecture note",
     summary=(
-        "The module's theory, condensed into one file: what a trainee keeps as "
-        "a reference and revises from before a theory exam or a job interview. "
-        "One `topic` part per lesson, in the order of the decks — the decks "
-        "teach, the note is what stays. Handed out as the HTML and its `.pdf`, "
-        "never as a `.pptx`."
+        "The module in one file: the first page a trainee opens, and what they "
+        "keep as a reference and revise from before a theory exam or a job "
+        "interview. It opens on how to work through the module, condenses the "
+        "theory into one `topic` part per lesson in the order of the decks, and "
+        "closes on review questions and the syllabus map. Handed out as the HTML "
+        "and its `.pdf`, never as a `.pptx`."
     ),
     filename=NOTE_FILENAME,
     body_class="fsa-doc",
     required_meta=(META_KIND, META_MODULE, META_OBJECTIVES),
-    rank=3,
+    rank=2,
     parts=(
         Part(
             "objectives",
@@ -189,6 +152,34 @@ NOTE = Kind(
                 "Opens `After this module, learners can:`, then a list whose items "
                 "each carry `data-objective` — every objective the module serves."
             ),
+        ),
+        Part(
+            "module-map",
+            "Module Map",
+            description=(
+                "A table, one row per lesson in order: its title, then a link to "
+                "its deck, its topic below (`#id`) and its lab where they exist."
+            ),
+        ),
+        Part(
+            "how-to-study",
+            "How to Study This Module",
+            description=(
+                "The routine per lesson, and how to revise from this note before "
+                "the theory exam or an interview."
+            ),
+        ),
+        Part(
+            "environment",
+            "Environment Setup",
+            required=False,
+            description="What to install, pinned to versions, and how to check it works.",
+        ),
+        Part(
+            "running-domain",
+            "The Running Example",
+            required=False,
+            description="The one domain every lesson's examples share.",
         ),
         Part(
             "topic",
@@ -223,6 +214,16 @@ NOTE = Kind(
                 "carries `data-objective` and a model answer in `<details>`."
             ),
         ),
+        Part("glossary", "Glossary", required=False, description="A `<dl>` of the module's terms."),
+        Part(
+            "syllabus-map",
+            "Full Syllabus Map",
+            required=False,
+            description=(
+                "Derived by `derive syllabus-map`, never typed: each syllabus outline "
+                "item and a link to the topic covering it."
+            ),
+        ),
         Part("further-reading", "Further Reading", description="Primary sources, linked."),
     ),
 )
@@ -237,7 +238,7 @@ LAB = Kind(
     filename=LAB_FILENAME,
     body_class="fsa-doc",
     required_meta=(META_KIND, META_MODULE, META_OBJECTIVES, META_MINUTES),
-    rank=4,
+    rank=3,
     parts=(
         Part(
             "objectives",
@@ -272,24 +273,6 @@ LAB = Kind(
     ),
 )
 
-APPENDIX = Kind(
-    key="appendix",
-    title="Module appendix",
-    summary="Slot `99`: the syllabus map, derived by `derive appendix`, and the references.",
-    filename=re.compile(r"^99_[A-Za-z0-9_&+-]+?(?:_vn)?\.html$"),
-    body_class="fsa-doc",
-    required_meta=(META_KIND, META_MODULE),
-    rank=6,
-    parts=(
-        Part(
-            "syllabus-map",
-            "Full Syllabus Map",
-            description="Derived: each outline item and a link into the lecture note's topic.",
-        ),
-        Part("references", "References", required=False, description="The module's sources."),
-    ),
-)
-
 WORKSHEET = Kind(
     key="worksheet",
     title="Lab worksheet",
@@ -300,42 +283,47 @@ WORKSHEET = Kind(
     filename=WORKSHEET_FILENAME,
     body_class="fsa-doc",
     required_meta=(META_KIND, META_MODULE),
-    rank=5,
+    rank=4,
 )
 
-KINDS = (DECK, HANDBOOK, NOTE, LAB, WORKSHEET, APPENDIX)
+KINDS = (DECK, NOTE, LAB, WORKSHEET)
 KIND_BY_KEY = {kind.key: kind for kind in KINDS}
 
 
 def kind_for(filename: str) -> Kind | None:
-    """Which HTML kind a filename claims. Order matters: a deck is also `NN_*.html`."""
+    """Which HTML kind a filename claims. Order matters: a worksheet is also a lab."""
     if WORKSHEET_FILENAME.match(filename):
         return WORKSHEET
-    if LAB_FILENAME.match(filename):
-        return LAB
-    if DECK_FILENAME.match(filename):
-        return DECK
-    if NOTE_FILENAME.match(filename):
-        return NOTE
-    if INDEXED_FILENAME.match(filename):
-        index = filename[:2]
-        if index == HANDBOOK_INDEX:
-            return HANDBOOK
-        if index == APPENDIX_INDEX:
-            return APPENDIX
+    for kind in (LAB, DECK, NOTE):
+        if kind.filename.match(filename):
+            return kind
     return None
 
 
-def is_session_note(filename: str) -> bool:
-    """`01_Topic.html` or `dbf_lecture_01.html`: a lecture note per session.
+def legacy(filename: str) -> str | None:
+    """What an old-style name was, and where it belongs now.
 
-    The note is one file per module now; a name in the old shape is a note to
-    fold into it, and saying so beats calling it an unknown name.
+    `00_Study_Guide_Handbook.html`, `99_Appendix.html` and a lesson's
+    `01_Topic.html` or `dbf_lecture_01.html` are all parts of the module's one
+    lecture note now. Saying so beats calling it an unknown name.
     """
+    note = "<subject>_lecture_note.html"
     match = INDEXED_FILENAME.match(filename)
-    if match and match.group(1) not in (HANDBOOK_INDEX, APPENDIX_INDEX):
-        return True
-    return bool(re.search(r"_lecture_\d+(?:_vn)?\.(?:html|md)$", filename))
+    if match and match.group(1) == "00":
+        return (
+            f"the handbook is part of the lecture note now: fold it into {note}'s "
+            "module-map, how-to-study and environment parts"
+        )
+    if match and match.group(1) == "99":
+        return (
+            f"the appendix is part of the lecture note now: derive its syllabus map "
+            f"into {note} with `derive syllabus-map`"
+        )
+    if match or re.search(r"_lecture_\d+(?:_vn)?\.(?:html|md)$", filename):
+        return (
+            f"a lecture note per session; the module has one, {note} — fold this into it as a topic"
+        )
+    return None
 
 
 def is_translation(filename: str) -> bool:
@@ -344,15 +332,11 @@ def is_translation(filename: str) -> bool:
 
 
 __all__ = [
-    "APPENDIX",
-    "APPENDIX_INDEX",
     "CODE_LANGUAGE",
     "CODE_LANGUAGES",
     "DECK",
     "DECK_FILENAME",
     "DECK_JS",
-    "HANDBOOK",
-    "HANDBOOK_INDEX",
     "INDEXED_FILENAME",
     "KINDS",
     "KIND_BY_KEY",
@@ -375,7 +359,7 @@ __all__ = [
     "VIETNAMESE",
     "WORKSHEET_FILENAME",
     "WORKSHEET",
-    "is_session_note",
     "is_translation",
     "kind_for",
+    "legacy",
 ]

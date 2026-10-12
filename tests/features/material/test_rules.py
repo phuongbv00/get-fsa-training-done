@@ -47,6 +47,14 @@ def test_d01_a_note_per_session_is_told_to_fold_into_the_module_note(verify, mod
     assert len(found) == 1 and "lecture_note.html" in found[0]["message"]
 
 
+def test_d01_a_handbook_or_appendix_is_told_it_is_part_of_the_note(verify, module):
+    for name in ("00_Study_Guide_Handbook.html", "99_Appendix.html"):
+        (module / name).write_text((module / NOTE).read_text(encoding="utf-8"), "utf-8")
+    found = {f["where"]: f["message"] for f in verify(module)["findings"] if f["rule"] == "MAT-D01"}
+    assert "handbook is part of the lecture note" in found["00_Study_Guide_Handbook.html"]
+    assert "appendix is part of the lecture note" in found["99_Appendix.html"]
+
+
 def test_d02_two_decks_claiming_one_index_are_caught(fired, module):
     (module / "01_Keys.deck.html").write_text(
         (module / DECK).read_text(encoding="utf-8"), encoding="utf-8"
@@ -54,9 +62,11 @@ def test_d02_two_decks_claiming_one_index_are_caught(fired, module):
     assert "MAT-D02" in fired(module)
 
 
-def test_d03_a_gap_in_the_indexes_warns(fired, module):
+def test_a_gap_in_the_deck_indexes_is_not_a_finding(fired, module):
+    """A lesson may have no deck; a deck the plan names but nobody wrote is
+    `coverage`'s MAT-C01, not a gap in the numbering."""
     (module / DECK).rename(module / "03_Relational_Modelling.deck.html")
-    assert "MAT-D03" in fired(module)
+    assert fired(module / "03_Relational_Modelling.deck.html", module / LAB) == set()
 
 
 def test_d32_a_second_lecture_note_is_caught(fired, module):
@@ -98,8 +108,8 @@ def test_d23_an_unclosed_element_is_caught(fired, module, edit):
     edit(
         module,
         NOTE,
-        '</ul>\n</section>\n\n<section data-part="topic"',
-        '</ul>\n\n<section data-part="topic"',
+        '</ul>\n</section>\n\n<section data-part="module-map"',
+        '</ul>\n\n<section data-part="module-map"',
     )
     assert "MAT-D23" in fired(module / NOTE)
 
@@ -115,7 +125,7 @@ def test_d11_an_unknown_language_warns(fired, module, edit):
 
 
 def test_d12_a_link_to_a_missing_file_is_caught(fired, module, edit):
-    edit(module, NOTE, 'href="00_Study_Guide_Handbook.html"', 'href="00_Missing.html"')
+    edit(module, NOTE, 'href="01_Relational_Modelling.deck.html"', 'href="01_Missing.deck.html"')
     assert "MAT-D12" in fired(module / NOTE)
 
 
@@ -488,20 +498,69 @@ def test_a_markdown_file_is_not_teaching_material(coverage_fired, module, plan_p
     assert "MAT-C01" in coverage_fired(plan_path, module)
 
 
-def test_c01_a_plan_naming_a_note_per_session_is_told_the_module_has_one(module, plan_path, capsys):
-    import json
+def _c01(coverage_findings, plan_path, module, old: str, new: str) -> list[str]:
+    """MAT-C01's messages once the plan names `new` where it named `old`."""
+    text = plan_path.read_text(encoding="utf-8")
+    assert old in text
+    plan_path.write_text(text.replace(old, new, 1), encoding="utf-8")
+    return [f["message"] for f in coverage_findings(plan_path, module) if f["rule"] == "MAT-C01"]
 
-    from get_fsa_training_done.cli import main
 
+def test_c01_a_plan_naming_a_note_per_session_is_told_the_module_has_one(
+    coverage_findings, module, plan_path
+):
     # The Querying row, as plans were written when each session had its own note.
-    text = plan_path.read_text(encoding="utf-8").replace(
-        "Blended,dbf_lecture_note.html", "Blended,02_Querying.html"
+    found = _c01(
+        coverage_findings,
+        plan_path,
+        module,
+        "Concept/Lecture,60,Blended,dbf_lecture_note.html",
+        "Concept/Lecture,60,Blended,02_Querying.html",
     )
-    plan_path.write_text(text, encoding="utf-8")
-    capsys.readouterr()
-    main(["material", "coverage", "--schedule", str(plan_path), "--dir", str(module), "--json"])
-    found = [f for f in json.loads(capsys.readouterr().out)["findings"] if f["rule"] == "MAT-C01"]
-    assert len(found) == 1 and "lecture_note.html" in found[0]["message"]
+    assert len(found) == 1 and "lecture_note.html" in found[0]
+
+
+def test_c01_a_plan_naming_a_handbook_is_told_it_is_part_of_the_note(
+    coverage_findings, module, plan_path
+):
+    found = _c01(
+        coverage_findings,
+        plan_path,
+        module,
+        "Class Meeting,30,Blended,dbf_lecture_note.html",
+        "Class Meeting,30,Blended,00_Study_Guide_Handbook.html",
+    )
+    assert len(found) == 1 and "handbook is part of the lecture note" in found[0]
+
+
+def test_c01_an_old_markdown_note_is_not_told_to_become_another_old_name(
+    coverage_findings, module, plan_path
+):
+    """`02_Querying.md` becomes the module's note, not `02_Querying.html`."""
+    found = _c01(
+        coverage_findings,
+        plan_path,
+        module,
+        "Concept/Lecture,60,Blended,dbf_lecture_note.html",
+        "Concept/Lecture,60,Blended,02_Querying.md",
+    )
+    assert len(found) == 1
+    assert "lecture_note.html" in found[0] and "02_Querying.html" not in found[0]
+
+
+def test_c02_a_translation_is_in_use_when_its_original_is(coverage_fired, module, plan_path):
+    (module / "dbf_lecture_note_vn.html").write_text(
+        (module / NOTE).read_text(encoding="utf-8"), encoding="utf-8"
+    )
+    (module / "01_Relational_Modelling_vn.deck.html").write_text(
+        (module / DECK).read_text(encoding="utf-8"), encoding="utf-8"
+    )
+    assert coverage_fired(plan_path, module) == set()
+
+
+def test_c02_a_translation_of_an_unused_file_warns(coverage_fired, module, plan_path):
+    (module / "02_Extra_vn.deck.html").write_text("<h1>Extra</h1>", encoding="utf-8")
+    assert "MAT-C02" in coverage_fired(plan_path, module)
 
 
 def test_c03_the_module_note_serves_every_session_that_names_it(coverage_fired, module, plan_path):
@@ -573,7 +632,7 @@ def test_links_with_a_query_a_scheme_or_an_escape_resolve(fired, module, edit):
         module,
         NOTE,
         "<h3>Keys</h3>",
-        '<h3>Keys</h3>\n  <p><a href="00_Study_Guide_Handbook.html?print=1">q</a> '
+        '<h3>Keys</h3>\n  <p><a href="01_Relational_Modelling.deck.html?print=1">q</a> '
         '<a href="tel:+84123">t</a> '
         '<a href="a%20b.html">s</a> <a href="javascript:void(0)">j</a></p>',
     )

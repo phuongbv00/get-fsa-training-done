@@ -15,9 +15,9 @@
 <main>
 <article class="note">
 <h1>Databases — Lecture Note</h1>
-<p>The module's theory in one place: keep it as a reference, and revise from it before the theory
-exam or an interview. The slides teach each lesson; the
-<a href="00_Study_Guide_Handbook.html">study guide</a> says how to work through them.</p>
+<p>Start here. This is the module in one file: how to work through it, the theory of every lesson
+condensed, and the questions to revise from before the theory exam or an interview. The
+<a href="01_Relational_Modelling.deck.html">slides</a> teach each lesson; this is what stays.</p>
 
 <section data-part="objectives" id="objectives">
   <h2>Objectives</h2>
@@ -29,6 +29,47 @@ exam or an interview. The slides teach each lesson; the
     <li data-objective="DBF-K2">Join tables and say which rows a join keeps and which it drops.</li>
     <li data-objective="DBF-K2">Group rows and aggregate them correctly.</li>
   </ul>
+</section>
+
+<section data-part="module-map" id="module-map">
+  <h2>Module Map</h2>
+  <table>
+    <tr><th>#</th><th>Lesson</th><th>Slides</th><th>Theory</th><th>Practice</th></tr>
+    <tr><td>01</td><td>Relational Modelling</td>
+      <td><a href="01_Relational_Modelling.deck.html">deck</a></td>
+      <td><a href="#relational-modelling">topic</a></td>
+      <td><a href="dbf_lab_01.html">lab 01</a></td></tr>
+    <tr><td>02</td><td>Querying</td><td>—</td>
+      <td><a href="#querying">topic</a></td><td>—</td></tr>
+  </table>
+</section>
+
+<section data-part="how-to-study" id="how-to-study">
+  <h2>How to Study This Module</h2>
+  <ol>
+    <li>In the session, follow the slides and answer every check question before the reveal.</li>
+    <li>After it, read the lesson's topic below, then do the lab.</li>
+    <li>Before the theory exam or an interview, reread the summary and answer the review
+    questions before opening each answer. A question you miss names the topic to reread.</li>
+  </ol>
+  <p>The examples build one domain, so a lesson you skip leaves a gap in the next one.</p>
+</section>
+
+<section data-part="environment" id="environment">
+  <h2>Environment Setup</h2>
+  <table>
+    <tr><th>Component</th><th>Version</th><th>Check it works</th></tr>
+    <tr><td>PostgreSQL</td><td>16 (14 or later behaves the same here)</td><td><code>psql --version</code></td></tr>
+    <tr><td>A SQL client</td><td>any</td><td>connects and runs <code>SELECT 1;</code></td></tr>
+  </table>
+  <p>Create a scratch database you can drop and recreate freely:</p>
+  <pre><code class="language-bash">createdb library_scratch</code></pre>
+</section>
+
+<section data-part="running-domain" id="running-domain">
+  <h2>The Running Example</h2>
+  <p>A small library catalogue: authors write books, a book can have several authors, and books are
+  lent to members. Every example and lab in the module uses it.</p>
 </section>
 
 <section data-part="topic" id="relational-modelling">
@@ -151,9 +192,26 @@ LEFT JOIN author a       ON a.id = ba.author_id;   -- books with no author stay<
   </ol>
 </section>
 
+<section data-part="glossary" id="glossary">
+  <h2>Glossary</h2>
+  <dl>
+    <dt>Normalization</dt><dd>Organising columns so each fact is stored once.</dd>
+    <dt>Surrogate key</dt><dd>A key with no meaning outside the database.</dd>
+  </dl>
+</section>
+
+<section data-part="syllabus-map" id="syllabus-map">
+  <h2>Full Syllabus Map</h2>
+  <ul class="checklist">
+    <li>Relational Modelling → <a href="#relational-modelling">Relational Modelling</a></li>
+    <li>Querying → <a href="#querying">Querying</a></li>
+  </ul>
+</section>
+
 <section data-part="further-reading" id="further-reading">
   <h2>Further Reading</h2>
   <ul>
+    <li><a href="https://www.postgresql.org/docs/16/">PostgreSQL 16 documentation</a></li>
     <li><a href="https://www.postgresql.org/docs/16/ddl-constraints.html">PostgreSQL 16: Constraints</a></li>
     <li><a href="https://www.postgresql.org/docs/16/queries-table-expressions.html">PostgreSQL 16: Table Expressions</a></li>
   </ul>

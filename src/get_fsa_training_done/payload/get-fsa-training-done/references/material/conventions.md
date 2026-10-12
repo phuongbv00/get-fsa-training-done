@@ -94,7 +94,8 @@ pick the diagram type for what it shows:
 
 ## A running domain
 
-Keep one worked domain across a module and say what it is in the handbook. The
+Keep one worked domain across a module and say what it is in the lecture note's
+Running Example. The
 examples then compose instead of resetting every unit.
 
 ## Objective codes
@@ -113,7 +114,7 @@ file of the module, and keep one language per module.
 The theme, the viewer and the exporters follow that declaration for every word
 they write on your behalf — a slide's default title (*Mục tiêu bài học*,
 *Tóm tắt bài học*), the *Thử ngay* and *Kết quả mong đợi* labels, *Sai* /
-*Đúng*, a PDF's *Buổi 3 · 90 phút* line, the appendix's map heading. Write your
+*Đúng*, a PDF's *Buổi 3 · 90 phút* line, the syllabus map's heading. Write your
 own labels — a check slide's `<summary>`, a hint's — in the same language
 (*Đáp án*, *Gợi ý*). Open the objectives in it too: *After this unit, learners
 can:* or *Sau bài học này, học viên có thể:*.

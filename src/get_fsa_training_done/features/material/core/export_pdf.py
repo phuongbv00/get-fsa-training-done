@@ -474,6 +474,8 @@ h3 { font-size: 11.5pt; margin: 10pt 0 3pt 0; -pdf-keep-with-next: true; }
 p { margin: 0 0 6pt 0; }
 li { margin: 0 0 3pt 0; }
 li.numbered { list-style-type: none; }
+dt { font-weight: bold; margin: 4pt 0 0 0; }
+dd { margin: 0 0 4pt 12pt; }
 code { font-family: FsaMono; font-size: 9pt; background-color: #f2f5fa; }
 pre { font-family: FsaMono; font-size: 8.5pt; background-color: #f2f5fa;
   border-left: 3pt solid #034ea1; padding: 6pt; margin: 4pt 0 8pt 0; }
@@ -488,6 +490,8 @@ td { padding: 3pt; border: 0.5pt solid #d8dee8; }
 .code-tag { color: #ffffff; background-color: #034ea1; font-size: 7.5pt; }
 .code-wrong { color: #c62828; font-weight: bold; font-size: 8pt; margin: 6pt 0 0 0; }
 .code-right { color: #2e7d32; font-weight: bold; font-size: 8pt; margin: 6pt 0 0 0; }
+.xref-file { color: #5b6370; font-size: 8pt; -pdf-word-wrap: CJK; }
+p.xref-file { margin: 0; }
 .page-footer { color: #9aa3b2; font-size: 7.5pt; }
 """
 
@@ -508,6 +512,52 @@ def _replace(old: Element, new: list[Element | str]) -> None:
     for child in new:
         if isinstance(child, Element):
             child.parent = old.parent
+
+
+def _pdf_name(target: str) -> str:
+    """The file a link to a sibling points at once the module is exported:
+    `01_Topic.deck.html` → `01_Topic.deck.pdf`, `dbf_lab_01.html` → `dbf_lab_01.pdf`."""
+    return target[: -len(".html")] + ".pdf" if target.endswith(".html") else target
+
+
+def _links(body: Element) -> None:
+    """Make the document's links work in a PDF.
+
+    xhtml2pdf jumps only to `<a name>`, never to an `id`, so every id gets one —
+    at the start of a part's heading, where the reader should land. And it
+    keeps only a link to `#…` or to a URL with a scheme: a link to a file beside
+    the document is dropped, and a PDF cannot open its sibling reliably anyway.
+    Such a link keeps its words and names the PDF to open instead.
+    """
+    for element in list(body.iter()):
+        anchor = element.get("id")
+        if not anchor or element.tag == "a":
+            continue
+        heading = element.find("h2") if element.tag == "section" else None
+        target = heading if heading is not None else element
+        target.children.insert(0, _node("a", name=anchor))
+
+    for link in body.find_all("a"):
+        href = link.get("href")
+        if not href or href.startswith("#") or assets.is_external(href):
+            continue
+        target, _ = assets.split(href)
+        if not target:
+            continue
+        name = _pdf_name(target.rsplit("/", 1)[-1])
+        span = _node("span", class_="xref")
+        # In a table cell a file name has no room beside the words: it goes on
+        # its own line, where it may wrap at any letter rather than run into
+        # the next column.
+        if link.ancestor("td") is not None or link.ancestor("th") is not None:
+            file = _node("p", name, class_="xref-file")
+        else:
+            file = _node("span", f"({name})", class_="xref-file")
+        span.children.extend([*link.children, " ", file])
+        for child in span.children:
+            if isinstance(child, Element):
+                child.parent = span
+        _replace(link, [span])
 
 
 def _prepare(document: Document, warnings: list) -> Element:
@@ -550,6 +600,8 @@ def _prepare(document: Document, warnings: list) -> Element:
             number += 1
             heading.children.insert(0, f"{number}. ")
 
+    _links(body)
+
     for pre in body.find_all("pre"):
         for kind in ("wrong", "right"):
             if kind in pre.classes:
@@ -583,17 +635,25 @@ def _prepare(document: Document, warnings: list) -> Element:
             else:
                 item.children.extend([" ", tag])
 
-    # xhtml2pdf drops an item's number when the item opens with a paragraph \u2014 a
-    # review question, a lab step \u2014 so write the number into that paragraph.
+    # xhtml2pdf drops an item's number when the item opens with a paragraph — a
+    # review question, a lab step. Every ordered list's numbers are written out,
+    # and the renderer's own hidden, so one list never mixes the two.
     for ordered in body.find_all("ol"):
+        start = ordered.get("start")
+        first_number = int(start) if start.isdigit() else 1
         items = [child for child in ordered.elements if child.tag == "li"]
-        for position, item in enumerate(items, 1):
-            first = item.children[0] if item.children else None
-            if isinstance(first, str) and not first.strip():
-                first = item.children[1] if len(item.children) > 1 else None
-            if isinstance(first, Element) and first.tag == "p":
-                first.children.insert(0, f"{position}. ")
-                item.attrs["class"] = " ".join(filter(None, (item.get("class"), "numbered")))
+        for position, item in enumerate(items, first_number):
+            lead = next(
+                (
+                    child
+                    for child in item.children
+                    if not (isinstance(child, str) and not child.strip())
+                ),
+                None,
+            )
+            holder = lead if isinstance(lead, Element) and lead.tag == "p" else item
+            holder.children.insert(0, f"{position}. ")
+            item.attrs["class"] = " ".join(filter(None, (item.get("class"), "numbered")))
 
     for details in body.find_all("details"):
         summary = details.find("summary")

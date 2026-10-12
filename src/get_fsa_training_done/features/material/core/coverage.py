@@ -25,7 +25,8 @@ from .grammar import (
     NOTE_FILENAME,
     OBJECTIVE_CODE,
     WORKSHEET_FILENAME,
-    is_session_note,
+    is_translation,
+    legacy,
 )
 
 MATERIALS_COLUMN = "Training Materials / Logistics & General Notes"
@@ -124,29 +125,12 @@ def check(
             "MAT-C01",
             where,
             f"session {demand.session or '?'} names {filename}, which does not exist"
-            + (
-                f"; material is HTML, so the plan should name {filename[:-3]}.html"
-                if filename.endswith(".md") and not is_session_note(filename)
-                else ""
-            )
-            + (
-                "; the lecture note is one file per module, so the plan should name "
-                "<subject>_lecture_note.html"
-                if is_session_note(filename)
-                else ""
-            )
+            + _rename_hint(filename)
             + (f" — {demand.content[:60]}" if demand.content else ""),
         )
 
-    # A worksheet serves its lab: in use whenever the lab beside it is.
     unused = sorted(
-        filename
-        for filename in present - wanted
-        if not (
-            WORKSHEET_FILENAME.match(filename)
-            and _lab_of(filename) in present
-            and LAB_FILENAME.match(_lab_of(filename))
-        )
+        filename for filename in present - wanted if not _in_use(filename, present, wanted)
     )
     for filename in unused:
         report.warn("MAT-C02", where, f"{filename} is not used by any session")
@@ -169,6 +153,41 @@ def check(
         "unused": len(unused),
         "owned by another feature": len(others),
     }
+
+
+def _in_use(filename: str, present: set[str], wanted: set[str]) -> bool:
+    """Is a file no session names still in use through another one?
+
+    A translation is, whenever its original is; a worksheet serves its lab, and
+    is in use whenever the lab beside it is.
+    """
+    if filename in wanted:
+        return True
+    if WORKSHEET_FILENAME.match(filename):
+        lab = _lab_of(filename)
+        return lab in present and bool(LAB_FILENAME.match(lab))
+    if is_translation(filename):
+        original = _original_of(filename)
+        return original in present and _in_use(original, present, wanted)
+    return False
+
+
+def _original_of(translation: str) -> str:
+    """`dbf_lecture_note_vn.html` translates `dbf_lecture_note.html`."""
+    return re.sub(r"_vn((?:\.deck)?\.html)$", r"\1", translation)
+
+
+def _rename_hint(filename: str) -> str:
+    """What the plan should name instead, when a name has an older shape."""
+    # A `.md` name is checked as the `.html` it would become: `02_Querying.md`
+    # is an old per-session note, not something to rename to `02_Querying.html`.
+    as_html = filename[:-3] + ".html" if filename.endswith(".md") else filename
+    advice = legacy(filename) or legacy(as_html)
+    if advice is not None:
+        return f"; {advice}, and the plan should name <subject>_lecture_note.html"
+    if filename.endswith(".md"):
+        return f"; material is HTML, so the plan should name {filename[:-3]}.html"
+    return ""
 
 
 def _lab_of(worksheet: str) -> str:

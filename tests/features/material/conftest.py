@@ -69,8 +69,10 @@ def fired(verify):
 
 
 @pytest.fixture
-def coverage_fired(capsys):
-    def run(schedule: Path, directory: Path, *extra: str) -> set[str]:
+def coverage_findings(capsys):
+    """Run `coverage` and return its findings, each with its rule and message."""
+
+    def run(schedule: Path, directory: Path, *extra: str) -> list[dict]:
         capsys.readouterr()
         main(
             [
@@ -84,8 +86,15 @@ def coverage_fired(capsys):
                 *extra,
             ]
         )
-        payload = json.loads(capsys.readouterr().out)
-        return {f["rule"] for f in payload["findings"]}
+        return json.loads(capsys.readouterr().out)["findings"]
+
+    return run
+
+
+@pytest.fixture
+def coverage_fired(coverage_findings):
+    def run(schedule: Path, directory: Path, *extra: str) -> set[str]:
+        return {f["rule"] for f in coverage_findings(schedule, directory, *extra)}
 
     return run
 

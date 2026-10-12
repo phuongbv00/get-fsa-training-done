@@ -31,10 +31,10 @@ RULES: tuple[Rule, ...] = (
         "document",
         ERROR,
         "The filename follows the module's naming convention",
-        "The index orders the module's decks and reserves 00 for the handbook "
-        "and 99 for the appendix; the lecture note is one file per module, named "
-        "for its subject. A file outside the pattern sorts unpredictably, is "
-        "never linked from either, and its kind cannot be told.",
+        "The index orders the module's decks; the lecture note is one file per "
+        "module, named for its subject like its labs. A file outside the pattern "
+        "sorts unpredictably, is never linked from the note's module map, and its "
+        "kind cannot be told.",
     ),
     Rule(
         "MAT-D02",
@@ -42,14 +42,6 @@ RULES: tuple[Rule, ...] = (
         ERROR,
         "Indexes are unique within a folder",
         "Two decks claiming the same position give the module two orders.",
-    ),
-    Rule(
-        "MAT-D03",
-        "document",
-        WARNING,
-        "Indexes run without a gap",
-        "A gap usually means a deck was deleted or never written; advisory "
-        "because a module may deliberately leave room.",
     ),
     Rule(
         "MAT-D06",
@@ -105,8 +97,8 @@ RULES: tuple[Rule, ...] = (
         "document",
         ERROR,
         "Link anchors resolve to an id in the target",
-        "The handbook and the appendix link into the lecture note's topics; "
-        "renaming an id breaks them silently.",
+        "The module map, the syllabus map and the labs link into the lecture "
+        "note's topics; renaming an id breaks them silently.",
     ),
     Rule(
         "MAT-D16",
@@ -248,9 +240,10 @@ RULES: tuple[Rule, ...] = (
         "document",
         ERROR,
         "A module has one lecture note",
-        "The note is the module's theory in one place, the file a trainee revises "
-        "from. A second one splits it, and a note per session — what this replaced "
-        "— leaves the trainee to stitch the module together before an exam.",
+        "The note is the module in one place: the way through it, its theory and "
+        "the map from the syllabus, the file a trainee revises from. A second one "
+        "splits it, and a note per session — what this replaced — leaves the "
+        "trainee to stitch the module together before an exam.",
     ),
     Rule(
         "MAT-S01",

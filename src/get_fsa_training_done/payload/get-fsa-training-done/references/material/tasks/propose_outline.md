@@ -57,10 +57,13 @@ approval of each. No files.
 
 - The module's objectives, each with its code — the union of every session that
   names the note.
+- The module map, a row per lesson with the files it will link; the study
+  routine; the environment with versions; the running domain.
 - Per topic, one per lesson in deck order: its id, the deck it condenses, and
   the points it holds — definitions, rules, the comparison tables.
 - The misconceptions, each as a trainee would say it; the review questions,
-  each with its code and a one-line model answer, at least two per topic;
+  each with its code and a one-line model answer, at least two per topic; the
+  glossary terms; which outline items the derived syllabus map will link where;
   further reading.
 
 **Lab guide** (`<subject>_lab_NN.html`)
@@ -70,16 +73,8 @@ approval of each. No files.
   The minutes add up to no more than the session's.
 - The acceptance checklist, the stretch, and whether a worksheet is needed.
 
-**Handbook** (`00_*.html`)
-
-- The lesson map, a row per lesson with the files it will link.
-- The study routine, the environment with versions, the running domain, the
-  glossary terms.
-
 **Worksheet** — the outputs the lab asks for, each with the table it needs.
 
-**Appendix** — which outline items the derived map will link where, and the
-references.
 
 
 ## Done when
@@ -90,6 +85,5 @@ about to be written.
 ## Hands off to
 
 The writing task for each document: `references/material/tasks/write_deck.md`,
-`references/material/tasks/write_lecture.md`, `references/material/tasks/write_lab.md`,
-`references/material/tasks/write_handbook.md`, `references/material/tasks/write_worksheet.md`,
-or `references/material/tasks/derive_appendix.md`.
+`references/material/tasks/write_lecture.md`, `references/material/tasks/write_lab.md`
+or `references/material/tasks/write_worksheet.md`.

@@ -1,6 +1,6 @@
 ---
 name: get-fsa-training-done
-description: Get FSA training done end to end. Program - design and verify a training programme (curriculum, schedules, syllabi, session plans) and export the FPT vendor workbooks. Material - write, check and export the slide decks (on the FSA template), handbooks, lecture notes and lab guides a session plan calls for. Assessment - design quizzes, assignments, theory and practice exams and capstones (briefs, rubrics, Blooket and Coderbyte imports), and grade submissions, quiz reports and cheat checks. Use when asked to "thiết kế chương trình đào tạo", "viết syllabus", "xuất file Excel", "viết bài giảng", "soạn slide", "soạn tài liệu", "viết lab", "tạo quiz", "ra đề", "tạo assignment", "chấm bài", "chấm điểm", "design a training programme", "write a lecture note", "make the slides", "design an assessment", or "grade submissions".
+description: Get FSA training done end to end. Program - design and verify a training programme (curriculum, schedules, syllabi, session plans) and export the FPT vendor workbooks. Material - write, check and export the slide decks (on the FSA template), the module's lecture note and the lab guides a session plan calls for. Assessment - design quizzes, assignments, theory and practice exams and capstones (briefs, rubrics, Blooket and Coderbyte imports), and grade submissions, quiz reports and cheat checks. Use when asked to "thiết kế chương trình đào tạo", "viết syllabus", "xuất file Excel", "viết bài giảng", "soạn slide", "soạn tài liệu", "viết lab", "tạo quiz", "ra đề", "tạo assignment", "chấm bài", "chấm điểm", "design a training programme", "write a lecture note", "make the slides", "design an assessment", or "grade submissions".
 ---
 
 # Get FSA training done
@@ -14,7 +14,7 @@ owns that kind of file produces it.
 | Feature | Owns |
 |---|---|
 | program | modules, schedules, syllabi, session plans, vendor workbooks |
-| material | slide decks, handbooks, lecture notes, lab guides, appendices — HTML on the FSA template, exported to .pptx and .pdf |
+| material | slide decks, the module's lecture note, lab guides — HTML on the FSA template, exported to .pptx and .pdf |
 | assessment | questions, briefs, rubrics, import files, grading |
 
 No feature writes another's artifact. When a finding is really about someone
@@ -103,11 +103,10 @@ in `references/program/examples/`.
 |---|---|
 | outline a document and have it approved (before writing any) | `references/material/tasks/propose_outline.md` |
 | write a lesson's slide deck | `references/material/tasks/write_deck.md` |
-| write a lecture note | `references/material/tasks/write_lecture.md` |
+| write the module's lecture note (also its map, study routine and setup) | `references/material/tasks/write_lecture.md` |
 | write a lab guide | `references/material/tasks/write_lab.md` |
 | write a group lab's worksheet | `references/material/tasks/write_worksheet.md` |
-| write the module handbook | `references/material/tasks/write_handbook.md` |
-| write or refresh the module appendix | `references/material/tasks/derive_appendix.md` |
+| derive or refresh the lecture note's syllabus map | `references/material/tasks/derive_syllabus_map.md` |
 | find out what material is missing | `references/material/tasks/coverage.md` |
 | verify material, or read a verification report | `references/material/tasks/verify.md` |
 | review material before it is published | `references/material/tasks/review_for_trainee.md` |

@@ -6,8 +6,8 @@ executes, so nothing here is a constraint the tool does not enforce.
 
 Material is **HTML on the FSA theme**: one file per artifact, the source of
 truth, from which `FSA material export` derives the `.pptx` and `.pdf`. In order
-of how much a trainee learns from them: the slide deck, the handbook, the
-lecture note, then the lab guide. The slide layouts are in
+of how much a trainee learns from them: the slide deck, the lecture note, then
+the lab guide. The slide layouts are in
 `references/material/layouts.md`.
 
 Universal, whatever the kind:
@@ -33,13 +33,11 @@ Universal, whatever the kind:
 | Kind | Filename |
 |---|---|
 | Slide deck | `^(\d{2})([a-z]?)_[A-Za-z0-9_&+-]+?(?:_vn)?\.deck\.html$` |
-| Module handbook | `^00_[A-Za-z0-9_&+-]+?(?:_vn)?\.html$` |
 | Lecture note | `^([a-z0-9]+)_lecture_note(?:_vn)?\.html$` |
 | Lab guide | `^[a-z0-9]+_lab_(\d{2})(?:_vn)?\.html$` |
 | Lab worksheet | `^[a-z0-9]+_lab_\d{2}_worksheet(?:_vn)?\.html$` |
-| Module appendix | `^99_[A-Za-z0-9_&+-]+?(?:_vn)?\.html$` |
 
-Index `00` is the handbook and `99` the appendix. A lesson's deck carries its index: `01_Relational_Modelling.deck.html`. A trailing letter marks an aside outside the syllabus (`02b_...`). The lecture note is one file per module, named for its subject like the labs: `dbf_lecture_note.html`. `_vn` before the extension marks a translation.
+A lesson's deck carries its index: `01_Relational_Modelling.deck.html`. A trailing letter marks an aside outside the syllabus (`02b_...`). The lecture note is one file per module, named for its subject like the labs: `dbf_lecture_note.html` — the handbook and the appendix older modules had are parts of it. `_vn` before the extension marks a translation.
 
 
 ## Slide deck
@@ -49,26 +47,9 @@ What a session is taught from, on the FSA template. One `<section class="slide" 
 `<body class="fsa-deck">`. Required metas: `fsa:kind`, `fsa:module`, `fsa:objectives`, `fsa:minutes`.
 
 
-## Module handbook
-
-Slot `00`: the first page a trainee opens and the only one about the module as a whole — the lesson map, how to study, what to install.
-
-`<body class="fsa-doc">`. Required metas: `fsa:kind`, `fsa:module`.
-
-Each part is a `<section data-part="…" id="…">` opening with an `<h2>`, in this order. The theme numbers the headings.
-
-| `data-part` | Heading | Required | Holds |
-|---|---|---|---|
-| `module-map` | Module Map | yes | A table, one row per lesson in order: its title, then a link to its deck, its topic in the lecture note and its lab where they exist. |
-| `how-to-study` | How to Study This Module | yes | A routine per lesson. |
-| `environment` | Environment Setup | yes | What to install, pinned to versions, and how to check it works. |
-| `running-domain` | The Running Example | optional | The one domain every lesson's examples share. |
-| `glossary` | Glossary | optional | A `<dl>` of the module's terms. |
-
-
 ## Lecture note
 
-The module's theory, condensed into one file: what a trainee keeps as a reference and revises from before a theory exam or a job interview. One `topic` part per lesson, in the order of the decks — the decks teach, the note is what stays. Handed out as the HTML and its `.pdf`, never as a `.pptx`.
+The module in one file: the first page a trainee opens, and what they keep as a reference and revise from before a theory exam or a job interview. It opens on how to work through the module, condenses the theory into one `topic` part per lesson in the order of the decks, and closes on review questions and the syllabus map. Handed out as the HTML and its `.pdf`, never as a `.pptx`.
 
 `<body class="fsa-doc">`. Required metas: `fsa:kind`, `fsa:module`, `fsa:objectives`.
 
@@ -77,10 +58,16 @@ Each part is a `<section data-part="…" id="…">` opening with an `<h2>`, in t
 | `data-part` | Heading | Required | Holds |
 |---|---|---|---|
 | `objectives` | Objectives | yes | Opens `After this module, learners can:`, then a list whose items each carry `data-objective` — every objective the module serves. |
+| `module-map` | Module Map | yes | A table, one row per lesson in order: its title, then a link to its deck, its topic below (`#id`) and its lab where they exist. |
+| `how-to-study` | How to Study This Module | yes | The routine per lesson, and how to revise from this note before the theory exam or an interview. |
+| `environment` | Environment Setup | optional | What to install, pinned to versions, and how to check it works. |
+| `running-domain` | The Running Example | optional | The one domain every lesson's examples share. |
 | `topic` | <the lesson> | yes, repeated | One per lesson, in deck order: the theory condensed — definitions, the rules and why they hold, a minimal example, a comparison table where two things are easily confused. `<h3>` per point; prose before any example. |
 | `misconceptions` | Common Misconceptions | optional | One `<h3>` per wrong belief or easily confused pair, then what is true. |
 | `summary` | Summary | yes | One item per objective, carrying `data-objective`: the page to reread the night before an exam. |
 | `review-questions` | Review Questions | yes | An `<ol>` of the questions a theory exam or an interviewer asks; each carries `data-objective` and a model answer in `<details>`. |
+| `glossary` | Glossary | optional | A `<dl>` of the module's terms. |
+| `syllabus-map` | Full Syllabus Map | optional | Derived by `derive syllabus-map`, never typed: each syllabus outline item and a link to the topic covering it. |
 | `further-reading` | Further Reading | yes | Primary sources, linked. |
 
 
@@ -108,20 +95,6 @@ The blank form each group fills in during a group lab: a heading and a drawn tab
 `<body class="fsa-doc">`. Required metas: `fsa:kind`, `fsa:module`.
 
 
-## Module appendix
-
-Slot `99`: the syllabus map, derived by `derive appendix`, and the references.
-
-`<body class="fsa-doc">`. Required metas: `fsa:kind`, `fsa:module`.
-
-Each part is a `<section data-part="…" id="…">` opening with an `<h2>`, in this order. The theme numbers the headings.
-
-| `data-part` | Heading | Required | Holds |
-|---|---|---|---|
-| `syllabus-map` | Full Syllabus Map | yes | Derived: each outline item and a link into the lecture note's topic. |
-| `references` | References | optional | The module's sources. |
-
-
 ## Code languages
 
 Anything outside this set is reported as a warning rather than an error — a module may legitimately introduce a language.
@@ -137,7 +110,6 @@ Applied to every file `verify` reads.
 |---|---|---|
 | `MAT-D01` | error | The filename follows the module's naming convention |
 | `MAT-D02` | error | Indexes are unique within a folder |
-| `MAT-D03` | warning | Indexes run without a gap |
 | `MAT-D06` | error | The first section states what a learner will be able to do |
 | `MAT-D08` | error | A lecture note ends with review questions and somewhere to go next |
 | `MAT-D09` | warning | The review questions are enough for the module |
@@ -164,15 +136,11 @@ Applied to every file `verify` reads.
 
 ### `MAT-D01` — The filename follows the module's naming convention
 
-The index orders the module's decks and reserves 00 for the handbook and 99 for the appendix; the lecture note is one file per module, named for its subject. A file outside the pattern sorts unpredictably, is never linked from either, and its kind cannot be told.
+The index orders the module's decks; the lecture note is one file per module, named for its subject like its labs. A file outside the pattern sorts unpredictably, is never linked from the note's module map, and its kind cannot be told.
 
 ### `MAT-D02` — Indexes are unique within a folder
 
 Two decks claiming the same position give the module two orders.
-
-### `MAT-D03` — Indexes run without a gap
-
-A gap usually means a deck was deleted or never written; advisory because a module may deliberately leave room.
 
 ### `MAT-D06` — The first section states what a learner will be able to do
 
@@ -200,7 +168,7 @@ A page pointing at a sibling that was renamed or never written sends the reader 
 
 ### `MAT-D13` — Link anchors resolve to an id in the target
 
-The handbook and the appendix link into the lecture note's topics; renaming an id breaks them silently.
+The module map, the syllabus map and the labs link into the lecture note's topics; renaming an id breaks them silently.
 
 ### `MAT-D16` — The text is in the language the document declares
 
@@ -264,7 +232,7 @@ A step without an expected result leaves the trainee unable to tell whether it w
 
 ### `MAT-D32` — A module has one lecture note
 
-The note is the module's theory in one place, the file a trainee revises from. A second one splits it, and a note per session — what this replaced — leaves the trainee to stitch the module together before an exam.
+The note is the module in one place: the way through it, its theory and the map from the syllabus, the file a trainee revises from. A second one splits it, and a note per session — what this replaced — leaves the trainee to stitch the module together before an exam.
 
 
 ## Rules — a slide deck
@@ -377,4 +345,4 @@ A code the syllabus does not list is a typo or a missing objective.
 
 ---
 
-43 rules: 21 errors, 22 warnings.
+42 rules: 21 errors, 21 warnings.

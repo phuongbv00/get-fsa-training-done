@@ -22,11 +22,9 @@ how much a trainee learns from them:
 | Artifact | File | Exports to |
 | --- | --- | --- |
 | Slide deck | `NN_Topic_Name.deck.html` | `.pptx` on the FSA template, 16:9 `.pdf` |
-| Module handbook | `00_Study_Guide_Handbook.html` — index `00` is reserved | A4 `.pdf` |
 | Lecture note | `<subject>_lecture_note.html` — **one per module** | A4 `.pdf` only |
 | Lab guide | `<subject>_lab_NN.html` | A4 `.pdf` |
 | Group worksheet | `<subject>_lab_NN_worksheet.html` — a blank form beside a group lab | |
-| Module appendix | `99_Appendix.html` — its syllabus map is derived | |
 
 A deck follows the template: cover, table of contents, Lesson Objectives, one
 section cover per section, Lesson Summary, Thank you. Each slide names one of the
@@ -34,11 +32,13 @@ template's layouts (`data-layout`) and fills its placeholders (`data-slot`);
 speaker notes are `<aside class="notes">`. Open it in a browser to present it
 (arrow keys, N for notes, O for the overview), or export it.
 
-A note, lab or handbook is a sequence of `<section data-part="…">`. The lecture
-note is the module's theory, condensed into one file to keep and to revise from
-before the theory exam or an interview: the module's objectives, one topic per
-lesson in deck order, common misconceptions, a summary, and review questions with
-model answers — at least two per topic.
+A note or a lab is a sequence of `<section data-part="…">`. The lecture note is
+the module in one file — the first page a trainee opens, and what they keep and
+revise from before the theory exam or an interview: the module's objectives, the
+module map, how to study, the environment and the running example, one topic per
+lesson in deck order, common misconceptions, a summary, review questions with
+model answers (at least two per topic), a glossary and the derived syllabus map.
+It holds what older modules split into a handbook and an appendix.
 
 A lab guide is the **guided middle**: shorter than an assignment,
 step-numbered, and checkable by the learner without a marker. If it carries
@@ -143,16 +143,16 @@ lecture or lab as `.md` is reported missing, with the name it should have.
 It reads the plan **by column name, tolerating any superset**, and deliberately
 does not enforce that CSV's schema — that is `program verify`'s job.
 
-### `derive appendix` — the syllabus map
+### `derive syllabus-map` — the lecture note's syllabus map
 
 ```bash
-gftd material derive appendix \
-  --syllabus TOPIC_Syllabus.md --dir ./Lectures --appendix 99_Appendix.html --write
+gftd material derive syllabus-map \
+  --syllabus TOPIC_Syllabus.md --note ./Lectures/dbf_lecture_note.html --write
 ```
 
-Matches each topic-outline item to the lecture-note topic whose heading best
-covers it, and rewrites the appendix's `syllabus-map` part as a checklist of
-links. It is a match on wording, so the result is meant to be read. `--check` is
+Matches each topic-outline item to the note's topic whose heading best covers
+it, and rewrites the note's `syllabus-map` part as a checklist of links to
+those topics. It is a match on wording, so the result is meant to be read. `--check` is
 the drift gate; `--write` is idempotent.
 
 ### `export` — the files handed out
@@ -167,14 +167,16 @@ Verifies first and refuses a document with errors. `pptx` adds each slide from
 the template's own layout and fills its placeholders; a check slide's answer
 goes to the notes. `pdf` draws a deck with reportlab, shrinking a slot's text to
 fit and reporting `MAT-X02` past a readable floor; a long-form document is
-rendered by `xhtml2pdf` with the embedded fonts `assessment render` uses.
+rendered by `xhtml2pdf` with the embedded fonts `assessment render` uses. Its
+links to `#ids` jump inside the PDF; a link to a sibling file names the PDF to
+open instead, since a PDF cannot open the file beside it.
 
 ## Language
 
 A document is written in the language its `<html lang>` declares — `en` by
 default, `vi` for a module written in Vietnamese. Everything the skill writes on
 the author's behalf follows it: slide defaults, the theme's labels, the viewer's
-hints, a PDF's session line, the appendix heading. Those words live once, in
+hints, a PDF's session line, the syllabus map's heading. Those words live once, in
 `core/i18n.py`; `gen_layouts.py` generates the stylesheet's labels from it.
 A translation of an English original is a **separate file** whose stem ends
 `_vn` and declares `vi`. `verify` warns about Vietnamese in a file that does not
@@ -200,14 +202,14 @@ features/material/
 │   ├── export_pptx.py   # into the template
 │   ├── export_pdf.py    # slides with reportlab, documents with xhtml2pdf
 │   ├── coverage.py      # MAT-C*, the cross-feature half
-│   └── appendix.py      # the derived syllabus map
+│   └── syllabus_map.py  # the derived syllabus map
 └── theme/               # fsa.css, layouts.css (GENERATED), deck.js, doc.js, img/, fsa_base.pptx
 
 payload/get-fsa-training-done/references/material/
 ├── overview.md
 ├── structure.md, layouts.md   # GENERATED
 ├── conventions.md
-├── templates/           # deck, lecture note, lab, handbook, appendix (HTML)
+├── templates/           # deck, lecture note, lab (HTML)
 ├── examples/{mini,plan}/
 ├── tasks/
 └── workflows/

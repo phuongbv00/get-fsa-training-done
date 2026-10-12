@@ -1,6 +1,6 @@
 """`material`: the teaching material a session plan calls for.
 
-Owns slide decks, lecture notes, module handbooks, appendices and lab guides,
+Owns slide decks, the module's lecture note, lab guides and their worksheets,
 written in HTML on the FSA template and exported to .pptx and .pdf. It never writes
 a quiz, a rubric or a schedule row: a session's `Training Materials` cell names
 the file that serves it, and producing *that* file is this feature's job while

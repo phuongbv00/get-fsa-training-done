@@ -15,7 +15,7 @@ The skill has three features, each with its own CLI namespace:
 | Namespace | What it does | Docs |
 | --- | --- | --- |
 | `program` | design a training programme and export its workbooks | [README](src/get_fsa_training_done/features/program/README.md) |
-| `material` | write slide decks on the FSA template, handbooks, lecture notes and lab guides in HTML, and export them to `.pptx` and `.pdf` | [README](src/get_fsa_training_done/features/material/README.md) |
+| `material` | write slide decks on the FSA template, one lecture note per module and lab guides in HTML, and export them to `.pptx` and `.pdf` | [README](src/get_fsa_training_done/features/material/README.md) |
 | `assessment` | design and grade quizzes, assignments, exams and capstones | [README](src/get_fsa_training_done/features/assessment/README.md) |
 
 They divide one job. A programme's session plan names, in its

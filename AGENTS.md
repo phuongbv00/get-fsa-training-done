@@ -6,7 +6,7 @@ Guidance for coding agents (Codex, Claude Code, and others) working in this repo
 
 `get-fsa-training-done` ships **one agent skill** and the CLI behind it, and the two must stay in sync:
 
-- **The skill** — installed as `get-fsa-training-done`, defined in `src/get_fsa_training_done/skill.py`, with its payload at `src/get_fsa_training_done/payload/get-fsa-training-done/`. It has three **features** dividing one job: `program` (curriculum, schedules, syllabi, vendor workbooks), `material` (slide decks, handbooks, lecture notes, lab guides and worksheets — HTML on the FSA template, exported to `.pptx` and `.pdf`), and `assessment` (quizzes, assignments, exams, capstones, grading).
+- **The skill** — installed as `get-fsa-training-done`, defined in `src/get_fsa_training_done/skill.py`, with its payload at `src/get_fsa_training_done/payload/get-fsa-training-done/`. It has three **features** dividing one job: `program` (curriculum, schedules, syllabi, vendor workbooks), `material` (slide decks, the module's lecture note, lab guides and worksheets — HTML on the FSA template, exported to `.pptx` and `.pdf`), and `assessment` (quizzes, assignments, exams, capstones, grading).
 - **The CLI** — `get-fsa-training-done`, with the alias `gftd`. Lifecycle commands (`install`, `update`, `uninstall`, `status`, `doctor`, `env`) act on the one skill; each feature's worker commands live under its namespace: `gftd <namespace> <verb>` (e.g. `gftd assessment render`).
 
 The project was renamed from an earlier package that shipped three separate skills. The rename was a clean break, and `tests/test_consistency.py` keeps the old names out of every tracked file.
@@ -91,7 +91,7 @@ Derived tables are never typed by hand: `derive allocation` computes a syllabus'
 
 ### Feature contract (material)
 
-Material is **HTML on the FSA theme**, one file per artifact, and the HTML is the single source of truth: `export pptx` and `export pdf` derive the files handed out, which are never edited by hand. In order of how much a trainee learns from them: the slide deck (`NN_Topic.deck.html`, one per lesson), the handbook, the lecture note (`<subject>_lecture_note.html`, **one per module** — the condensed theory a trainee revises from before a theory exam or an interview, handed out as HTML and `.pdf` only), the lab guide.
+Material is **HTML on the FSA theme**, one file per artifact, and the HTML is the single source of truth: `export pptx` and `export pdf` derive the files handed out, which are never edited by hand. In order of how much a trainee learns from them: the slide deck (`NN_Topic.deck.html`, one per lesson), the lecture note (`<subject>_lecture_note.html`, **one per module** — the module map and study routine, then the condensed theory a trainee revises from before a theory exam or an interview, handed out as HTML and `.pdf` only), the lab guide.
 
 **Outline first.** Every task that creates a document opens on `references/material/tasks/propose_outline.md`: the outline is shown and explicitly approved before any file is written or overwritten. `tests/features/material/test_consistency.py` holds each writing task, the standing rules and both workflows to it; keep that gate as the first step of any new writing task.
 
@@ -101,7 +101,7 @@ The theme is read from the FSA Training Materials template by `scripts/material/
 
 The parts a long-form document carries live once, in `core/grammar.py`, and `structure.md` is generated from it — prose describing a rule the checker does not enforce would calibrate the model to a constraint nothing holds it to. That is why the learning rules are rules: answers to every question (`MAT-D25`), each objective tested (`MAT-D26`), enough review questions for the module (`MAT-D09`), one lecture note per module (`MAT-D32`), a check slide per section (`MAT-S07`), speaker notes (`MAT-S06`), and why diagram conventions are rules (`MAT-D19` cardinality in words, `MAT-D20` theme colours).
 
-Every word the skill writes into a document on the author's behalf — slide defaults, theme labels, a PDF's session line, the appendix heading — comes from `core/i18n.py` in the language `<html lang>` declares; the stylesheet's labels and the script words are generated from it into `layouts.css`. Add a language there, never as a string in CSS, JS or an exporter.
+Every word the skill writes into a document on the author's behalf — slide defaults, theme labels, a PDF's session line, the syllabus map's heading — comes from `core/i18n.py` in the language `<html lang>` declares; the stylesheet's labels and the script words are generated from it into `layouts.css`. Add a language there, never as a string in CSS, JS or an exporter.
 
 `material coverage` reads a programme's `ScheduleDetail` **by column name, tolerating any superset**, and deliberately does not enforce that CSV's schema — that is `program verify`'s job.
 

@@ -272,6 +272,48 @@ def test_a_note_pdf_numbers_its_review_questions_and_tags_them_inline(module):
     assert 'candidate key? <span class="code-tag">' in questions
 
 
+def test_a_note_pdf_jumps_to_its_topics(module):
+    """xhtml2pdf jumps only to `<a name>`, never to an `id`: without one at each
+    topic, the module map's and the syllabus map's links went nowhere."""
+    pytest.importorskip("xhtml2pdf")
+    import re
+
+    from get_fsa_training_done.features.material.core import export_pdf
+
+    html = export_pdf._print_html(dom.parse(module / NOTE))
+    for anchor in ("relational-modelling", "querying", "environment"):
+        assert f'<a name="{anchor}"></a>' in html
+    assert main(["material", "export", "pdf", str(module / NOTE)]) == 0
+    data = (module / "dbf_lecture_note.pdf").read_bytes()
+    # Two module-map rows and two syllabus-map items jump inside the file.
+    links, urls = len(re.findall(rb"/Subtype /Link", data)), len(re.findall(rb"/URI \(", data))
+    assert links - urls >= 4
+
+
+def test_a_note_pdf_names_the_pdf_a_sibling_link_points_at(module):
+    """A PDF cannot open the HTML beside it: the link keeps its words and says
+    which exported file to open."""
+    from get_fsa_training_done.features.material.core import export_pdf
+
+    html = export_pdf._print_html(dom.parse(module / NOTE))
+    assert 'href="01_Relational_Modelling.deck.html"' not in html
+    assert '<p class="xref-file">01_Relational_Modelling.deck.pdf</p>' in html  # in the map
+    assert '<span class="xref-file">(01_Relational_Modelling.deck.pdf)</span>' in html  # in text
+    lab = export_pdf._print_html(dom.parse(module / "dbf_lab_01.html"))
+    assert "(dbf_lecture_note.pdf)" in lab
+
+
+def test_a_note_pdf_numbers_a_list_of_plain_items_the_same_way(module):
+    """How to Study's items open with text, not a paragraph: they are numbered by
+    the same hand, so a list never mixes the renderer's numbers with written ones."""
+    from get_fsa_training_done.features.material.core import export_pdf
+
+    html = export_pdf._print_html(dom.parse(module / NOTE))
+    routine = html.split("How to Study This Module", 1)[1].split("</ol>", 1)[0]
+    assert routine.count('class="numbered"') == 3
+    assert "3. " in routine and "4. " not in routine
+
+
 def test_a_vietnamese_lab_pdf_names_its_session_in_vietnamese(module):
     """The note covers a module; a lab serves one session and says which."""
     pytest.importorskip("xhtml2pdf")
@@ -292,19 +334,17 @@ def test_the_theme_labels_follow_the_page_language():
     assert 'content: "Try it"' not in (layouts_theme() / "fsa.css").read_text(encoding="utf-8")
 
 
-def test_the_appendix_map_is_headed_in_the_appendixs_language(module, syllabus_path):
-    path = module / "99_Appendix.html"
-    _vietnamese(module, "99_Appendix.html")
+def test_the_syllabus_map_is_headed_in_the_notes_language(module, syllabus_path):
+    path = module / NOTE
+    _vietnamese(module, NOTE)
     main(
         [
             "material",
             "derive",
-            "appendix",
+            "syllabus-map",
             "--syllabus",
             str(syllabus_path),
-            "--dir",
-            str(module),
-            "--appendix",
+            "--note",
             str(path),
             "--write",
         ]

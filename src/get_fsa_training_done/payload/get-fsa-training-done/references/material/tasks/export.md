@@ -7,13 +7,13 @@ whenever it changes and never edited by hand.
 
 | Input | Notes |
 |---|---|
-| the documents | a deck, or a note, lab or handbook, already passing `verify` |
+| the documents | a deck, the lecture note or a lab, already passing `verify` |
 
 ## Produces
 
 Beside each source: `NN_Topic_Name.deck.pptx` and `.deck.pdf` for a deck (16:9,
-on the FSA template), and an A4 `.pdf` for the lecture note, a lab or the
-handbook. A lecture note is handed out as its HTML and that PDF only.
+on the FSA template), and an A4 `.pdf` for the lecture note or a lab. A
+lecture note is handed out as its HTML and that PDF only.
 
 ## Steps
 
@@ -43,6 +43,11 @@ handbook. A lecture note is handed out as its HTML and that PDF only.
    the lecture note.
 4. Answers folded into `<details>` on a check slide go into that slide's notes in
    the `.pptx`, never onto the slide.
+5. In a document's PDF, a link inside it — the module map's and the syllabus
+   map's `#topic` links — jumps to its place. A PDF cannot open a file beside
+   it, so a link to a deck or a lab keeps its words and names the PDF to open
+   (`dbf_lab_01.pdf`): export every file the note links, and hand them out
+   together.
 
 ## Done when
 

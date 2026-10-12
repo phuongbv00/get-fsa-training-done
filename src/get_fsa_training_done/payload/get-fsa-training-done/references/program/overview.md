@@ -14,7 +14,7 @@ filename that will serve it — and never the instrument itself.
 | Artifact | Feature |
 |---|---|
 | questions, briefs, rubrics, import files, grading | the assessment feature |
-| lecture notes, handbooks, lab and demo guides | the material feature |
+| slide decks, the lecture note, lab and demo guides | the material feature |
 | modules, schedules, syllabi, session plans, workbooks | this one |
 
 A session's `Training Materials` cell names the file another feature produces.

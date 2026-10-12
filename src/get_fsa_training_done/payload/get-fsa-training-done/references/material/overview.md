@@ -11,8 +11,7 @@ trainee learns from them, a lesson has:
 | Kind | File | Read where |
 |---|---|---|
 | slide deck | `NN_Topic_Name.deck.html`, one per lesson | in the session, presented from the browser or the exported `.pptx` |
-| module handbook | `00_Study_Guide_Handbook.html` | first, and whenever lost |
-| lecture note | `<subject>_lecture_note.html`, **one per module** | after each session, and to revise before the theory exam or an interview — handed out as the HTML and its `.pdf` |
+| lecture note | `<subject>_lecture_note.html`, **one per module** | first — its module map and study routine — then after each session, and to revise before the theory exam or an interview; handed out as the HTML and its `.pdf` |
 | lab guide | `<subject>_lab_NN.html` | in the lab session |
 
 A recorded video is a later addition: a deck's speaker notes are written so they
@@ -33,7 +32,7 @@ otherwise.
 |---|---|
 | quiz questions, assignment briefs, exams, rubrics, grading | the assessment feature |
 | session plans, syllabi, schedules, module structure | the program feature |
-| slide decks, lecture notes, handbooks, appendices, lab guides and their worksheets | this one |
+| slide decks, the lecture note, lab guides and their worksheets | this one |
 
 A lab guide is the guided middle: shorter than an assignment, step-numbered,
 checkable by the learner. If it carries marks and a rubric it is an assignment,
@@ -46,7 +45,7 @@ and it belongs to the assessment feature. Say so rather than writing it here.
 | `FSA material init --dir DIR` | put the theme in `DIR/_theme/`, which every page links |
 | `FSA material verify PATH...` | check documents against the shape their names claim |
 | `FSA material coverage --schedule CSV --dir DIR` | what the plan asks for versus what exists |
-| `FSA material derive appendix --syllabus MD --dir DIR --appendix HTML --write` | rebuild the appendix's syllabus map |
+| `FSA material derive syllabus-map --syllabus MD --note HTML --write` | rebuild the lecture note's syllabus map |
 | `FSA material export pptx\|pdf FILE` | derive the `.pptx` (a deck) or `.pdf` from the HTML |
 
 ## Standing rules
