@@ -57,7 +57,9 @@ jobs:
       # The workers run in the managed venv; the tests run here, so they need
       # the same libraries to exercise the real renderer and archive readers.
       - run: pip install -r src/get_fsa_training_done/lifecycle/envmgr/requirements/core.txt
-      - run: pytest -q
+      # pyproject's addopts already sets -q; a second -q would hide the summary
+      # line. -rs adds the reason for every skip, so a platform-only skip shows.
+      - run: pytest -rs
 
   install-round-trip:
     # Exercises the real lifecycle against a throwaway HOME, across every
