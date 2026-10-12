@@ -6,7 +6,7 @@ Read finished material the way a trainee will, before it is published.
 
 | Input | Notes |
 |---|---|
-| the documents | decks, notes, labs, and the starter code they link to |
+| the documents | decks, the lecture note, labs, and the starter code they link to |
 | the level | from the programme: `CPL`, `FR`, `UP_SKILL` or `RE_SKILL` |
 
 ## Produces
@@ -16,13 +16,14 @@ A list of changes, then the changes made.
 ## Steps
 
 1. **Work through it as the trainee.** Read only this lesson and the ones
-   before it, at the programme's level. Do every try-it and the knowledge check
-   before opening an answer, and every lab step in order. Note each place you
+   before it, at the programme's level. Answer every check slide and every
+   review question before opening its answer, and do every lab step in order. Note each place you
    stalled: a term used before it was defined, a step that assumed one not
    written, an exercise its section did not prepare you for. Those are the
    findings that matter most.
-2. **Slides and note agree.** The note explains each section of the deck, in
-   the same order and the same words for the same things.
+2. **Slides and note agree.** Each topic of the lecture note condenses its
+   lesson's deck, in the same order and the same words for the same things, and
+   a trainee who knows the note can answer every review question.
 3. **Who it speaks to.** On slides and in notes, write to the trainee. Speaker
    notes are the one place written to the trainer. Rewrite anything else
    addressed to the instructor ("ask the class to...") as what the trainee does.

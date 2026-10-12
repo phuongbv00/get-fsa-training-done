@@ -1,7 +1,7 @@
 """The words the theme and the tools write into a document, in its language.
 
 A document declares its language with `<html lang="…">`. Everything the skill
-writes on the author's behalf — a slide's default title, the theme's "Try it"
+writes on the author's behalf — a slide's default title, the theme's "Answer"
 label, a PDF's "Session 3 · 90 min" line, the appendix's map heading — follows
 that declaration, so a module written in Vietnamese does not come out with
 English chrome around it.
@@ -43,9 +43,10 @@ STRINGS: dict[str, dict[str, str]] = {
 #: The opening line of an objectives part, per language. `verify` accepts any
 #: of them, and the templates write the one for the document's language.
 AFTER = {
-    "en": re.compile(r"^After this (unit|lesson|lab), (learners|you) can:", re.IGNORECASE),
+    "en": re.compile(r"^After this (unit|lesson|lab|module), (learners|you) can:", re.IGNORECASE),
     "vi": re.compile(
-        r"^Sau (bài|buổi) (học|lab|thực hành)( này)?, (học viên|bạn) (có thể|sẽ):",
+        r"^Sau ((bài|buổi) (học|lab|thực hành)|module|học phần)( này)?, "
+        r"(học viên|bạn) (có thể|sẽ):",
         re.IGNORECASE,
     ),
 }

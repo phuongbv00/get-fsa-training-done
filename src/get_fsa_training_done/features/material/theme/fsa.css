@@ -484,8 +484,8 @@ body.fsa-doc {
 .fsa-doc pre.wrong::before { color: #c62828; text-transform: uppercase; }
 .fsa-doc pre.right::before { color: #2e7d32; text-transform: uppercase; }
 
-/* Knowledge check: numbered questions, each with its answer. */
-.fsa-doc section[data-part="knowledge-check"] > ol > li { margin-bottom: 0.8em; }
+/* Review questions: numbered, each with its model answer. */
+.fsa-doc section[data-part="review-questions"] > ol > li { margin-bottom: 0.8em; }
 .fsa-doc section[data-part="summary"] {
   padding: 4px 22px 8px;
   border-radius: 10px;

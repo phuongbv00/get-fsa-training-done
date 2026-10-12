@@ -72,9 +72,10 @@ def render() -> str:
     lines.append("")
     lines.append(
         f"Index `{G.HANDBOOK_INDEX}` is the handbook and `{G.APPENDIX_INDEX}` the appendix. "
-        "A lesson's deck and note share its index: `01_Relational_Modelling.deck.html` "
-        "and `01_Relational_Modelling.html`. A trailing letter marks an aside outside "
-        f"the syllabus (`02b_...`); `{G.TRANSLATION_SUFFIX}` before the extension marks "
+        "A lesson's deck carries its index: `01_Relational_Modelling.deck.html`. A "
+        "trailing letter marks an aside outside the syllabus (`02b_...`). The lecture "
+        "note is one file per module, named for its subject like the labs: "
+        f"`dbf_lecture_note.html`. `{G.TRANSLATION_SUFFIX}` before the extension marks "
         "a translation.\n"
     )
 
@@ -93,7 +94,7 @@ def render() -> str:
             for part in kind.parts:
                 required = "yes" if part.required else "optional"
                 if part.repeatable:
-                    required += ", one per idea"
+                    required += ", repeated"
                 lines.append(f"| `{part.key}` | {part.heading} | {required} | {part.description} |")
             lines.append("")
 

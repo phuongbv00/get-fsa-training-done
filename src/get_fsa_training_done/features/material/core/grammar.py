@@ -69,10 +69,13 @@ THEME_DIR = "_theme"
 THEME_CSS = f"{THEME_DIR}/fsa.css"
 DECK_JS = f"{THEME_DIR}/deck.js"
 
-#: `NN_Topic_Name.deck.html`, `NN_Topic_Name.html`; `_vn` before the extension
-#: marks a translation.
+#: `NN_Topic_Name.deck.html` per lesson, `<subject>_lecture_note.html` once per
+#: module; `_vn` before the extension marks a translation.
 DECK_FILENAME = re.compile(r"^(\d{2})([a-z]?)_[A-Za-z0-9_&+-]+?(?:_vn)?\.deck\.html$")
-NOTE_FILENAME = re.compile(r"^(\d{2})([a-z]?)_[A-Za-z0-9_&+-]+?(?:_vn)?(?<!\.deck)\.html$")
+NOTE_FILENAME = re.compile(r"^([a-z0-9]+)_lecture_note(?:_vn)?\.html$")
+#: `00_*` and `99_*`, and — before the note was one file per module — a
+#: lesson's `NN_Topic_Name.html` beside its deck.
+INDEXED_FILENAME = re.compile(r"^(\d{2})([a-z]?)_[A-Za-z0-9_&+-]+?(?:_vn)?(?<!\.deck)\.html$")
 LAB_FILENAME = re.compile(r"^[a-z0-9]+_lab_(\d{2})(?:_vn)?\.html$")
 WORKSHEET_FILENAME = re.compile(r"^[a-z0-9]+_lab_\d{2}_worksheet(?:_vn)?\.html$")
 
@@ -88,7 +91,7 @@ class Part:
     key: str
     heading: str
     required: bool = True
-    #: A note has one `concept` part per idea; every other part appears once.
+    #: A note has one `topic` part per lesson; every other part appears once.
     repeatable: bool = False
     description: str = ""
 
@@ -145,7 +148,7 @@ HANDBOOK = Kind(
             "Module Map",
             description=(
                 "A table, one row per lesson in order: its title, then a link to "
-                "its deck, its note and its lab where they exist."
+                "its deck, its topic in the lecture note and its lab where they exist."
             ),
         ),
         Part("how-to-study", "How to Study This Module", description="A routine per lesson."),
@@ -168,9 +171,11 @@ NOTE = Kind(
     key="note",
     title="Lecture note",
     summary=(
-        "The reading behind a lesson: what the slides compress, explained in "
-        "full, with something to try after each idea and the answers to every "
-        "question it asks."
+        "The module's theory, condensed into one file: what a trainee keeps as "
+        "a reference and revises from before a theory exam or a job interview. "
+        "One `topic` part per lesson, in the order of the decks — the decks "
+        "teach, the note is what stays. Handed out as the HTML and its `.pdf`, "
+        "never as a `.pptx`."
     ),
     filename=NOTE_FILENAME,
     body_class="fsa-doc",
@@ -181,43 +186,41 @@ NOTE = Kind(
             "objectives",
             "Objectives",
             description=(
-                "Opens `After this unit, learners can:`, then a list whose items "
-                "each carry `data-objective`."
+                "Opens `After this module, learners can:`, then a list whose items "
+                "each carry `data-objective` — every objective the module serves."
             ),
         ),
         Part(
-            "why",
-            "Why This Matters",
-            description="The problem the lesson solves, in the module's running domain.",
-        ),
-        Part(
-            "concept",
-            "<the idea>",
+            "topic",
+            "<the lesson>",
             repeatable=True,
             description=(
-                "One per idea: prose first, then the example, then a "
-                '`<div class="try-it">` with its answer in `<details>`.'
+                "One per lesson, in deck order: the theory condensed — definitions, "
+                "the rules and why they hold, a minimal example, a comparison table "
+                "where two things are easily confused. `<h3>` per point; prose "
+                "before any example."
             ),
         ),
         Part(
-            "worked-example",
-            "Worked Example",
-            description="The problem, the approach, the code, and what its output means.",
-        ),
-        Part(
-            "common-problems",
-            "Common Problems",
+            "misconceptions",
+            "Common Misconceptions",
             required=False,
-            description="One `<h3>` per symptom or literal error message, then the fix.",
+            description="One `<h3>` per wrong belief or easily confused pair, then what is true.",
         ),
         Part(
-            "summary", "Summary", description="One item per objective, carrying `data-objective`."
-        ),
-        Part(
-            "knowledge-check",
-            "Knowledge Check",
+            "summary",
+            "Summary",
             description=(
-                "An `<ol>`; each question carries `data-objective` and its answer in `<details>`."
+                "One item per objective, carrying `data-objective`: the page to reread "
+                "the night before an exam."
+            ),
+        ),
+        Part(
+            "review-questions",
+            "Review Questions",
+            description=(
+                "An `<ol>` of the questions a theory exam or an interviewer asks; each "
+                "carries `data-objective` and a model answer in `<details>`."
             ),
         ),
         Part("further-reading", "Further Reading", description="Primary sources, linked."),
@@ -281,7 +284,7 @@ APPENDIX = Kind(
         Part(
             "syllabus-map",
             "Full Syllabus Map",
-            description="Derived: each outline item and a link into the note covering it.",
+            description="Derived: each outline item and a link into the lecture note's topic.",
         ),
         Part("references", "References", required=False, description="The module's sources."),
     ),
@@ -313,13 +316,26 @@ def kind_for(filename: str) -> Kind | None:
     if DECK_FILENAME.match(filename):
         return DECK
     if NOTE_FILENAME.match(filename):
+        return NOTE
+    if INDEXED_FILENAME.match(filename):
         index = filename[:2]
         if index == HANDBOOK_INDEX:
             return HANDBOOK
         if index == APPENDIX_INDEX:
             return APPENDIX
-        return NOTE
     return None
+
+
+def is_session_note(filename: str) -> bool:
+    """`01_Topic.html` or `dbf_lecture_01.html`: a lecture note per session.
+
+    The note is one file per module now; a name in the old shape is a note to
+    fold into it, and saying so beats calling it an unknown name.
+    """
+    match = INDEXED_FILENAME.match(filename)
+    if match and match.group(1) not in (HANDBOOK_INDEX, APPENDIX_INDEX):
+        return True
+    return bool(re.search(r"_lecture_\d+(?:_vn)?\.(?:html|md)$", filename))
 
 
 def is_translation(filename: str) -> bool:
@@ -337,6 +353,7 @@ __all__ = [
     "DECK_JS",
     "HANDBOOK",
     "HANDBOOK_INDEX",
+    "INDEXED_FILENAME",
     "KINDS",
     "KIND_BY_KEY",
     "Kind",
@@ -358,6 +375,7 @@ __all__ = [
     "VIETNAMESE",
     "WORKSHEET_FILENAME",
     "WORKSHEET",
+    "is_session_note",
     "is_translation",
     "kind_for",
 ]

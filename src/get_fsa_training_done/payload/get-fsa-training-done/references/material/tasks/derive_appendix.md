@@ -1,14 +1,14 @@
 # Task — Write or refresh the appendix
 
-`99_Appendix.html` maps the syllabus onto the notes, so a trainee revising can find
-where each outline item was covered.
+`99_Appendix.html` maps the syllabus onto the lecture note's topics, so a trainee
+revising can find where each outline item is covered.
 
 ## Inputs
 
 | Input | Notes |
 |---|---|
 | `syllabus` | the topic's syllabus |
-| `materials_dir` | the notes it maps |
+| `materials_dir` | the module folder holding the lecture note it maps |
 
 ## Produces
 
@@ -29,8 +29,8 @@ where each outline item was covered.
      --dir "<materials_dir>" --appendix "99_Appendix.html" --write
    ```
 
-3. Read the result. It matches on wording, so an item linked to the wrong note,
-   or left unlinked, means the outline and the notes name the same thing
+3. Read the result. It matches on wording, so an item linked to the wrong topic,
+   or left unlinked, means the outline and the note name the same thing
    differently.
 4. Write the references part by hand: the module's primary sources.
 
@@ -40,4 +40,4 @@ where each outline item was covered.
 
 ## Hands off to
 
-Nothing. Re-run `--check` whenever a note or the outline changes.
+Nothing. Re-run `--check` whenever the note or the outline changes.

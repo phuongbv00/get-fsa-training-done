@@ -31,7 +31,7 @@ approval of each. No files.
 3. Open each outline with one line: the absolute path, the kind, the session it
    serves, its objective codes and its minutes.
 4. Show every outline the request covers in one message, so the user can see how
-   a lesson's deck, note and lab divide the work — then **stop and ask**:
+   a lesson's deck and lab, and the module's note, divide the work — then **stop and ask**:
    approve, change, or drop each. Silence, "looks fine probably" or a question
    back is not approval.
 5. Apply the changes and show the revised outline again. Repeat until each
@@ -53,13 +53,15 @@ approval of each. No files.
   slides, then the summary (each item with the code it closes) and the closing
   layout.
 
-**Lecture note** (`NN_Topic_Name.html`)
+**Lecture note** (`<subject>_lecture_note.html`, one per module)
 
-- The objectives, each with its code; why it matters, in one sentence.
-- Per concept part: the idea, the example, and the try-it with its answer. When
-  the session has a deck, map each part to the deck section it explains.
-- The worked example's problem; the common problems by symptom; the knowledge
-  check's questions, each with its code and a one-line answer; further reading.
+- The module's objectives, each with its code — the union of every session that
+  names the note.
+- Per topic, one per lesson in deck order: its id, the deck it condenses, and
+  the points it holds — definitions, rules, the comparison tables.
+- The misconceptions, each as a trainee would say it; the review questions,
+  each with its code and a one-line model answer, at least two per topic;
+  further reading.
 
 **Lab guide** (`<subject>_lab_NN.html`)
 

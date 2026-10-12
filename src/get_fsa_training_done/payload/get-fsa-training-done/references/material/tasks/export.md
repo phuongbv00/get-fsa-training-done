@@ -12,7 +12,8 @@ whenever it changes and never edited by hand.
 ## Produces
 
 Beside each source: `NN_Topic_Name.deck.pptx` and `.deck.pdf` for a deck (16:9,
-on the FSA template), `NN_Topic_Name.pdf` for a note, lab or handbook (A4).
+on the FSA template), and an A4 `.pdf` for the lecture note, a lab or the
+handbook. A lecture note is handed out as its HTML and that PDF only.
 
 ## Steps
 
@@ -32,7 +33,7 @@ on the FSA template), `NN_Topic_Name.pdf` for a note, lab or handbook (A4).
    ```bash
    FSA material export pptx "<materials_dir>/NN_Topic_Name.deck.html"
    FSA material export pdf  "<materials_dir>/NN_Topic_Name.deck.html"
-   FSA material export pdf  "<materials_dir>/NN_Topic_Name.html"
+   FSA material export pdf  "<materials_dir>/<subject>_lecture_note.html"
    ```
 
    Export refuses a document with errors; fix the HTML rather than passing

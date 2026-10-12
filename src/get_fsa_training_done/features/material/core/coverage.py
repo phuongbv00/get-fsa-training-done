@@ -20,7 +20,13 @@ from pathlib import Path
 from get_fsa_training_done.errors import UsageError
 from get_fsa_training_done.features.common.findings import Report
 
-from .grammar import LAB_FILENAME, OBJECTIVE_CODE, WORKSHEET_FILENAME
+from .grammar import (
+    LAB_FILENAME,
+    NOTE_FILENAME,
+    OBJECTIVE_CODE,
+    WORKSHEET_FILENAME,
+    is_session_note,
+)
 
 MATERIALS_COLUMN = "Training Materials / Logistics & General Notes"
 OBJECTIVES_COLUMN = "Learning Objectives"
@@ -33,6 +39,7 @@ FILENAME = re.compile(r"\b[\w.-]+\.(?:html|md|csv|json|xlsx|pdf)\b")
 MATERIAL_KINDS = (
     re.compile(r"_lab_\d+(?:_vn)?\.html$"),
     WORKSHEET_FILENAME,
+    NOTE_FILENAME,
     re.compile(r"_lecture_\d+\.html$"),
     re.compile(r"^\d{2}[a-z]?_.+\.html$"),
 )
@@ -41,6 +48,7 @@ MATERIAL_KINDS = (
 STALE_MARKDOWN = (
     re.compile(r"_lab_\d+(?:_vn)?\.md$"),
     re.compile(r"_lab_\d+_worksheet(?:_vn)?\.md$"),
+    re.compile(r"_lecture_note(?:_vn)?\.md$"),
     re.compile(r"_lecture_\d+\.md$"),
     re.compile(r"^\d{2}[a-z]?_.+\.md$"),
 )
@@ -118,7 +126,13 @@ def check(
             f"session {demand.session or '?'} names {filename}, which does not exist"
             + (
                 f"; material is HTML, so the plan should name {filename[:-3]}.html"
-                if filename.endswith(".md")
+                if filename.endswith(".md") and not is_session_note(filename)
+                else ""
+            )
+            + (
+                "; the lecture note is one file per module, so the plan should name "
+                "<subject>_lecture_note.html"
+                if is_session_note(filename)
                 else ""
             )
             + (f" — {demand.content[:60]}" if demand.content else ""),
@@ -163,25 +177,32 @@ def _lab_of(worksheet: str) -> str:
 
 
 def check_objectives(demands: list[Demand], directory: Path, report: Report) -> None:
-    """A material should serve the objectives its session claims."""
+    """A material should serve the objectives of every session that names it.
+
+    The lecture note is named by each lecture row of the module, so what it must
+    mention is the union of their objectives, not the last row's.
+    """
     from . import dom
 
-    by_name = {demand.filename: demand for demand in demands}
-    for filename, demand in sorted(by_name.items()):
+    by_name: dict[str, list[Demand]] = {}
+    for demand in demands:
+        by_name.setdefault(demand.filename, []).append(demand)
+    for filename, named in sorted(by_name.items()):
         path = directory / filename
-        if not owns(filename) or not path.is_file() or not demand.objectives:
+        if not owns(filename) or not path.is_file():
             continue
         cited = set(OBJECTIVE_CODE.findall(dom.parse(path).source))
         if not cited:
             continue
-        stray = sorted(set(demand.objectives) - cited)
-        if stray:
-            report.warn(
-                "MAT-C03",
-                filename,
-                f"session {demand.session or '?'} serves {', '.join(stray)}, "
-                "which this material never mentions",
-            )
+        for demand in named:
+            stray = sorted(set(demand.objectives) - cited)
+            if stray:
+                report.warn(
+                    "MAT-C03",
+                    filename,
+                    f"session {demand.session or '?'} serves {', '.join(stray)}, "
+                    "which this material never mentions",
+                )
 
 
 __all__ = [

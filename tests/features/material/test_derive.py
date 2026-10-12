@@ -26,16 +26,16 @@ def argv(module, syllabus, *extra):
     ]
 
 
-def test_the_shipped_appendix_matches_its_notes(module, syllabus_path):
+def test_the_shipped_appendix_matches_its_note(module, syllabus_path):
     assert main(argv(module, syllabus_path, "--check")) == 0
 
 
-GOOD = 'Querying → <a href="02_Querying.html">02</a>'
-BROKEN = 'Querying → <a href="02_Querying.html#gone">02</a>'
+GOOD = 'Querying → <a href="dbf_lecture_note.html#querying">Querying</a>'
+BROKEN = 'Querying → <a href="dbf_lecture_note.html#gone">Querying</a>'
 
 
-def test_check_fails_once_a_note_is_renamed(module, syllabus_path):
-    (module / "02_Querying.html").rename(module / "02_Joins_And_Grouping.html")
+def test_check_fails_once_a_topic_is_renamed(module, syllabus_path, edit):
+    edit(module, "dbf_lecture_note.html", 'id="querying"', 'id="joins-and-grouping"')
     assert main(argv(module, syllabus_path, "--check")) == 1
 
 
@@ -59,7 +59,7 @@ def test_write_leaves_the_rest_of_the_appendix_alone(module, syllabus_path, edit
     assert 'data-part="references"' in after
 
 
-def test_an_outline_item_no_note_covers_is_left_unlinked(module, syllabus_path, edit):
+def test_an_outline_item_no_topic_covers_is_left_unlinked(module, syllabus_path, edit):
     edit(
         module.parent / "plan",
         syllabus_path.name,

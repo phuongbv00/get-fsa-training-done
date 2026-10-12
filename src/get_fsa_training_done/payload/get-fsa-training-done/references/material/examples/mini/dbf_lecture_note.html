@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Databases — Lecture Note</title>
+<meta name="fsa:kind" content="note">
+<meta name="fsa:module" content="Databases">
+<meta name="fsa:objectives" content="DBF-K1 DBF-K2">
+<meta name="fsa:stack" content="SQL:2016 · PostgreSQL 16">
+<link rel="stylesheet" href="_theme/fsa.css">
+<script src="_theme/doc.js" defer></script>
+</head>
+<body class="fsa-doc">
+<main>
+<article class="note">
+<h1>Databases — Lecture Note</h1>
+<p>The module's theory in one place: keep it as a reference, and revise from it before the theory
+exam or an interview. The slides teach each lesson; the
+<a href="00_Study_Guide_Handbook.html">study guide</a> says how to work through them.</p>
+
+<section data-part="objectives" id="objectives">
+  <h2>Objectives</h2>
+  <p>After this module, learners can:</p>
+  <ul>
+    <li data-objective="DBF-K1">Find the entities and relationships in a written domain description.</li>
+    <li data-objective="DBF-K1">Choose a primary key and justify the choice.</li>
+    <li data-objective="DBF-K1">Normalize a table to third normal form and say what each step removed.</li>
+    <li data-objective="DBF-K2">Join tables and say which rows a join keeps and which it drops.</li>
+    <li data-objective="DBF-K2">Group rows and aggregate them correctly.</li>
+  </ul>
+</section>
+
+<section data-part="topic" id="relational-modelling">
+  <h2>Relational Modelling</h2>
+  <p>A model decides where each fact is stored. A good one stores every fact once, so there is
+  nowhere for two copies to disagree. Slides: <a href="01_Relational_Modelling.deck.html">lesson 1</a>.</p>
+
+  <h3>Entities and relationships</h3>
+  <p>An <strong>entity</strong> is a thing the domain keeps facts about; a
+  <strong>relationship</strong> is how two entities connect. In a description, the nouns with facts
+  of their own are entities and the verbs between them are relationships. A noun that is only a
+  fact about something else — a book's title — is an attribute, not an entity.</p>
+  <figure>
+    <pre class="mermaid">erDiagram
+    AUTHOR ||--o{ BOOK_AUTHOR : "1-n writes"
+    BOOK ||--o{ BOOK_AUTHOR : "1-n is written by"
+    BOOK ||--o{ LOAN : "1-n is lent as"</pre>
+    <img src="img/catalogue_er.png" alt="Author, book, book_author and loan, each relationship labelled 1-n">
+    <figcaption>The catalogue. A many-to-many (book–author) becomes a table of its own.</figcaption>
+  </figure>
+
+  <h3>Keys</h3>
+  <p>A <strong>primary key</strong> identifies a row uniquely and never changes. Any minimal column
+  set that identifies a row is a <em>candidate key</em>; the primary key is the one chosen. Prefer a
+  <em>surrogate</em> key, with no meaning outside the database, when the natural value can change,
+  and keep the natural value <code>UNIQUE</code>. A <em>foreign key</em> makes the database refuse
+  a reference to a row that does not exist.</p>
+  <pre class="wrong"><code class="language-sql">CREATE TABLE book (
+    isbn  CHAR(13) PRIMARY KEY,   -- a publisher can reissue it
+    title TEXT NOT NULL
+);</code></pre>
+  <pre class="right"><code class="language-sql">CREATE TABLE book (
+    id    BIGINT PRIMARY KEY,     -- never changes, means nothing else
+    isbn  CHAR(13) NOT NULL UNIQUE,
+    title TEXT NOT NULL
+);</code></pre>
+
+  <h3>Normalization</h3>
+  <p>Normalizing moves each fact to the one table it describes. Each normal form removes one kind
+  of redundancy.</p>
+  <table>
+    <tr><th>Form</th><th>Removes</th><th>Ask</th></tr>
+    <tr><td>1NF</td><td>repeating groups</td><td>Is there a list in a cell?</td></tr>
+    <tr><td>2NF</td><td>partial dependencies</td><td>Does this column need the whole key?</td></tr>
+    <tr><td>3NF</td><td>transitive dependencies</td><td>Does this column describe another non-key column?</td></tr>
+  </table>
+</section>
+
+<section data-part="topic" id="querying">
+  <h2>Querying</h2>
+  <p>A query is a claim about which rows answer a question. Say which rows you expect before you
+  run it: a join or a count done the wrong way returns a confident, wrong answer.</p>
+
+  <h3>Inner and left joins</h3>
+  <p>An inner join keeps only the rows that match on both sides. A left join keeps every row on the
+  left and fills the right side with <code>NULL</code> where nothing matches — use it when the
+  absence is part of the answer, and make every later join left too, or it drops the rows the
+  first one kept.</p>
+  <pre><code class="language-sql">SELECT b.title, a.name
+FROM book b
+LEFT JOIN book_author ba ON ba.book_id = b.id
+LEFT JOIN author a       ON a.id = ba.author_id;   -- books with no author stay</code></pre>
+
+  <h3>Grouping and aggregation</h3>
+  <p><code>GROUP BY</code> folds the rows that share a value into one, and an aggregate summarises
+  each fold. <code>WHERE</code> filters rows before grouping; <code>HAVING</code> filters groups
+  after, so an aggregate can only appear in <code>HAVING</code>.</p>
+  <table>
+    <tr><th></th><th>WHERE</th><th>HAVING</th></tr>
+    <tr><td>Filters</td><td>rows</td><td>groups</td></tr>
+    <tr><td>Runs</td><td>before <code>GROUP BY</code></td><td>after <code>GROUP BY</code></td></tr>
+    <tr><td>Can use an aggregate</td><td>no</td><td>yes</td></tr>
+  </table>
+</section>
+
+<section data-part="misconceptions" id="misconceptions">
+  <h2>Common Misconceptions</h2>
+  <h3>"A natural key is better because it means something"</h3>
+  <p>Meaning is what makes it change: a reissued ISBN or a new email breaks every row that
+  references it. Reference a surrogate; keep the natural value unique.</p>
+  <h3>"COUNT(*) counts the matches"</h3>
+  <p>After a left join it also counts the unmatched row, filled with <code>NULL</code>. Count a
+  column from the joined side — <code>COUNT(l.id)</code> — to count matches.</p>
+</section>
+
+<section data-part="summary" id="summary">
+  <h2>Summary</h2>
+  <ul>
+    <li data-objective="DBF-K1">Entities are nouns with facts of their own; relationships are the verbs between them; a many-to-many gets its own table.</li>
+    <li data-objective="DBF-K1">A primary key never changes: prefer a surrogate and keep natural values unique; foreign keys hold references to the rows they name.</li>
+    <li data-objective="DBF-K1">Normalize until each fact is stored once: no lists, no partial and no transitive dependencies.</li>
+    <li data-objective="DBF-K2">Inner joins drop unmatched rows; left joins keep the left side and fill the gaps with NULL.</li>
+    <li data-objective="DBF-K2">WHERE filters rows before grouping, HAVING filters groups after; count a column, not *, after a left join.</li>
+  </ul>
+</section>
+
+<section data-part="review-questions" id="review-questions">
+  <h2>Review Questions</h2>
+  <ol>
+    <li data-objective="DBF-K1"><p>What makes a column set a candidate key?</p>
+      <details><summary>Answer</summary><p>It identifies every row uniquely, and no smaller set of its columns does.</p></details></li>
+    <li data-objective="DBF-K1"><p>Why prefer a surrogate key to a natural one?</p>
+      <details><summary>Answer</summary><p>A surrogate never changes, so nothing that references it has to change either. The natural value stays, as a unique column.</p></details></li>
+    <li data-objective="DBF-K1"><p>What does third normal form remove that second does not?</p>
+      <details><summary>Answer</summary><p>Transitive dependencies: a non-key column that depends on another non-key column, such as a book's title stored in a loan row.</p></details></li>
+    <li data-objective="DBF-K1"><p>How is a many-to-many relationship stored, and why not as a list in a column?</p>
+      <details><summary>Answer</summary><p>As a table of pairs, one row per link, keyed on both foreign keys. A list in a cell breaks first normal form and cannot be joined or constrained.</p></details></li>
+    <li data-objective="DBF-K1"><p>Where should referential integrity be enforced, and why?</p>
+      <details><summary>Answer</summary><p>In the database, with foreign keys, so every program that writes to it is held to the same rule.</p></details></li>
+    <li data-objective="DBF-K2"><p>Which rows does an inner join drop, and which does a left join keep?</p>
+      <details><summary>Answer</summary><p>An inner join drops rows with no match on the other side; a left join keeps every left row, with NULLs where nothing matched.</p></details></li>
+    <li data-objective="DBF-K2"><p>When does a left join change a <code>COUNT(*)</code>?</p>
+      <details><summary>Answer</summary><p>When a left row has no match: it still produces one row, which <code>COUNT(*)</code> counts. Count a column from the right side instead.</p></details></li>
+    <li data-objective="DBF-K2"><p>What is the difference between <code>WHERE</code> and <code>HAVING</code>?</p>
+      <details><summary>Answer</summary><p><code>WHERE</code> filters rows before grouping; <code>HAVING</code> filters groups after, and is the only one that can use an aggregate.</p></details></li>
+    <li data-objective="DBF-K2"><p>How would you find the authors who have never been borrowed?</p>
+      <details><summary>Answer</summary><p>Left-join author through book_author to loan, group by author, and keep <code>HAVING COUNT(l.id) = 0</code>.</p></details></li>
+    <li data-objective="DBF-K2"><p>How would you check a join has not multiplied rows?</p>
+      <details><summary>Answer</summary><p>Compare its row count with the count before the join; a one-to-many join repeats the one side once per match.</p></details></li>
+  </ol>
+</section>
+
+<section data-part="further-reading" id="further-reading">
+  <h2>Further Reading</h2>
+  <ul>
+    <li><a href="https://www.postgresql.org/docs/16/ddl-constraints.html">PostgreSQL 16: Constraints</a></li>
+    <li><a href="https://www.postgresql.org/docs/16/queries-table-expressions.html">PostgreSQL 16: Table Expressions</a></li>
+  </ul>
+</section>
+</article>
+</main>
+</body>
+</html>

@@ -113,11 +113,14 @@ def run(args: argparse.Namespace) -> int:
 def _check(path: Path, args: argparse.Namespace, report: Report, minutes_per_slide) -> str | None:
     kind = grammar.KIND_BY_KEY.get(args.type) if args.type else grammar.kind_for(path.name)
     if kind is None:
-        report.error(
-            "MAT-D01",
-            path.name,
-            "does not match any known naming convention; pass --type to check it anyway",
-        )
+        if grammar.is_session_note(path.name):
+            message = (
+                "a lecture note per session; the module has one, "
+                "<subject>_lecture_note.html — fold this one into it as a topic"
+            )
+        else:
+            message = "does not match any known naming convention; pass --type to check it anyway"
+        report.error("MAT-D01", path.name, message)
         return None
     checks.check(
         dom.parse(path),

@@ -17,7 +17,7 @@ from get_fsa_training_done.features.material.core import deck as deck_mod
 from get_fsa_training_done.features.material.core import dom, layouts
 
 DECK = "01_Relational_Modelling.deck.html"
-NOTE = "01_Relational_Modelling.html"
+NOTE = "dbf_lecture_note.html"
 
 
 @pytest.fixture
@@ -126,7 +126,7 @@ def test_a_note_exports_to_an_a4_pdf(module):
     from get_fsa_training_done.features.common.render import pdf as pdf_mod
 
     assert main(["material", "export", "pdf", str(module / NOTE)]) == 0
-    assert pdf_mod.count_pages(module / "01_Relational_Modelling.pdf") >= 2
+    assert pdf_mod.count_pages(module / "dbf_lecture_note.pdf") >= 2
 
 
 # --- The theme ----------------------------------------------------------------
@@ -152,7 +152,7 @@ def test_verify_reports_json(module, capsys):
     capsys.readouterr()
     main(["material", "verify", str(module), "--json"])
     payload = json.loads(capsys.readouterr().out)
-    assert payload["facts"]["deck"] == 1 and payload["facts"]["note"] == 2
+    assert payload["facts"]["deck"] == 1 and payload["facts"]["note"] == 1
 
 
 # --- Review fixes: what the exports carry ------------------------------------
@@ -199,7 +199,7 @@ def layouts_theme():
 def test_a_note_pdf_carries_its_images_not_the_diagram_source(module):
     pytest.importorskip("xhtml2pdf")
     assert main(["material", "export", "pdf", str(module / NOTE)]) == 0
-    data = (module / "01_Relational_Modelling.pdf").read_bytes()
+    data = (module / "dbf_lecture_note.pdf").read_bytes()
     assert b"/Subtype /Image" in data or b"/Subtype/Image" in data
     assert b"erDiagram" not in data
 
@@ -253,11 +253,33 @@ def test_a_vietnamese_note_pdf_numbers_its_parts_and_speaks_vietnamese(module):
 
     _vietnamese(module, NOTE)
     html = export_pdf._print_html(dom.parse(module / NOTE))
-    assert "Buổi 1" in html and "1. Objectives" in html
+    assert "Databases" in html and "1. Objectives" in html
     assert "✗ SAI" in html
     # Each objective's code follows its text, as the browser shows it.
     first_tag = html.index('class="code-tag"')
     assert html.index("Find the entities") < first_tag
+
+
+def test_a_note_pdf_numbers_its_review_questions_and_tags_them_inline(module):
+    """xhtml2pdf drops the number of an item that opens with a paragraph, and a
+    tag beside that paragraph prints as a bar across the page."""
+    from get_fsa_training_done.features.material.core import export_pdf
+
+    html = export_pdf._print_html(dom.parse(module / NOTE))
+    questions = html.split("Review Questions", 1)[1]
+    assert "<p>1. What makes a column set a candidate key?" in questions
+    assert "<p>10. How would you check" in questions
+    assert 'candidate key? <span class="code-tag">' in questions
+
+
+def test_a_vietnamese_lab_pdf_names_its_session_in_vietnamese(module):
+    """The note covers a module; a lab serves one session and says which."""
+    pytest.importorskip("xhtml2pdf")
+    from get_fsa_training_done.features.material.core import export_pdf
+
+    _vietnamese(module, "dbf_lab_01.html")
+    html = export_pdf._print_html(dom.parse(module / "dbf_lab_01.html"))
+    assert "Buổi 1" in html and "90 phút" in html
 
 
 def test_the_theme_labels_follow_the_page_language():

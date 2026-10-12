@@ -10,9 +10,9 @@ trainee learns from them, a lesson has:
 
 | Kind | File | Read where |
 |---|---|---|
-| slide deck | `NN_Topic_Name.deck.html` | in the session, presented from the browser or the exported `.pptx` |
+| slide deck | `NN_Topic_Name.deck.html`, one per lesson | in the session, presented from the browser or the exported `.pptx` |
 | module handbook | `00_Study_Guide_Handbook.html` | first, and whenever lost |
-| lecture note | `NN_Topic_Name.html` | after the session, doing each try-it |
+| lecture note | `<subject>_lecture_note.html`, **one per module** | after each session, and to revise before the theory exam or an interview — handed out as the HTML and its `.pdf` |
 | lab guide | `<subject>_lab_NN.html` | in the lab session |
 
 A recorded video is a later addition: a deck's speaker notes are written so they
@@ -56,8 +56,13 @@ and it belongs to the assessment feature. Say so rather than writing it here.
   `references/material/tasks/propose_outline.md`. No draft file "to show what it
   would look like". Exports, `verify`, `coverage` and refreshing a derived map
   write no document and need no outline.
-- **Write to the session, not to the topic.** A note covering more than the
-  session it serves is a note that session cannot deliver.
+- **Write to the session, not to the topic.** A deck or a lab covering more
+  than the session it serves is one that session cannot deliver. The lecture
+  note is the exception by design: it condenses the whole module, and serves
+  the objectives of every session that names it — no more.
+- **One lecture note per module** (`MAT-D32`): the module's theory, condensed,
+  for revising before the theory exam or an interview. Its topics follow the
+  decks; it does not retell them, and it has no exercises.
 - **The syllabus map is derived, never typed.** Its deep anchors break silently
   when a heading is renamed.
 - **Written for the trainee.** Direct and plain; see
@@ -73,7 +78,7 @@ and it belongs to the assessment feature. Say so rather than writing it here.
   exporters write their own words in it. A translation of an English original
   is a separate file ending `_vn`; see `references/material/conventions.md`
   § Language.
-- **Report measurements, not impressions.** "12 of 12 notes pass, 3 labs the
+- **Report measurements, not impressions.** "12 of 12 decks pass, 3 labs the
   plan names are missing" is a measurement.
 - **Do not invent work the plan did not ask for.** If a module needs a session
   that is not there, the session plan changes first, and that belongs to

@@ -473,6 +473,7 @@ h2 { font-size: 14pt; color: #034ea1; margin: 14pt 0 4pt 0; -pdf-keep-with-next:
 h3 { font-size: 11.5pt; margin: 10pt 0 3pt 0; -pdf-keep-with-next: true; }
 p { margin: 0 0 6pt 0; }
 li { margin: 0 0 3pt 0; }
+li.numbered { list-style-type: none; }
 code { font-family: FsaMono; font-size: 9pt; background-color: #f2f5fa; }
 pre { font-family: FsaMono; font-size: 8.5pt; background-color: #f2f5fa;
   border-left: 3pt solid #034ea1; padding: 6pt; margin: 4pt 0 8pt 0; }
@@ -565,9 +566,34 @@ def _prepare(document: Document, warnings: list) -> Element:
             details = item.find("details")
             if details is not None and details.parent is item:
                 index = next(i for i, child in enumerate(item.children) if child is details)
-                item.children[index:index] = [" ", tag]
+                # Inside the question's own paragraph: beside it, the tag is a
+                # block of its own and prints as a bar across the page.
+                question = next(
+                    (
+                        child
+                        for child in reversed(item.children[:index])
+                        if isinstance(child, Element) and child.tag == "p"
+                    ),
+                    None,
+                )
+                if question is not None:
+                    question.children.extend([" ", tag])
+                else:
+                    item.children[index:index] = [" ", tag]
             else:
                 item.children.extend([" ", tag])
+
+    # xhtml2pdf drops an item's number when the item opens with a paragraph \u2014 a
+    # review question, a lab step \u2014 so write the number into that paragraph.
+    for ordered in body.find_all("ol"):
+        items = [child for child in ordered.elements if child.tag == "li"]
+        for position, item in enumerate(items, 1):
+            first = item.children[0] if item.children else None
+            if isinstance(first, str) and not first.strip():
+                first = item.children[1] if len(item.children) > 1 else None
+            if isinstance(first, Element) and first.tag == "p":
+                first.children.insert(0, f"{position}. ")
+                item.attrs["class"] = " ".join(filter(None, (item.get("class"), "numbered")))
 
     for details in body.find_all("details"):
         summary = details.find("summary")

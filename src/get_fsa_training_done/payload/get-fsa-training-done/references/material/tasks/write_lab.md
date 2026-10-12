@@ -7,7 +7,7 @@ step-numbered, and checkable by the trainee without a marker.
 
 | Input | Notes |
 |---|---|
-| `materials_dir`, `schedule` | as for a lecture note |
+| `materials_dir`, `schedule` | as for a slide deck |
 | the session row | the file name, the minutes, the objective codes, the `Content` line |
 | the approved outline | from `references/material/tasks/propose_outline.md` |
 

@@ -1,8 +1,8 @@
 # Task — Write a slide deck
 
 The slides a session is taught from, on the FSA template. The most effective
-material a lesson has, so it is written first; the lecture note then explains in
-full what each slide compresses.
+material a lesson has, so it is written first; the module's lecture note later
+condenses the theory of every deck into one file to revise from.
 
 ## Inputs
 
@@ -59,5 +59,6 @@ reads correctly in a browser (arrow keys; N for notes, O for the overview).
 
 ## Hands off to
 
-`references/material/tasks/write_lecture.md` for the same session, then
-`references/material/tasks/export.md`.
+`references/material/tasks/write_lab.md` for the same session's lab, then
+`references/material/tasks/export.md`; once every deck exists,
+`references/material/tasks/write_lecture.md` for the module.

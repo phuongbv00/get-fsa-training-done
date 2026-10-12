@@ -25,24 +25,25 @@ speaker notes carry the explanation.
   shown, the answer folded into `<details>` and revealed after the room commits.
 - **Speaker notes are the lesson in the trainer's voice**: what to say, what to
   ask, what to point at. Write them so another trainer could give the session.
-- **The note follows the deck.** One concept part per section, in the same
-  order and the same words, so a trainee can move between them.
+- **The note follows the decks.** The lecture note has one topic per lesson,
+  in deck order and in the same words, so a trainee can move between them.
 
 ## Register
 
-Explain, then show. A concept section states the idea in prose, then a short
+Explain, then show. A point states the idea in prose, then a short
 self-contained snippet. Snippets are named and exported so a learner can paste
 one somewhere and have it run.
 
 Comments in code carry the teaching point — `// theme is correctly absent here`
 — never a restatement of the line above.
 
-## Practice
+## Practice and revision
 
-Every concept in a note ends with a `<div class="try-it">`: a small exercise on
-exactly that idea, its answer in `<details>`. Every knowledge-check question has
-its answer too. A trainee working alone learns by trying and checking; a note
-without answers only lets them guess.
+A trainee practises in the session — a check slide after every section — and in
+the lab. The lecture note is for revising: condensed theory, then review
+questions of the kind a theory exam or an interviewer asks, each with a model
+answer in `<details>`. A trainee revising alone learns by answering and
+checking; questions without answers only let them guess.
 
 ## Callouts
 
@@ -57,8 +58,9 @@ full stop:
 
 Pair the wrong and the right form as `<pre class="wrong">` and
 `<pre class="right">`; the theme labels them. A learner who has hit the mistake finds it by searching for the
-symptom, so a `Common Problems` sub-heading should *be* the symptom or the
-literal error message.
+symptom, so a lab's hint should name the symptom or the literal error message,
+and a lecture note's `Common Misconceptions` sub-heading the wrong belief as a
+trainee would say it.
 
 ## Code
 
@@ -97,7 +99,8 @@ examples then compose instead of resetting every unit.
 
 ## Objective codes
 
-A note serves the objective codes its session claims in the plan. Put each on
+A deck or a lab serves the objective codes its session claims in the plan; the
+lecture note serves those of every session that names it. Put each on
 its objective as `data-objective`, and on the summary item and the questions that
 close it; `coverage` compares them against both the plan and the syllabus.
 

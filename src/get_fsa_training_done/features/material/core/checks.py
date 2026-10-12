@@ -13,7 +13,10 @@ from . import deck as deck_mod
 from . import layouts as L
 from .dom import Document, Element
 
-MIN_KNOWLEDGE_CHECK = 5
+#: A lecture note's review questions: never fewer than this, and this many per
+#: topic — a module of eight lessons needs more than five.
+MIN_REVIEW_QUESTIONS = 5
+REVIEW_QUESTIONS_PER_TOPIC = 2
 
 #: An erDiagram relationship: `A ||--o{ B : label`, or `..` for a
 #: non-identifying one.
@@ -249,7 +252,7 @@ def _parts(document: Document, kind: grammar.Kind, report: Report, where: str) -
     for part in kind.parts:
         if part.required and part.key not in keys:
             rule = "MAT-D06" if part.key == "objectives" else "MAT-D29"
-            if part.key in ("knowledge-check", "further-reading"):
+            if part.key in ("review-questions", "further-reading"):
                 rule = "MAT-D08"
             report.error(rule, where, f"no {part.key!r} part ({part.heading})")
 
@@ -276,6 +279,12 @@ def _parts(document: Document, kind: grammar.Kind, report: Report, where: str) -
                 if document.lang == "vi"
                 else ("After this unit, learners can:")
             )
+            if kind is grammar.NOTE:
+                expected = (
+                    "Sau module này, học viên có thể:"
+                    if document.lang == "vi"
+                    else "After this module, learners can:"
+                )
             report.error(
                 "MAT-D06",
                 where,
@@ -335,41 +344,36 @@ def _note(document: Document, report: Report, where: str) -> None:
         for item in (top_items(objectives) if objectives is not None else [])
         for code in item.get("data-objective").split()
     }
+    topics = [section for section in found if section.get("data-part") == "topic"]
 
-    check_part = _part(found, "knowledge-check")
-    if check_part is not None:
-        questions = top_items(check_part)
-        if len(questions) < MIN_KNOWLEDGE_CHECK:
+    questions_part = _part(found, "review-questions")
+    if questions_part is not None:
+        questions = top_items(questions_part)
+        floor = max(MIN_REVIEW_QUESTIONS, REVIEW_QUESTIONS_PER_TOPIC * len(topics))
+        if len(questions) < floor:
             report.warn(
                 "MAT-D09",
                 where,
-                f"the knowledge check asks {len(questions)} question(s); "
-                f"{MIN_KNOWLEDGE_CHECK} is the floor",
+                f"{len(questions)} review question(s) for {len(topics)} topic(s); "
+                f"{floor} is the floor",
             )
         tested = set()
         for number, question in enumerate(questions, 1):
             if question.find("details") is None:
-                report.error("MAT-D25", where, f"knowledge-check question {number} has no answer")
+                report.error("MAT-D25", where, f"review question {number} has no answer")
             tested.update(question.get("data-objective").split())
         untested = sorted(codes - tested)
         if untested:
             report.warn(
                 "MAT-D26",
                 where,
-                "no knowledge-check question tests " + ", ".join(untested),
+                "no review question tests " + ", ".join(untested),
             )
 
-    for section in found:
-        if section.get("data-part") != "concept":
-            continue
+    for section in topics:
         heading = section.find("h2")
         name = heading.text() if heading is not None else f"line {section.line}"
         _explains_first(section, name, report, where)
-        try_it = section.find(class_="try-it")
-        if try_it is None:
-            report.warn("MAT-D28", where, f"concept {name!r} has nothing to try")
-        elif try_it.find("details") is None:
-            report.warn("MAT-D28", where, f"concept {name!r}: the try-it has no answer")
 
 
 def _explains_first(section: Element, name: str, report: Report, where: str) -> None:
@@ -378,7 +382,7 @@ def _explains_first(section: Element, name: str, report: Report, where: str) -> 
         if child.tag in ("h2", "h3"):
             continue
         if child.tag in ("pre", "figure", "table", "img"):
-            report.warn("MAT-D27", where, f"concept {name!r} shows <{child.tag}> before explaining")
+            report.warn("MAT-D27", where, f"topic {name!r} shows <{child.tag}> before explaining")
         return
 
 
@@ -661,37 +665,39 @@ def _slide_budget(
 
 
 def check_folder(paths: list[Path], report: Report) -> None:
-    """Index rules across a folder, per kind: a deck and its note share an index."""
-    by_kind: dict[str, dict[str, list[str]]] = {}
+    """Rules across a folder: the decks' indexes, and one lecture note per module."""
+    decks: dict[str, list[str]] = {}
+    notes: list[str] = []
     for path in paths:
         kind = grammar.kind_for(path.name)
-        if kind not in (grammar.DECK, grammar.NOTE) or grammar.is_translation(path.name):
+        if grammar.is_translation(path.name):
             continue
-        match = kind.filename.match(path.name)
-        by_kind.setdefault(kind.key, {}).setdefault(match.group(1) + match.group(2), []).append(
-            path.name
+        if kind is grammar.NOTE:
+            notes.append(path.name)
+        elif kind is grammar.DECK:
+            match = kind.filename.match(path.name)
+            decks.setdefault(match.group(1) + match.group(2), []).append(path.name)
+    if len(notes) > 1:
+        report.error(
+            "MAT-D32",
+            sorted(notes)[0],
+            f"{len(notes)} lecture notes in one module: " + ", ".join(sorted(notes)),
         )
-    for indexes in by_kind.values():
-        for index, names in sorted(indexes.items()):
-            if len(names) > 1:
-                report.error(
-                    "MAT-D02",
-                    names[0],
-                    f"index {index} is claimed by {len(names)} files: " + ", ".join(sorted(names)),
-                )
-    notes = by_kind.get("note", {})
-    numeric = sorted(
-        int(index[:2])
-        for index in notes
-        if index[:2] not in (grammar.HANDBOOK_INDEX, grammar.APPENDIX_INDEX)
-    )
+    for index, names in sorted(decks.items()):
+        if len(names) > 1:
+            report.error(
+                "MAT-D02",
+                names[0],
+                f"index {index} is claimed by {len(names)} decks: " + ", ".join(sorted(names)),
+            )
+    numeric = sorted({int(index[:2]) for index in decks})
     if numeric:
         missing = [n for n in range(1, max(numeric) + 1) if n not in numeric]
         if missing:
             report.warn(
                 "MAT-D03",
                 paths[0].parent.name or ".",
-                "no note at index " + ", ".join(f"{n:02d}" for n in missing),
+                "no deck at index " + ", ".join(f"{n:02d}" for n in missing),
             )
 
 

@@ -46,7 +46,7 @@ two features:
 | Named file | Produced by |
 |---|---|
 | `*_quiz_*.csv`, `*_assignment_*.md`, `*_exam_*.md`, rubrics | the assessment feature |
-| `*_lecture_*.md`, `*_lab_*.md`, handbooks | the material feature |
+| `NN_*.deck.html`, `*_lecture_note.html`, `*_lab_*.html`, handbooks | the material feature |
 
 This feature declares that a slot exists, what it weighs and what will fill it. It
 never writes the instrument or the lecture. When a finding is really about one

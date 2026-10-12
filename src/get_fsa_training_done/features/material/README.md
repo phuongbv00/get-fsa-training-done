@@ -23,7 +23,7 @@ how much a trainee learns from them:
 | --- | --- | --- |
 | Slide deck | `NN_Topic_Name.deck.html` | `.pptx` on the FSA template, 16:9 `.pdf` |
 | Module handbook | `00_Study_Guide_Handbook.html` — index `00` is reserved | A4 `.pdf` |
-| Lecture note | `NN_Topic_Name.html` — shares its deck's index | A4 `.pdf` |
+| Lecture note | `<subject>_lecture_note.html` — **one per module** | A4 `.pdf` only |
 | Lab guide | `<subject>_lab_NN.html` | A4 `.pdf` |
 | Group worksheet | `<subject>_lab_NN_worksheet.html` — a blank form beside a group lab | |
 | Module appendix | `99_Appendix.html` — its syllabus map is derived | |
@@ -34,9 +34,11 @@ template's layouts (`data-layout`) and fills its placeholders (`data-slot`);
 speaker notes are `<aside class="notes">`. Open it in a browser to present it
 (arrow keys, N for notes, O for the overview), or export it.
 
-A note, lab or handbook is a sequence of `<section data-part="…">`: a note has
-objectives, why it matters, one concept per idea with a try-it and its answer, a
-worked example, common problems, a summary and a knowledge check with answers.
+A note, lab or handbook is a sequence of `<section data-part="…">`. The lecture
+note is the module's theory, condensed into one file to keep and to revise from
+before the theory exam or an interview: the module's objectives, one topic per
+lesson in deck order, common misconceptions, a summary, and review questions with
+model answers — at least two per topic.
 
 A lab guide is the **guided middle**: shorter than an assignment,
 step-numbered, and checkable by the learner without a marker. If it carries
@@ -44,7 +46,7 @@ marks and a rubric it is an assignment, and it belongs to the assessment
 feature.
 
 **Outline first.** The skill writes no document until its outline — slides
-with their layouts, a note's parts and try-its, a lab's steps against its
+with their layouts, the note's topics and review questions, a lab's steps against its
 minutes — has been shown and explicitly approved
 ([`propose_outline.md`](../payload/get-fsa-training-done/references/material/tasks/propose_outline.md)).
 A consistency test keeps that gate the first step of every writing task.
@@ -108,9 +110,9 @@ Prefer a folder: the index rules only mean anything across a whole module.
 
 - `MAT-D*` — one document: its kind and metas, the theme and no inline styling,
   well-formed HTML, the parts in order, code languages, links and ids, diagrams,
-  and the learning rules (answers to every question, every objective tested, a
-  try-it after each concept, prose before code, what to expect after each lab
-  step).
+  and the learning rules (answers to every question, every objective tested,
+  enough review questions for the module, one lecture note per module, prose
+  before code, what to expect after each lab step).
 - `MAT-S*` — a deck against the template: its order, its layouts and slots, the
   objectives the session claims stated and summarised, speaker notes, a check
   slide per section, slot limits, and a slide count that fits the minutes.
@@ -148,8 +150,8 @@ gftd material derive appendix \
   --syllabus TOPIC_Syllabus.md --dir ./Lectures --appendix 99_Appendix.html --write
 ```
 
-Matches each topic-outline item to the note whose title or part headings best
-cover it, and rewrites the appendix's `syllabus-map` part as a checklist of
+Matches each topic-outline item to the lecture-note topic whose heading best
+covers it, and rewrites the appendix's `syllabus-map` part as a checklist of
 links. It is a match on wording, so the result is meant to be read. `--check` is
 the drift gate; `--write` is idempotent.
 
@@ -158,7 +160,7 @@ the drift gate; `--write` is idempotent.
 ```bash
 gftd material export pptx 01_Relational_Modelling.deck.html
 gftd material export pdf  01_Relational_Modelling.deck.html
-gftd material export pdf  01_Relational_Modelling.html
+gftd material export pdf  dbf_lecture_note.html
 ```
 
 Verifies first and refuses a document with errors. `pptx` adds each slide from

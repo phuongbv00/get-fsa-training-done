@@ -31,9 +31,9 @@ that serves it. The verifier holds:
 
 Name the serving file in the materials column even before it exists: that is
 how the material and assessment features know what to produce. Use their file
-names (`01_Relational_Modelling.deck.html` and `01_Relational_Modelling.html`
-for a lecture's slides and note, `dbf_lab_01.html`, `dbf_quiz_01.csv`,
-`dbf_practice_exam_01.md`).
+names (`01_Relational_Modelling.deck.html` for a lecture's slides, and
+`dbf_lecture_note.html` — one note per module, named by every lecture row it
+condenses — `dbf_lab_01.html`, `dbf_quiz_01.csv`, `dbf_practice_exam_01.md`).
 
 ### 2. The syllabus around it
 

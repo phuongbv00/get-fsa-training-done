@@ -3,10 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Topic Title</title>
+<title>Module Name — Lecture Note</title>
 <meta name="fsa:kind" content="note">
 <meta name="fsa:module" content="Module Name">
-<meta name="fsa:session" content="1">
 <meta name="fsa:objectives" content="CODE-K1 CODE-K2">
 <meta name="fsa:stack" content="the versions this note is written against">
 <link rel="stylesheet" href="_theme/fsa.css">
@@ -15,38 +14,41 @@
 <body class="fsa-doc">
 <main>
 <article class="note">
-<h1>Topic Title</h1>
-<p>One line placing the note: the slides it goes with, what to have read first.</p>
+<h1>Module Name — Lecture Note</h1>
+<p>One line placing the note: the module's theory in one place, to keep as a reference and revise
+from before the theory exam or an interview. The slides teach; this is what stays.</p>
 
 <section data-part="objectives" id="objectives">
   <h2>Objectives</h2>
-  <p>After this unit, learners can:</p>
+  <p>After this module, learners can:</p>
   <ul>
     <li data-objective="CODE-K1">Verb-initial outcome.</li>
     <li data-objective="CODE-K2">Verb-initial outcome.</li>
   </ul>
 </section>
 
-<section data-part="why" id="why">
-  <h2>Why This Matters</h2>
-  <p>The problem this lesson solves, told in the module's running domain.</p>
+<!-- One topic part per lesson, in the order of the decks. Condensed: each point is
+     what an examiner or an interviewer would ask about, stated so it can be recalled. -->
+<section data-part="topic" id="first-lesson">
+  <h2>First Lesson</h2>
+  <p>Two or three sentences on what this lesson is about and why it matters, before any detail.
+  Slides: <a href="01_First_Lesson.deck.html">lesson 1</a>.</p>
+  <h3>A key term</h3>
+  <p>The definition, in one or two sentences, and the reason it holds.</p>
+  <pre><code class="language-java">// The smallest example that shows it. Comments carry the point.</code></pre>
+  <h3>Two things easily confused</h3>
+  <table>
+    <tr><th></th><th>One</th><th>The other</th></tr>
+    <tr><td>What it is</td><td>…</td><td>…</td></tr>
+    <tr><td>When to use it</td><td>…</td><td>…</td></tr>
+  </table>
 </section>
 
-<!-- One concept part per idea: explain, show, then let the trainee try. -->
-<section data-part="concept" id="first-idea">
-  <h2>First Idea</h2>
-  <p>The idea in prose first. The example comes after it, never before.</p>
-  <pre><code class="language-java">// Comments carry the teaching point, not a restatement of the line.</code></pre>
-  <aside class="callout note"><p><strong>Note.</strong> A short aside worth pulling out.</p></aside>
-  <div class="try-it">
-    <p>A small exercise on exactly this idea.</p>
-    <details><summary>Answer</summary><p>The answer, with the reason.</p></details>
-  </div>
-</section>
-
-<section data-part="concept" id="second-idea">
-  <h2>Second Idea</h2>
-  <p>Where a mistake is common, pair the forms.</p>
+<section data-part="topic" id="second-lesson">
+  <h2>Second Lesson</h2>
+  <p>What this lesson adds to the first.</p>
+  <h3>A rule</h3>
+  <p>The rule, then the mistake it prevents, as a pair.</p>
   <pre class="wrong"><code class="language-java">// the mistake</code></pre>
   <pre class="right"><code class="language-java">// the fix</code></pre>
   <figure>
@@ -55,24 +57,12 @@
     Server-->>Client: response</pre>
     <figcaption>What the diagram shows. Add an &lt;img&gt; of it before exporting.</figcaption>
   </figure>
-  <div class="try-it">
-    <p>A small exercise on exactly this idea.</p>
-    <details><summary>Answer</summary><p>The answer, with the reason.</p></details>
-  </div>
 </section>
 
-<section data-part="worked-example" id="worked-example">
-  <h2>Worked Example</h2>
-  <p><strong>The problem.</strong> One task that needs every idea above.</p>
-  <p><strong>The approach.</strong> How to break it down, before any code.</p>
-  <pre><code class="language-java">// one runnable thing</code></pre>
-  <p><strong>Reading the result.</strong> What the output means and how to check it.</p>
-</section>
-
-<section data-part="common-problems" id="common-problems">
-  <h2>Common Problems</h2>
-  <h3>The symptom, or the literal error text</h3>
-  <p>What causes it, and what to do.</p>
+<section data-part="misconceptions" id="misconceptions">
+  <h2>Common Misconceptions</h2>
+  <h3>The wrong belief, as a trainee would say it</h3>
+  <p>What is true instead, and how to tell.</p>
 </section>
 
 <section data-part="summary" id="summary">
@@ -83,13 +73,19 @@
   </ul>
 </section>
 
-<section data-part="knowledge-check" id="knowledge-check">
-  <h2>Knowledge Check</h2>
+<section data-part="review-questions" id="review-questions">
+  <h2>Review Questions</h2>
   <ol>
-    <li data-objective="CODE-K1"><p>A question.</p>
-      <details><summary>Answer</summary><p>Its answer.</p></details></li>
-    <li data-objective="CODE-K2"><p>At least five questions, every objective asked about.</p>
-      <details><summary>Answer</summary><p>Its answer.</p></details></li>
+    <li data-objective="CODE-K1"><p>A question a theory exam would ask.</p>
+      <details><summary>Answer</summary><p>The model answer, with the reason.</p></details></li>
+    <li data-objective="CODE-K1"><p>A question an interviewer would ask: why, when, or what if.</p>
+      <details><summary>Answer</summary><p>The model answer, with the reason.</p></details></li>
+    <li data-objective="CODE-K2"><p>A question comparing two things from the module.</p>
+      <details><summary>Answer</summary><p>The model answer, with the reason.</p></details></li>
+    <li data-objective="CODE-K2"><p>A question about a mistake: what goes wrong, and why.</p>
+      <details><summary>Answer</summary><p>The model answer, with the reason.</p></details></li>
+    <li data-objective="CODE-K2"><p>At least two per topic and five in all; every objective asked about.</p>
+      <details><summary>Answer</summary><p>The model answer, with the reason.</p></details></li>
   </ol>
 </section>
 

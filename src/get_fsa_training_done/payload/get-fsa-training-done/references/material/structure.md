@@ -34,12 +34,12 @@ Universal, whatever the kind:
 |---|---|
 | Slide deck | `^(\d{2})([a-z]?)_[A-Za-z0-9_&+-]+?(?:_vn)?\.deck\.html$` |
 | Module handbook | `^00_[A-Za-z0-9_&+-]+?(?:_vn)?\.html$` |
-| Lecture note | `^(\d{2})([a-z]?)_[A-Za-z0-9_&+-]+?(?:_vn)?(?<!\.deck)\.html$` |
+| Lecture note | `^([a-z0-9]+)_lecture_note(?:_vn)?\.html$` |
 | Lab guide | `^[a-z0-9]+_lab_(\d{2})(?:_vn)?\.html$` |
 | Lab worksheet | `^[a-z0-9]+_lab_\d{2}_worksheet(?:_vn)?\.html$` |
 | Module appendix | `^99_[A-Za-z0-9_&+-]+?(?:_vn)?\.html$` |
 
-Index `00` is the handbook and `99` the appendix. A lesson's deck and note share its index: `01_Relational_Modelling.deck.html` and `01_Relational_Modelling.html`. A trailing letter marks an aside outside the syllabus (`02b_...`); `_vn` before the extension marks a translation.
+Index `00` is the handbook and `99` the appendix. A lesson's deck carries its index: `01_Relational_Modelling.deck.html`. A trailing letter marks an aside outside the syllabus (`02b_...`). The lecture note is one file per module, named for its subject like the labs: `dbf_lecture_note.html`. `_vn` before the extension marks a translation.
 
 
 ## Slide deck
@@ -59,7 +59,7 @@ Each part is a `<section data-part="…" id="…">` opening with an `<h2>`, in t
 
 | `data-part` | Heading | Required | Holds |
 |---|---|---|---|
-| `module-map` | Module Map | yes | A table, one row per lesson in order: its title, then a link to its deck, its note and its lab where they exist. |
+| `module-map` | Module Map | yes | A table, one row per lesson in order: its title, then a link to its deck, its topic in the lecture note and its lab where they exist. |
 | `how-to-study` | How to Study This Module | yes | A routine per lesson. |
 | `environment` | Environment Setup | yes | What to install, pinned to versions, and how to check it works. |
 | `running-domain` | The Running Example | optional | The one domain every lesson's examples share. |
@@ -68,7 +68,7 @@ Each part is a `<section data-part="…" id="…">` opening with an `<h2>`, in t
 
 ## Lecture note
 
-The reading behind a lesson: what the slides compress, explained in full, with something to try after each idea and the answers to every question it asks.
+The module's theory, condensed into one file: what a trainee keeps as a reference and revises from before a theory exam or a job interview. One `topic` part per lesson, in the order of the decks — the decks teach, the note is what stays. Handed out as the HTML and its `.pdf`, never as a `.pptx`.
 
 `<body class="fsa-doc">`. Required metas: `fsa:kind`, `fsa:module`, `fsa:objectives`.
 
@@ -76,13 +76,11 @@ Each part is a `<section data-part="…" id="…">` opening with an `<h2>`, in t
 
 | `data-part` | Heading | Required | Holds |
 |---|---|---|---|
-| `objectives` | Objectives | yes | Opens `After this unit, learners can:`, then a list whose items each carry `data-objective`. |
-| `why` | Why This Matters | yes | The problem the lesson solves, in the module's running domain. |
-| `concept` | <the idea> | yes, one per idea | One per idea: prose first, then the example, then a `<div class="try-it">` with its answer in `<details>`. |
-| `worked-example` | Worked Example | yes | The problem, the approach, the code, and what its output means. |
-| `common-problems` | Common Problems | optional | One `<h3>` per symptom or literal error message, then the fix. |
-| `summary` | Summary | yes | One item per objective, carrying `data-objective`. |
-| `knowledge-check` | Knowledge Check | yes | An `<ol>`; each question carries `data-objective` and its answer in `<details>`. |
+| `objectives` | Objectives | yes | Opens `After this module, learners can:`, then a list whose items each carry `data-objective` — every objective the module serves. |
+| `topic` | <the lesson> | yes, repeated | One per lesson, in deck order: the theory condensed — definitions, the rules and why they hold, a minimal example, a comparison table where two things are easily confused. `<h3>` per point; prose before any example. |
+| `misconceptions` | Common Misconceptions | optional | One `<h3>` per wrong belief or easily confused pair, then what is true. |
+| `summary` | Summary | yes | One item per objective, carrying `data-objective`: the page to reread the night before an exam. |
+| `review-questions` | Review Questions | yes | An `<ol>` of the questions a theory exam or an interviewer asks; each carries `data-objective` and a model answer in `<details>`. |
 | `further-reading` | Further Reading | yes | Primary sources, linked. |
 
 
@@ -120,7 +118,7 @@ Each part is a `<section data-part="…" id="…">` opening with an `<h2>`, in t
 
 | `data-part` | Heading | Required | Holds |
 |---|---|---|---|
-| `syllabus-map` | Full Syllabus Map | yes | Derived: each outline item and a link into the note covering it. |
+| `syllabus-map` | Full Syllabus Map | yes | Derived: each outline item and a link into the lecture note's topic. |
 | `references` | References | optional | The module's sources. |
 
 
@@ -141,8 +139,8 @@ Applied to every file `verify` reads.
 | `MAT-D02` | error | Indexes are unique within a folder |
 | `MAT-D03` | warning | Indexes run without a gap |
 | `MAT-D06` | error | The first section states what a learner will be able to do |
-| `MAT-D08` | error | A note ends with a knowledge check and somewhere to go next |
-| `MAT-D09` | warning | The knowledge check asks enough questions |
+| `MAT-D08` | error | A lecture note ends with review questions and somewhere to go next |
+| `MAT-D09` | warning | The review questions are enough for the module |
 | `MAT-D10` | error | Every code block declares a language |
 | `MAT-D11` | warning | Code languages come from the known set |
 | `MAT-D12` | error | Relative links resolve to a file that exists |
@@ -156,37 +154,37 @@ Applied to every file `verify` reads.
 | `MAT-D22` | error | The document uses the theme and no inline styling |
 | `MAT-D23` | error | The HTML is well formed |
 | `MAT-D24` | warning | Every image says what it shows |
-| `MAT-D25` | error | Every knowledge-check question carries its answer |
-| `MAT-D26` | warning | Every objective is tested by a knowledge-check question |
-| `MAT-D27` | warning | A concept section explains before it shows |
-| `MAT-D28` | warning | Every concept section gives the trainee something to try |
+| `MAT-D25` | error | Every review question carries its answer |
+| `MAT-D26` | warning | Every objective is tested by a review question |
+| `MAT-D27` | warning | A topic explains before it shows |
 | `MAT-D29` | error | The parts a document must carry are present, in order |
 | `MAT-D30` | warning | Every lab step says what the trainee should see |
 | `MAT-D31` | error | Every objective item cites the objective code it serves |
+| `MAT-D32` | error | A module has one lecture note |
 
 ### `MAT-D01` — The filename follows the module's naming convention
 
-The index orders the module and reserves 00 for the handbook and 99 for the appendix. A file outside the pattern sorts unpredictably, is never linked from either, and its kind cannot be told.
+The index orders the module's decks and reserves 00 for the handbook and 99 for the appendix; the lecture note is one file per module, named for its subject. A file outside the pattern sorts unpredictably, is never linked from either, and its kind cannot be told.
 
 ### `MAT-D02` — Indexes are unique within a folder
 
-Two notes claiming the same position give the module two orders.
+Two decks claiming the same position give the module two orders.
 
 ### `MAT-D03` — Indexes run without a gap
 
-A gap usually means a note was deleted or never written; advisory because a module may deliberately leave room.
+A gap usually means a deck was deleted or never written; advisory because a module may deliberately leave room.
 
 ### `MAT-D06` — The first section states what a learner will be able to do
 
-A note that opens with content has never said what it is for, and nothing downstream can map it to an objective.
+A document that opens with content has never said what it is for, and nothing downstream can map it to an objective.
 
-### `MAT-D08` — A note ends with a knowledge check and somewhere to go next
+### `MAT-D08` — A lecture note ends with review questions and somewhere to go next
 
-Without them a note stops rather than closing, and a learner has no way to test what they just read.
+Without them the note stops rather than closing, and a trainee revising for an exam or an interview has no way to test what they remember.
 
-### `MAT-D09` — The knowledge check asks enough questions
+### `MAT-D09` — The review questions are enough for the module
 
-A check with one or two questions samples a fraction of the note.
+At least two per topic, and never fewer than five: a handful of questions over a whole module samples a fraction of it, and the theory exam and the interviewer will not stop there.
 
 ### `MAT-D10` — Every code block declares a language
 
@@ -198,15 +196,15 @@ An unrecognised tag is usually a typo; advisory because a module may legitimatel
 
 ### `MAT-D12` — Relative links resolve to a file that exists
 
-A note pointing at a sibling that was renamed or never written sends the reader nowhere, and nothing reports it at render time.
+A page pointing at a sibling that was renamed or never written sends the reader nowhere, and nothing reports it at render time.
 
 ### `MAT-D13` — Link anchors resolve to an id in the target
 
-The appendix and the notes link into specific parts; renaming an id breaks them silently.
+The handbook and the appendix link into the lecture note's topics; renaming an id breaks them silently.
 
 ### `MAT-D16` — The text is in the language the document declares
 
-`<html lang>` is what the theme, the exporters and the viewer follow for the words they write — a slide's default title, the "Try it" label, a PDF's session line. A module written in Vietnamese declares `vi`; a translation of an English original is a separate file ending `_vn`, so the original stays the thing every other document links to.
+`<html lang>` is what the theme, the exporters and the viewer follow for the words they write — a slide's default title, an answer's label, a PDF's session line. A module written in Vietnamese declares `vi`; a translation of an English original is a separate file ending `_vn`, so the original stays the thing every other document links to.
 
 ### `MAT-D17` — A lab guide has ordered steps and a checklist of outcomes
 
@@ -234,31 +232,27 @@ Every page links `_theme/fsa.css` and nothing else decides how it looks: no `sty
 
 ### `MAT-D23` — The HTML is well formed
 
-An unclosed element swallows whatever follows it — a slide into the next one, a section into the knowledge check — and a browser hides that by guessing, so the page looks right while the checker and exporter read something else.
+An unclosed element swallows whatever follows it — a slide into the next one, a section into the review questions — and a browser hides that by guessing, so the page looks right while the checker and exporter read something else.
 
 ### `MAT-D24` — Every image says what it shows
 
 `alt` text is what a screen reader reads, what the exporter writes when an image cannot be placed, and what a trainee sees when it fails to load.
 
-### `MAT-D25` — Every knowledge-check question carries its answer
+### `MAT-D25` — Every review question carries its answer
 
-A trainee working alone cannot tell a right answer from a wrong one without it. The answer sits in `<details>`, so it is there when wanted and hidden until then.
+A trainee revising alone cannot tell a right answer from a wrong one without a model to compare against. The answer sits in `<details>`, so it is there when wanted and hidden until the trainee has answered.
 
-### `MAT-D26` — Every objective is tested by a knowledge-check question
+### `MAT-D26` — Every objective is tested by a review question
 
-An objective no question asks about is one a trainee can finish the lesson without ever checking; `data-objective` on each question makes the gap countable.
+An objective no question asks about is one a trainee can revise the module without ever checking; `data-objective` on each question makes the gap countable.
 
-### `MAT-D27` — A concept section explains before it shows
+### `MAT-D27` — A topic explains before it shows
 
 Code with no sentence in front of it asks the trainee to reverse-engineer the point. The idea comes first, in prose; the example illustrates it.
 
-### `MAT-D28` — Every concept section gives the trainee something to try
-
-Reading is not practice. A short exercise straight after each idea, with its answer, is what turns a note into something a trainee learns from rather than skims.
-
 ### `MAT-D29` — The parts a document must carry are present, in order
 
-Each kind has a fixed shape — the objectives first, the summary before the knowledge check — so a trainee finds the same thing in the same place in every lesson, and the checker can find it too.
+Each kind has a fixed shape — the objectives first, the summary before the review questions — so a trainee finds the same thing in the same place in every module, and the checker can find it too.
 
 ### `MAT-D30` — Every lab step says what the trainee should see
 
@@ -266,7 +260,11 @@ A step without an expected result leaves the trainee unable to tell whether it w
 
 ### `MAT-D31` — Every objective item cites the objective code it serves
 
-`data-objective` on each objectives item is what `coverage`, the summary and the knowledge check are compared against; an item without one is an objective nothing can trace.
+`data-objective` on each objectives item is what `coverage`, the summary and the review questions are compared against; an item without one is an objective nothing can trace.
+
+### `MAT-D32` — A module has one lecture note
+
+The note is the module's theory in one place, the file a trainee revises from. A second one splits it, and a note per session — what this replaced — leaves the trainee to stitch the module together before an exam.
 
 
 ## Rules — a slide deck
@@ -367,7 +365,7 @@ The plan is a promise about what will be taught. A named file that does not exis
 
 ### `MAT-C02` — Every material in the folder is used by a session
 
-A note nobody schedules is either unfinished or forgotten.
+A material nobody schedules is either unfinished or forgotten.
 
 ### `MAT-C03` — A material's objective codes match the session that uses it
 
@@ -379,4 +377,4 @@ A code the syllabus does not list is a typo or a missing objective.
 
 ---
 
-43 rules: 20 errors, 23 warnings.
+43 rules: 21 errors, 22 warnings.

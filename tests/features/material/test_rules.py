@@ -13,8 +13,7 @@ from pathlib import Path
 from get_fsa_training_done.features.material.core import rules
 
 DECK = "01_Relational_Modelling.deck.html"
-NOTE = "01_Relational_Modelling.html"
-SECOND = "02_Querying.html"
+NOTE = "dbf_lecture_note.html"
 LAB = "dbf_lab_01.html"
 
 
@@ -40,18 +39,31 @@ def test_d01_a_filename_outside_the_convention_is_caught(fired, module):
     assert "MAT-D01" in fired(module)
 
 
-def test_d02_two_notes_claiming_one_index_are_caught(fired, module):
-    (module / SECOND).rename(module / "01_Querying.html")
+def test_d01_a_note_per_session_is_told_to_fold_into_the_module_note(verify, module):
+    (module / "01_Relational_Modelling.html").write_text(
+        (module / NOTE).read_text(encoding="utf-8"), encoding="utf-8"
+    )
+    found = [f for f in verify(module)["findings"] if f["rule"] == "MAT-D01"]
+    assert len(found) == 1 and "lecture_note.html" in found[0]["message"]
+
+
+def test_d02_two_decks_claiming_one_index_are_caught(fired, module):
+    (module / "01_Keys.deck.html").write_text(
+        (module / DECK).read_text(encoding="utf-8"), encoding="utf-8"
+    )
     assert "MAT-D02" in fired(module)
 
 
-def test_d02_a_deck_and_its_note_share_an_index(fired, module):
-    assert "MAT-D02" not in fired(module)
-
-
 def test_d03_a_gap_in_the_indexes_warns(fired, module):
-    (module / SECOND).rename(module / "04_Querying.html")
+    (module / DECK).rename(module / "03_Relational_Modelling.deck.html")
     assert "MAT-D03" in fired(module)
+
+
+def test_d32_a_second_lecture_note_is_caught(fired, module):
+    (module / "sql_lecture_note.html").write_text(
+        (module / NOTE).read_text(encoding="utf-8"), encoding="utf-8"
+    )
+    assert "MAT-D32" in fired(module)
 
 
 # --- Every document -------------------------------------------------------
@@ -68,7 +80,7 @@ def test_d21_a_kind_that_disagrees_with_the_filename_is_caught(fired, module, ed
 
 
 def test_d22_inline_style_is_caught(fired, module, edit):
-    edit(module, NOTE, "<h1>Relational Modelling</h1>", '<h1 style="color:red">Relational</h1>')
+    edit(module, NOTE, "<h1>Databases — Lecture Note</h1>", '<h1 style="color:red">Databases</h1>')
     assert "MAT-D22" in fired(module / NOTE)
 
 
@@ -86,8 +98,8 @@ def test_d23_an_unclosed_element_is_caught(fired, module, edit):
     edit(
         module,
         NOTE,
-        '</ul>\n</section>\n\n<section data-part="why"',
-        '</ul>\n\n<section data-part="why"',
+        '</ul>\n</section>\n\n<section data-part="topic"',
+        '</ul>\n\n<section data-part="topic"',
     )
     assert "MAT-D23" in fired(module / NOTE)
 
@@ -108,13 +120,13 @@ def test_d12_a_link_to_a_missing_file_is_caught(fired, module, edit):
 
 
 def test_d13_an_id_that_no_longer_exists_is_caught(fired, module, edit):
-    edit(module, NOTE, 'id="worked-example"', 'id="example"')
+    edit(module, NOTE, 'id="relational-modelling"', 'id="modelling"')
     assert "MAT-D13" in fired(module)
 
 
 def test_d24_an_image_without_alt_text_warns(fired, module, edit):
     (module / "shot.png").write_bytes(b"")
-    edit(module, NOTE, "<h2>Keys</h2>", '<h2>Keys</h2>\n  <img src="shot.png">')
+    edit(module, NOTE, "<h3>Keys</h3>", '<h3>Keys</h3>\n  <img src="shot.png">')
     assert "MAT-D24" in fired(module / NOTE)
 
 
@@ -124,7 +136,7 @@ def test_d16_vietnamese_outside_a_translation_warns(fired, module, edit):
 
 
 def test_d16_a_translation_may_be_vietnamese(fired, module):
-    translated = module / "01_Relational_Modelling_vn.html"
+    translated = module / "dbf_lecture_note_vn.html"
     translated.write_text(
         (module / NOTE)
         .read_text(encoding="utf-8")
@@ -133,11 +145,11 @@ def test_d16_a_translation_may_be_vietnamese(fired, module):
         encoding="utf-8",
     )
     assert "MAT-D16" not in fired(translated)
-    assert "MAT-D02" not in fired(module)
+    assert "MAT-D32" not in fired(module)
 
 
 def test_d16_a_translation_that_does_not_declare_vietnamese_warns(fired, module):
-    translated = module / "01_Relational_Modelling_vn.html"
+    translated = module / "dbf_lecture_note_vn.html"
     translated.write_text((module / NOTE).read_text(encoding="utf-8"), encoding="utf-8")
     assert "MAT-D16" in fired(translated)
 
@@ -146,7 +158,7 @@ def test_d16_a_document_written_in_vietnamese_declares_it(fired, module, edit):
     """A module written in Vietnamese is not a translation: `lang="vi"` is enough."""
     edit(module, NOTE, '<html lang="en">', '<html lang="vi">')
     edit(module, NOTE, "An <strong>entity</strong> is", "Một <strong>thực thể</strong> là")
-    edit(module, NOTE, "After this unit, learners can:", "Sau bài học này, học viên có thể:")
+    edit(module, NOTE, "After this module, learners can:", "Sau module này, học viên có thể:")
     rules_fired = fired(module / NOTE)
     assert "MAT-D16" not in rules_fired and "MAT-D06" not in rules_fired
 
@@ -161,11 +173,11 @@ def test_d20_a_colour_fixed_in_a_diagram_warns(fired, module, edit):
     assert "MAT-D20" in fired(module / NOTE)
 
 
-# --- Lecture notes --------------------------------------------------------
+# --- The lecture note -----------------------------------------------------
 
 
 def test_d06_the_wrong_opening_sentence_is_caught(fired, module, edit):
-    edit(module, NOTE, "After this unit, learners can:", "This unit covers:")
+    edit(module, NOTE, "After this module, learners can:", "This module covers:")
     assert "MAT-D06" in fired(module / NOTE)
 
 
@@ -175,12 +187,12 @@ def test_d31_an_objective_without_its_code_is_caught(fired, module, edit):
 
 
 def test_d29_a_missing_part_is_caught(fired, module, edit):
-    edit(module, NOTE, 'data-part="why"', 'data-part="concept"')
+    edit(module, NOTE, 'data-part="summary"', 'data-part="topic"')
     assert "MAT-D29" in fired(module / NOTE)
 
 
 def test_d29_a_part_twice_is_caught(fired, module, edit):
-    edit(module, NOTE, 'data-part="worked-example"', 'data-part="summary"')
+    edit(module, NOTE, 'data-part="misconceptions"', 'data-part="summary"')
     assert "MAT-D29" in fired(module / NOTE)
 
 
@@ -189,16 +201,34 @@ def test_d08_a_note_with_nowhere_to_go_next_is_caught(fired, module, edit):
     assert "MAT-D08" in fired(module / NOTE)
 
 
-def test_d09_a_thin_knowledge_check_warns(fired, module):
-    path = module / SECOND
+def _keep_questions(path: Path, count: int) -> None:
     text = path.read_text(encoding="utf-8")
-    head, _, rest = text.partition('<section data-part="knowledge-check"')
+    head, _, rest = text.partition('<section data-part="review-questions"')
     section, _, tail = rest.partition("</section>")
-    first = section.split("</li>", 1)[0] + "</li>\n  </ol>\n"
+    kept = "</li>".join(section.split("</li>")[:count]) + "</li>\n  </ol>\n"
     path.write_text(
-        head + '<section data-part="knowledge-check"' + first + "</section>" + tail,
+        head + '<section data-part="review-questions"' + kept + "</section>" + tail,
         encoding="utf-8",
     )
+
+
+def test_d09_thin_review_questions_warn(fired, module):
+    _keep_questions(module / NOTE, 1)
+    assert "MAT-D09" in fired(module / NOTE)
+
+
+def test_d09_the_floor_grows_with_the_topics(fired, module):
+    """Five questions pass two topics; the same five do not pass three."""
+    _keep_questions(module / NOTE, 5)
+    assert "MAT-D09" not in fired(module / NOTE)
+    path = module / NOTE
+    text = path.read_text(encoding="utf-8")
+    extra = (
+        '<section data-part="topic" id="indexes">\n  <h2>Indexes</h2>\n'
+        "  <p>An index trades write speed for read speed.</p>\n</section>\n\n"
+    )
+    anchor = '<section data-part="misconceptions"'
+    path.write_text(text.replace(anchor, extra + anchor), encoding="utf-8")
     assert "MAT-D09" in fired(path)
 
 
@@ -218,7 +248,7 @@ def test_d26_an_objective_no_question_tests_warns(fired, module, edit):
         module,
         NOTE,
         '<li data-objective="DBF-K1">Choose a primary',
-        '<li data-objective="DBF-K2">Choose a primary',
+        '<li data-objective="DBF-K3">Choose a primary',
     )
     assert "MAT-D26" in fired(module / NOTE)
 
@@ -226,17 +256,11 @@ def test_d26_an_objective_no_question_tests_warns(fired, module, edit):
 def test_d27_code_before_its_explanation_warns(fired, module, edit):
     edit(
         module,
-        SECOND,
-        "<h2>Grouping and Aggregation</h2>",
-        "<h2>Grouping and Aggregation</h2>\n"
-        '  <pre><code class="language-sql">SELECT 1;</code></pre>',
+        NOTE,
+        "<h2>Querying</h2>",
+        '<h2>Querying</h2>\n  <pre><code class="language-sql">SELECT 1;</code></pre>',
     )
-    assert "MAT-D27" in fired(module / SECOND)
-
-
-def test_d28_a_concept_with_nothing_to_try_warns(fired, module, edit):
-    edit(module, SECOND, 'class="try-it"', 'class="exercise"')
-    assert "MAT-D28" in fired(module / SECOND)
+    assert "MAT-D27" in fired(module / NOTE)
 
 
 # --- Labs -----------------------------------------------------------------
@@ -458,10 +482,33 @@ def test_c04_an_objective_the_syllabus_does_not_define_warns(
 
 def test_a_markdown_file_is_not_teaching_material(coverage_fired, module, plan_path):
     """Material is HTML; a `.md` the plan names for a lecture is a gap."""
-    text = plan_path.read_text(encoding="utf-8").replace("02_Querying.html", "02_Querying.md")
+    text = plan_path.read_text(encoding="utf-8").replace(NOTE, "dbf_lecture_note.md")
     plan_path.write_text(text, encoding="utf-8")
-    (module / SECOND).rename(module / "02_Querying.md")
+    (module / NOTE).rename(module / "dbf_lecture_note.md")
     assert "MAT-C01" in coverage_fired(plan_path, module)
+
+
+def test_c01_a_plan_naming_a_note_per_session_is_told_the_module_has_one(module, plan_path, capsys):
+    import json
+
+    from get_fsa_training_done.cli import main
+
+    # The Querying row, as plans were written when each session had its own note.
+    text = plan_path.read_text(encoding="utf-8").replace(
+        "Blended,dbf_lecture_note.html", "Blended,02_Querying.html"
+    )
+    plan_path.write_text(text, encoding="utf-8")
+    capsys.readouterr()
+    main(["material", "coverage", "--schedule", str(plan_path), "--dir", str(module), "--json"])
+    found = [f for f in json.loads(capsys.readouterr().out)["findings"] if f["rule"] == "MAT-C01"]
+    assert len(found) == 1 and "lecture_note.html" in found[0]["message"]
+
+
+def test_c03_the_module_note_serves_every_session_that_names_it(coverage_fired, module, plan_path):
+    """Each lecture row names the one note; it must mention every row's objectives."""
+    path = module / NOTE
+    path.write_text(path.read_text(encoding="utf-8").replace("DBF-K2", "DBF-K1"), "utf-8")
+    assert "MAT-C03" in coverage_fired(plan_path, module)
 
 
 def test_another_skills_files_are_never_reported_missing(module, plan_path, capsys):
@@ -525,8 +572,9 @@ def test_links_with_a_query_a_scheme_or_an_escape_resolve(fired, module, edit):
     edit(
         module,
         NOTE,
-        "<h2>Keys</h2>",
-        '<h2>Keys</h2>\n  <p><a href="02_Querying.html?print=1">q</a> <a href="tel:+84123">t</a> '
+        "<h3>Keys</h3>",
+        '<h3>Keys</h3>\n  <p><a href="00_Study_Guide_Handbook.html?print=1">q</a> '
+        '<a href="tel:+84123">t</a> '
         '<a href="a%20b.html">s</a> <a href="javascript:void(0)">j</a></p>',
     )
     assert "MAT-D12" not in fired(module / NOTE)
@@ -567,8 +615,8 @@ def test_x03_an_svg_or_an_outside_image_warns_for_export(module, edit, verify):
     edit(
         module,
         NOTE,
-        "<h2>Keys</h2>",
-        '<h2>Keys</h2>\n  <img src="img/d.svg" alt="d">\n  <img src="../outside.png" alt="o">',
+        "<h3>Keys</h3>",
+        '<h3>Keys</h3>\n  <img src="img/d.svg" alt="d">\n  <img src="../outside.png" alt="o">',
     )
     found = [f for f in verify(module / NOTE, "--export")["findings"] if f["rule"] == "MAT-X03"]
     assert len(found) == 2

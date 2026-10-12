@@ -82,7 +82,7 @@ def test_every_shipped_template_parses_as_the_kind_it_names(tmp_path, capsys):
 
     names = {
         "deck.html": "01_Topic.deck.html",
-        "lecture_note.html": "01_Topic.html",
+        "lecture_note.html": "subj_lecture_note.html",
         "lab_guide.html": "subj_lab_01.html",
         "handbook.html": "00_Study_Guide_Handbook.html",
         "appendix.html": "99_Appendix.html",

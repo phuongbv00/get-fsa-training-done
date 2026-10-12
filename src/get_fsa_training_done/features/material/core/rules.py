@@ -31,8 +31,9 @@ RULES: tuple[Rule, ...] = (
         "document",
         ERROR,
         "The filename follows the module's naming convention",
-        "The index orders the module and reserves 00 for the handbook and 99 "
-        "for the appendix. A file outside the pattern sorts unpredictably, is "
+        "The index orders the module's decks and reserves 00 for the handbook "
+        "and 99 for the appendix; the lecture note is one file per module, named "
+        "for its subject. A file outside the pattern sorts unpredictably, is "
         "never linked from either, and its kind cannot be told.",
     ),
     Rule(
@@ -40,14 +41,14 @@ RULES: tuple[Rule, ...] = (
         "document",
         ERROR,
         "Indexes are unique within a folder",
-        "Two notes claiming the same position give the module two orders.",
+        "Two decks claiming the same position give the module two orders.",
     ),
     Rule(
         "MAT-D03",
         "document",
         WARNING,
         "Indexes run without a gap",
-        "A gap usually means a note was deleted or never written; advisory "
+        "A gap usually means a deck was deleted or never written; advisory "
         "because a module may deliberately leave room.",
     ),
     Rule(
@@ -55,23 +56,25 @@ RULES: tuple[Rule, ...] = (
         "document",
         ERROR,
         "The first section states what a learner will be able to do",
-        "A note that opens with content has never said what it is for, and "
+        "A document that opens with content has never said what it is for, and "
         "nothing downstream can map it to an objective.",
     ),
     Rule(
         "MAT-D08",
         "document",
         ERROR,
-        "A note ends with a knowledge check and somewhere to go next",
-        "Without them a note stops rather than closing, and a learner has no "
-        "way to test what they just read.",
+        "A lecture note ends with review questions and somewhere to go next",
+        "Without them the note stops rather than closing, and a trainee revising "
+        "for an exam or an interview has no way to test what they remember.",
     ),
     Rule(
         "MAT-D09",
         "document",
         WARNING,
-        "The knowledge check asks enough questions",
-        "A check with one or two questions samples a fraction of the note.",
+        "The review questions are enough for the module",
+        "At least two per topic, and never fewer than five: a handful of "
+        "questions over a whole module samples a fraction of it, and the theory "
+        "exam and the interviewer will not stop there.",
     ),
     Rule(
         "MAT-D10",
@@ -94,7 +97,7 @@ RULES: tuple[Rule, ...] = (
         "document",
         ERROR,
         "Relative links resolve to a file that exists",
-        "A note pointing at a sibling that was renamed or never written sends "
+        "A page pointing at a sibling that was renamed or never written sends "
         "the reader nowhere, and nothing reports it at render time.",
     ),
     Rule(
@@ -102,7 +105,8 @@ RULES: tuple[Rule, ...] = (
         "document",
         ERROR,
         "Link anchors resolve to an id in the target",
-        "The appendix and the notes link into specific parts; renaming an id breaks them silently.",
+        "The handbook and the appendix link into the lecture note's topics; "
+        "renaming an id breaks them silently.",
     ),
     Rule(
         "MAT-D16",
@@ -110,7 +114,7 @@ RULES: tuple[Rule, ...] = (
         WARNING,
         "The text is in the language the document declares",
         "`<html lang>` is what the theme, the exporters and the viewer follow for "
-        'the words they write — a slide\'s default title, the "Try it" label, a '
+        "the words they write — a slide's default title, an answer's label, a "
         "PDF's session line. A module written in Vietnamese declares `vi`; a "
         "translation of an English original is a separate file ending `_vn`, "
         "so the original stays the thing every other document links to.",
@@ -174,7 +178,7 @@ RULES: tuple[Rule, ...] = (
         ERROR,
         "The HTML is well formed",
         "An unclosed element swallows whatever follows it — a slide into the next "
-        "one, a section into the knowledge check — and a browser hides that by "
+        "one, a section into the review questions — and a browser hides that by "
         "guessing, so the page looks right while the checker and exporter read "
         "something else.",
     ),
@@ -190,36 +194,27 @@ RULES: tuple[Rule, ...] = (
         "MAT-D25",
         "document",
         ERROR,
-        "Every knowledge-check question carries its answer",
-        "A trainee working alone cannot tell a right answer from a wrong one "
-        "without it. The answer sits in `<details>`, so it is there when wanted "
-        "and hidden until then.",
+        "Every review question carries its answer",
+        "A trainee revising alone cannot tell a right answer from a wrong one "
+        "without a model to compare against. The answer sits in `<details>`, so "
+        "it is there when wanted and hidden until the trainee has answered.",
     ),
     Rule(
         "MAT-D26",
         "document",
         WARNING,
-        "Every objective is tested by a knowledge-check question",
-        "An objective no question asks about is one a trainee can finish the "
-        "lesson without ever checking; `data-objective` on each question makes "
+        "Every objective is tested by a review question",
+        "An objective no question asks about is one a trainee can revise the "
+        "module without ever checking; `data-objective` on each question makes "
         "the gap countable.",
     ),
     Rule(
         "MAT-D27",
         "document",
         WARNING,
-        "A concept section explains before it shows",
+        "A topic explains before it shows",
         "Code with no sentence in front of it asks the trainee to reverse-engineer "
         "the point. The idea comes first, in prose; the example illustrates it.",
-    ),
-    Rule(
-        "MAT-D28",
-        "document",
-        WARNING,
-        "Every concept section gives the trainee something to try",
-        "Reading is not practice. A short exercise straight after each idea, "
-        "with its answer, is what turns a note into something a trainee learns "
-        "from rather than skims.",
     ),
     Rule(
         "MAT-D29",
@@ -227,8 +222,8 @@ RULES: tuple[Rule, ...] = (
         ERROR,
         "The parts a document must carry are present, in order",
         "Each kind has a fixed shape — the objectives first, the summary before "
-        "the knowledge check — so a trainee finds the same thing in the same "
-        "place in every lesson, and the checker can find it too.",
+        "the review questions — so a trainee finds the same thing in the same "
+        "place in every module, and the checker can find it too.",
     ),
     Rule(
         "MAT-D30",
@@ -245,8 +240,17 @@ RULES: tuple[Rule, ...] = (
         ERROR,
         "Every objective item cites the objective code it serves",
         "`data-objective` on each objectives item is what `coverage`, the summary "
-        "and the knowledge check are compared against; an item without one is an "
+        "and the review questions are compared against; an item without one is an "
         "objective nothing can trace.",
+    ),
+    Rule(
+        "MAT-D32",
+        "document",
+        ERROR,
+        "A module has one lecture note",
+        "The note is the module's theory in one place, the file a trainee revises "
+        "from. A second one splits it, and a note per session — what this replaced "
+        "— leaves the trainee to stitch the module together before an exam.",
     ),
     Rule(
         "MAT-S01",
@@ -378,7 +382,7 @@ RULES: tuple[Rule, ...] = (
         "coverage",
         WARNING,
         "Every material in the folder is used by a session",
-        "A note nobody schedules is either unfinished or forgotten.",
+        "A material nobody schedules is either unfinished or forgotten.",
     ),
     Rule(
         "MAT-C03",
