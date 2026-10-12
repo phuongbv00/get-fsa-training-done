@@ -258,6 +258,22 @@ def test_renaming_a_sheet_updates_the_defined_name_that_quotes_it(synthetic_xlsx
     assert "'AA_FR_TT_DBF_Syllabus'!$A$1:$C$2" in workbook
 
 
+def test_renaming_a_sheet_updates_a_formula_elsewhere_that_quotes_it(synthetic_xlsx, tmp_path):
+    """The schedule's title is `='<Topic Code>_Syllabus'!C3 & ...`. In the
+    worksheet's XML the name is escaped, so a match on the bare name misses it."""
+    package = XlsxPackage(synthetic_xlsx)
+    cover = package.sheet("Cover")
+    cover.set_formula("A1", "'<Topic Code>_Syllabus'!C3 & \" - Training Schedule\"")
+    package.write_sheet("Cover", cover)
+    package.rename_sheet(SYLLABUS, "AA_FR_TT_DBF_Syllabus")
+    out = tmp_path / "out.xlsx"
+    package.save(out)
+
+    cover_xml = parts(out)["xl/worksheets/sheet1.xml"].decode()
+    assert "'AA_FR_TT_DBF_Syllabus'!C3" in cover_xml
+    assert "Topic Code" not in cover_xml
+
+
 def test_a_sheet_name_excel_would_reject_is_refused(synthetic_xlsx):
     package = XlsxPackage(synthetic_xlsx)
     with pytest.raises(UsageError, match="the limit is 31"):

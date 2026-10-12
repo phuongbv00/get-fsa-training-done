@@ -17,6 +17,7 @@ import posixpath
 import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
+from xml.sax.saxutils import escape
 
 from get_fsa_training_done.errors import UsageError
 
@@ -181,10 +182,13 @@ class XlsxPackage:
             defined.text = _requote(defined.text or "", old, new)
         self.parts[WORKBOOK] = ET.tostring(root, encoding="UTF-8", xml_declaration=True)
 
+        # A worksheet is matched as raw XML, where the template's `<Topic Code>`
+        # is spelled `&lt;Topic Code&gt;` — matching the bare name misses the
+        # schedule title's formula, which then shows `#REF!`.
         for part in list(self.parts):
             if part.startswith("xl/worksheets/sheet") and part.endswith(".xml"):
                 text = self.parts[part].decode("utf-8")
-                updated = _requote(text, old, new)
+                updated = _requote(text, escape(old), escape(new))
                 if updated != text:
                     self.parts[part] = updated.encode("utf-8")
 
