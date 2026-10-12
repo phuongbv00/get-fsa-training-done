@@ -334,8 +334,6 @@ body, .card, .lane, .file, header { transition: background-color .3s ease, borde
 .toc .row code { flex: 1; min-width: 0; font-size: 12px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .toc .row .s { flex: none; font: 600 10.5px var(--font-mono); color: var(--ink-3); border: 1px solid var(--line-2); border-radius: 5px; padding: 0 5px; }
 .toc .hb { --k: var(--orange); } .toc .dk { --k: var(--re-ink); } .toc .ln { --k: var(--blue); } .toc .lb { --k: var(--green); } .toc .ap { --k: var(--ink-3); }
-.toc .ex { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 2px 11px; }
-.toc .ex span { font: 600 10.5px var(--font-mono); color: var(--re-ink); background: var(--re); border-radius: 5px; padding: 1px 7px; }
 .toc .open { background: color-mix(in srgb, var(--k) 14%, transparent); }
 .toc .secs { margin: 4px 0 0 11px; padding: 2px 0 2px 22px; border-left: 1px dashed var(--line-2); font-size: 12.5px; color: var(--ink-2); display: grid; gap: 2px; }
 .toc .secs li::marker { color: var(--blue); font: 600 11px var(--font-mono); }
@@ -436,17 +434,17 @@ footer nav a:hover, .fbottom a:hover { color: var(--ink); }
     </div>
     <div class="files" aria-hidden="true">
       <div class="file f1">
-        <div class="fh">ScheduleDetail.csv <span class="tg">program</span></div>
+        <div class="fh">SBAD_Syllabus.xlsx <span class="tg">program</span></div>
         <div class="fb">
           <table class="mini-csv">
-            <tr><td>Lab: paginated CRUD…</td><td>120</td><td class="hl">sbad_lab_02.html</td></tr>
-            <tr><td>Quiz 1 — Spring…</td><td>30</td><td class="hl">sbad_quiz_01.csv</td></tr>
-            <tr><td>Lab: transactional…</td><td>150</td><td class="hl">sbad_lab_04.html</td></tr>
+            <tr><td>Lab: paginated CRUD…</td><td>120</td><td class="hl">SBAD-K1</td></tr>
+            <tr><td>Quiz 1 — Spring…</td><td>30</td><td class="hl">SBAD-K1</td></tr>
+            <tr><td>Lab: transactional…</td><td>150</td><td class="hl">SBAD-K2</td></tr>
           </table>
         </div>
       </div>
       <div class="file f2">
-        <div class="fh">04_Transactions.html <span class="tg">material</span></div>
+        <div class="fh">04_Transactions.deck.pptx <span class="tg">material</span></div>
         <div class="fb mini-doc">
           <h5>Service Layer, Transactions &amp; Locking</h5>
           <p>SBAD-K2 · Spring Boot 3.3</p>
@@ -458,10 +456,10 @@ footer nav a:hover, .fbottom a:hover { color: var(--ink); }
         </div>
       </div>
       <div class="file f3">
-        <div class="fh">practice_exam_01.pdf <span class="tg">assessment</span></div>
+        <div class="fh">sbad_practice_exam_01.pdf <span class="tg">assessment</span></div>
         <div class="fb mini-exam">
           <h5>Practice Exam - StockDesk Order Service</h5>
-          <div class="meta">FR · 3 hours · EN + VI</div>
+          <div class="meta">FR · 3 hours</div>
           <div class="wbar"><span>Atomic Order</span><span><i style="--w:100%"></i></span><b>40%</b></div>
           <div class="wbar"><span>Category Report</span><span><i style="--w:50%"></i></span><b>20%</b></div>
           <div class="wbar"><span>Automated Tests</span><span><i style="--w:37.5%"></i></span><b>15%</b></div>
@@ -476,18 +474,20 @@ footer nav a:hover, .fbottom a:hover { color: var(--ink); }
   <div class="wrap">
     <div class="copy reveal">
       <div class="kick">Assessment</div>
-      <h2><span class="vi">Soạn đủ dạng bài, từ quiz đến capstone project</span><span class="en">Every kind of assessment, Quiz to Capstone Project</span></h2>
+      <h2><span class="vi">Ra đề nhanh, chấm bài nhẹ</span><span class="en">Faster assessments, lighter grading</span></h2>
+      <p class="lead"><span class="vi">Ra đề và chấm bài vốn ngốn nhiều effort. Giờ trainer chủ yếu review và duyệt.</span><span class="en">Writing and grading assessments takes real effort. Now the trainer mostly reviews and approves.</span></p>
       <ul class="ticks">
-        <li>Quiz · Short &amp; Long Assignment · Theory &amp; Practice Exam · Capstone Project</li>
-        <li><span class="vi">Độ khó phù hợp trình độ, có bản EN/VI và rubric</span><span class="en">Pitched to the level, EN/VI, rubric included</span></li>
-        <li><span class="vi">Chấm code tự động trong <b>Docker sandbox</b>: tắt mạng, giới hạn CPU, RAM, thời gian; không chạy trên máy chấm</span><span class="en">Code graded automatically in a <b>Docker sandbox</b>: no network, capped CPU, memory and time; never on the host</span></li>
-        <li><span class="vi">Kiểm tra gian lận, tổng hợp điểm thi lại</span><span class="en">Cheat checks, retake merging</span></li>
+        <li><span class="vi">Đủ 6 dạng: Quiz, Short &amp; Long Assignment, Theory &amp; Practice Exam, Capstone Project</span><span class="en">All 6 types: Quiz, Short &amp; Long Assignment, Theory &amp; Practice Exam, Capstone Project</span></li>
+        <li><span class="vi">Đúng trình độ CPL, Fresher, Upskill, Reskill; kèm rubric</span><span class="en">Matched to CPL, Fresher, Upskill or Reskill; rubric included</span></li>
+        <li><span class="vi">Import thẳng vào <b>Blooket</b>, <b>Coderbyte</b>, không cần nhập liệu thủ công</span><span class="en">Imports straight into <b>Blooket</b> and <b>Coderbyte</b>, no manual data entry</span></li>
+        <li><span class="vi">Chấm cả lớp theo rubric, chạy code an toàn trong <b>Docker sandbox</b></span><span class="en">Grades the whole class against the rubric, running code safely in a <b>Docker sandbox</b></span></li>
+        <li><span class="vi">Bảng điểm, nhận xét từng học viên, gộp điểm thi lại, kiểm tra gian lận</span><span class="en">Grade sheets, per-trainee remarks, retake merging, cheat checks</span></li>
       </ul>
     </div>
     <div class="visual reveal">
       <div class="card asmt">
         <div class="atabs" role="tablist"><button type="button" role="tab" class="atab on" data-i="0" aria-selected="true">Quiz</button><button type="button" role="tab" class="atab" data-i="1" aria-selected="false">Short Assignment</button><button type="button" role="tab" class="atab" data-i="2" aria-selected="false">Long Assignment</button><button type="button" role="tab" class="atab" data-i="3" aria-selected="false">Theory Exam</button><button type="button" role="tab" class="atab" data-i="4" aria-selected="false">Practice Exam</button><button type="button" role="tab" class="atab" data-i="5" aria-selected="false">Capstone Project</button></div>
-        <div class="apanels"><div class="apanel on" role="tabpanel" data-i="0"><div class="tags"><span class="tag un">Understand</span><span class="tag e">Easy</span><span class="tag t">5s</span></div><p class="q">Which statement best distinguishes Spring Boot from Spring Framework?</p><div class="opts"><div class="opt"><b>1</b><span>Spring Boot replaces dependency injection with static factories</span></div><div class="opt ok"><b>2</b><span>Spring Boot adds opinionated setup and auto-configuration on top of Spring</span></div><div class="opt"><b>3</b><span>Spring Framework can build only command-line applications</span></div></div><div class="bloom" aria-hidden="true"><span style="flex:15;background:#7A5AF8"></span><span style="flex:30;background:var(--blue)"></span><span style="flex:40;background:var(--green)"></span><span style="flex:15;background:var(--orange)"></span></div><div class="bloom-l"><span>Remember 15</span><span>Understand 30</span><span>Apply 40</span><span>Analyze 15</span></div><div class="exports"><span class="chip">Blooket</span><span class="chip">Coderbyte</span><span class="chip">EN · VI</span><span class="badge">verify</span></div></div><div class="apanel" role="tabpanel" data-i="1"><div class="dh"><h5>Short Assignment - OrderDesk Returns Backlog</h5><div class="dm">FR · 60 minutes · Agile | Scrum | user stories</div></div><div class="ws"><div class="wbar"><span>Open questions</span><span><i style="--w:57%"></i></span><b>20%</b></div><div class="wbar"><span>User stories</span><span><i style="--w:100%"></i></span><b>35%</b></div><div class="wbar"><span>Estimation & DoD</span><span><i style="--w:57%"></i></span><b>20%</b></div><div class="wbar"><span>Backlog order</span><span><i style="--w:71%"></i></span><b>25%</b></div></div><div class="exports"><span class="chip">brief.md</span><span class="chip">rubric.md</span><span class="chip">PDF EN · VI</span><span class="badge">verify</span></div></div><div class="apanel" role="tabpanel" data-i="2"><div class="dh"><h5>Long Assignment - BookTrack: Library Lending Operations</h5><div class="dm">Java Core · JPA/Hibernate · concurrency · submit at end of module</div></div><div class="tl"><span class="on">Kickoff</span><i></i><span>Checkpoint</span><i></i><span>Acceptance</span></div><div class="ws"><div class="wbar"><span>Book Catalogue</span><span><i style="--w:75%"></i></span><b>15%</b></div><div class="wbar"><span>Lending & Returns</span><span><i style="--w:100%"></i></span><b>20%</b></div><div class="wbar"><span>Reports</span><span><i style="--w:100%"></i></span><b>20%</b></div><div class="wbar"><span>Data Storage</span><span><i style="--w:100%"></i></span><b>20%</b></div><div class="wbar"><span>Files & Concurrency</span><span><i style="--w:50%"></i></span><b>10%</b></div></div><div class="exports"><span class="chip">brief.md</span><span class="chip">rubric.md</span><span class="chip">PDF EN · VI</span><span class="badge">verify</span></div></div><div class="apanel" role="tabpanel" data-i="3"><div class="dh"><h5>Theory Exam - Java and Persistence Interview Questions</h5><div class="dm">FR · 90 minutes · written</div></div><div class="ws"><div class="wbar"><span>Java Platform</span><span><i style="--w:100%"></i></span><b>25%</b></div><div class="wbar"><span>OOP & Testing</span><span><i style="--w:100%"></i></span><b>25%</b></div><div class="wbar"><span>Collections & Streams</span><span><i style="--w:100%"></i></span><b>25%</b></div><div class="wbar"><span>JDBC & JPA</span><span><i style="--w:100%"></i></span><b>25%</b></div></div><div class="exports"><span class="chip">answer_template.md</span><span class="chip">rubric.md</span><span class="chip">Coderbyte</span><span class="badge">verify</span></div></div><div class="apanel" role="tabpanel" data-i="4"><div class="dh"><h5>Practice Exam - StockDesk Order Service</h5><div class="dm">FR · 3 hours · Java 21 | Maven | JUnit 5 | JDBC</div></div><div class="ws"><div class="wbar"><span>Atomic Order</span><span><i style="--w:100%"></i></span><b>40%</b></div><div class="wbar"><span>Category Report</span><span><i style="--w:50%"></i></span><b>20%</b></div><div class="wbar"><span>Domain Model</span><span><i style="--w:38%"></i></span><b>15%</b></div><div class="wbar"><span>Automated Tests</span><span><i style="--w:38%"></i></span><b>15%</b></div><div class="wbar"><span>Product Lookup</span><span><i style="--w:25%"></i></span><b>10%</b></div></div><div class="exports"><span class="chip">starter.zip</span><span class="chip">seed.sql</span><span class="chip">rubric.md</span><span class="chip docker"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.887c0 .102.082.185.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.185.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.185.185 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.185.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288Z"/></svg>Docker sandbox</span><span class="badge">verify</span></div></div><div class="apanel" role="tabpanel" data-i="5"><div class="dh"><h5>Project Spec - &lt;Project name&gt;</h5><div class="dm">team · sprints · demo · individual contribution</div></div><div class="tl"><span class="on">Sprint 1</span><i></i><span class="on">Sprint 2</span><i></i><span class="on">Sprint 3</span><i></i><span>Final Review</span></div><div class="ws"><div class="wbar"><span>Sprint Review ×3</span><span><i style="--w:100%"></i></span><b>60%</b></div><div class="wbar"><span>Final Review</span><span><i style="--w:67%"></i></span><b>40%</b></div></div><div class="exports"><span class="chip">spec.md</span><span class="chip">sprint kit</span><span class="chip">checkpoints</span><span class="badge">verify</span></div></div></div>
+        <div class="apanels"><div class="apanel on" role="tabpanel" data-i="0"><div class="tags"><span class="tag un">Understand</span><span class="tag e">Easy</span><span class="tag t">5s</span></div><p class="q">Which statement best distinguishes Spring Boot from Spring Framework?</p><div class="opts"><div class="opt"><b>1</b><span>Spring Boot replaces dependency injection with static factories</span></div><div class="opt ok"><b>2</b><span>Spring Boot adds opinionated setup and auto-configuration on top of Spring</span></div><div class="opt"><b>3</b><span>Spring Framework can build only command-line applications</span></div></div><div class="bloom" aria-hidden="true"><span style="flex:15;background:#7A5AF8"></span><span style="flex:30;background:var(--blue)"></span><span style="flex:40;background:var(--green)"></span><span style="flex:15;background:var(--orange)"></span></div><div class="bloom-l"><span>Remember 15</span><span>Understand 30</span><span>Apply 40</span><span>Analyze 15</span></div><div class="exports"><span class="chip">Blooket</span><span class="chip">Coderbyte</span><span class="badge">verify</span></div></div><div class="apanel" role="tabpanel" data-i="1"><div class="dh"><h5>Short Assignment - OrderDesk Returns Backlog</h5><div class="dm">FR · 60 minutes · Agile | Scrum | user stories</div></div><div class="ws"><div class="wbar"><span>Open questions</span><span><i style="--w:57%"></i></span><b>20%</b></div><div class="wbar"><span>User stories</span><span><i style="--w:100%"></i></span><b>35%</b></div><div class="wbar"><span>Estimation & DoD</span><span><i style="--w:57%"></i></span><b>20%</b></div><div class="wbar"><span>Backlog order</span><span><i style="--w:71%"></i></span><b>25%</b></div></div><div class="exports"><span class="chip">brief.pdf</span><span class="chip">rubric.md</span><span class="badge">verify</span></div></div><div class="apanel" role="tabpanel" data-i="2"><div class="dh"><h5>Long Assignment - BookTrack: Library Lending Operations</h5><div class="dm">Java Core · JPA/Hibernate · concurrency · submit at end of module</div></div><div class="tl"><span class="on">Kickoff</span><i></i><span>Checkpoint</span><i></i><span>Acceptance</span></div><div class="ws"><div class="wbar"><span>Book Catalogue</span><span><i style="--w:75%"></i></span><b>15%</b></div><div class="wbar"><span>Lending & Returns</span><span><i style="--w:100%"></i></span><b>20%</b></div><div class="wbar"><span>Reports</span><span><i style="--w:100%"></i></span><b>20%</b></div><div class="wbar"><span>Data Storage</span><span><i style="--w:100%"></i></span><b>20%</b></div><div class="wbar"><span>Files & Concurrency</span><span><i style="--w:50%"></i></span><b>10%</b></div></div><div class="exports"><span class="chip">brief.pdf</span><span class="chip">rubric.md</span><span class="badge">verify</span></div></div><div class="apanel" role="tabpanel" data-i="3"><div class="dh"><h5>Theory Exam - Java and Persistence Interview Questions</h5><div class="dm">FR · 90 minutes · written</div></div><div class="ws"><div class="wbar"><span>Java Platform</span><span><i style="--w:100%"></i></span><b>25%</b></div><div class="wbar"><span>OOP & Testing</span><span><i style="--w:100%"></i></span><b>25%</b></div><div class="wbar"><span>Collections & Streams</span><span><i style="--w:100%"></i></span><b>25%</b></div><div class="wbar"><span>JDBC & JPA</span><span><i style="--w:100%"></i></span><b>25%</b></div></div><div class="exports"><span class="chip">exam.pdf</span><span class="chip">answer_template.md</span><span class="chip">rubric.md</span><span class="chip">Coderbyte</span><span class="badge">verify</span></div></div><div class="apanel" role="tabpanel" data-i="4"><div class="dh"><h5>Practice Exam - StockDesk Order Service</h5><div class="dm">FR · 3 hours · Java 21 | Maven | JUnit 5 | JDBC</div></div><div class="ws"><div class="wbar"><span>Atomic Order</span><span><i style="--w:100%"></i></span><b>40%</b></div><div class="wbar"><span>Category Report</span><span><i style="--w:50%"></i></span><b>20%</b></div><div class="wbar"><span>Domain Model</span><span><i style="--w:38%"></i></span><b>15%</b></div><div class="wbar"><span>Automated Tests</span><span><i style="--w:38%"></i></span><b>15%</b></div><div class="wbar"><span>Product Lookup</span><span><i style="--w:25%"></i></span><b>10%</b></div></div><div class="exports"><span class="chip">exam.pdf</span><span class="chip">starter.zip</span><span class="chip">seed.sql</span><span class="chip">rubric.md</span><span class="chip docker"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.185.185 0 00-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.185.185 0 00-.185.185v1.887c0 .102.082.185.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.185.185 0 00-.185.185v1.887c0 .102.083.185.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.185.185 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.185.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 00.185-.185V9.006a.185.185 0 00-.184-.186h-2.12a.186.186 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.185v1.888c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.376 11.376 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288Z"/></svg>Docker sandbox</span><span class="badge">verify</span></div></div><div class="apanel" role="tabpanel" data-i="5"><div class="dh"><h5>Project Spec - &lt;Project name&gt;</h5><div class="dm">team · sprints · demo · individual contribution</div></div><div class="tl"><span class="on">Sprint 1</span><i></i><span class="on">Sprint 2</span><i></i><span class="on">Sprint 3</span><i></i><span>Final Review</span></div><div class="ws"><div class="wbar"><span>Sprint Review ×3</span><span><i style="--w:100%"></i></span><b>60%</b></div><div class="wbar"><span>Final Review</span><span><i style="--w:67%"></i></span><b>40%</b></div></div><div class="exports"><span class="chip">brief.pdf</span><span class="chip">spec.md</span><span class="chip">sprint kit</span><span class="chip">checkpoints</span><span class="badge">verify</span></div></div></div>
         <div class="aprog" aria-hidden="true"><i></i></div>
       </div>
     </div>
@@ -499,17 +499,19 @@ footer nav a:hover, .fbottom a:hover { color: var(--ink); }
   <div class="wrap">
     <div class="copy reveal">
       <div class="kick">Program</div>
-      <h2><span class="vi">Syllabus sẵn sàng đưa lên FAMS</span><span class="en">Syllabi ready to upload to FAMS</span></h2>
+      <h2><span class="vi">Syllabus import thẳng vào FAMS</span><span class="en">Syllabi that import straight into FAMS</span></h2>
+      <p class="lead"><span class="vi">Syllabus và session plan sẵn sàng để nộp.</span><span class="en">Syllabus and session plan, ready to submit.</span></p>
       <ul class="ticks">
-        <li><span class="vi">Đủ 11 mục theo đúng template FSA</span><span class="en">All 11 sections, in FSA's order</span></li>
-        <li><span class="vi">Xuất ra file Excel để import, giữ nguyên định dạng</span><span class="en">Exported straight into the Excel import file, formatting intact</span></li>
-        <li><span class="vi">Tự động đối chiếu giờ học, lịch và mục tiêu trước khi xuất</span><span class="en">Hours, schedule and objectives reconciled before export</span></li>
+        <li><span class="vi">Xuất đúng file Excel import của <b>FAMS</b>, giữ nguyên template</span><span class="en">Exports the <b>FAMS</b> Excel import file, template intact</span></li>
+        <li><span class="vi">Đủ 11 mục syllabus và session plan, không cần nhập liệu thủ công</span><span class="en">All 11 syllabus sections and the session plan, no manual data entry</span></li>
+        <li><span class="vi">Đối chiếu giờ học, lịch và mục tiêu; báo sai lệch trước khi nộp</span><span class="en">Hours, schedule and objectives cross-checked; mismatches flagged before submission</span></li>
+        <li><span class="vi">Sửa một buổi, phân bổ thời lượng tự cập nhật</span><span class="en">Edit a session; the time allocation updates automatically</span></li>
       </ul>
     </div>
     <div class="visual reveal">
       <div class="sy">
         <div class="card xl">
-          <div class="bar" style="--dc:var(--green)"><span class="dot"></span>Syllabus.xlsx</div>
+          <div class="bar" style="--dc:var(--green)"><span class="dot"></span>SBAD_Syllabus.xlsx</div>
           <table>
             <tr><th style="width:36px"></th><th style="width:38%">C</th><th>D</th></tr>
             <tr><td>2</td><td class="h">Technical Group</td><td>Java</td></tr>
@@ -518,20 +520,20 @@ footer nav a:hover, .fbottom a:hover { color: var(--ink); }
             <tr><td>19</td><td class="h">Assignment/Lab</td><td>50.96%</td></tr>
             <tr><td>28</td><td class="h">Quiz</td><td>10%</td></tr>
           </table>
-          <div class="tabs"><span class="on">Syllabus</span><span>ScheduleDetail</span><span>Author</span></div>
+          <div class="tabs"><span>Cover</span><span class="on">SBAD_Syllabus</span><span>SBAD_ScheduleDetail</span><span>Author and Rec of Changes</span></div>
         </div>
       </div>
       <div class="card xl sheet2">
-        <div class="bar" style="--dc:var(--green)"><span class="dot"></span>Syllabus.xlsx</div>
+        <div class="bar" style="--dc:var(--green)"><span class="dot"></span>SBAD_Syllabus.xlsx</div>
         <table class="sched">
-          <tr><th style="width:30px"></th><th>Content</th><th style="width:114px">Delivery Type</th><th style="width:38px">Mins</th><th style="width:142px">Training Materials</th></tr>
-          <tr><td>2</td><td>REST controllers &amp; DTOs</td><td>Concept/Lecture</td><td>60</td><td class="hl">01_REST_APIs.deck.html</td></tr>
-          <tr><td>3</td><td>Lab: paginated CRUD</td><td>Assignment/Lab</td><td>120</td><td class="hl">sbad_lab_02.html</td></tr>
-          <tr><td>4</td><td>Quiz 1 — Spring Boot basics</td><td>Test/Quiz</td><td>30</td><td class="hl">sbad_quiz_01.csv</td></tr>
-          <tr><td>5</td><td>Transactions &amp; locking</td><td>Concept/Lecture</td><td>90</td><td class="hl">sbad_lecture_note.html</td></tr>
-          <tr><td>6</td><td>Lab: cancel an order</td><td>Assignment/Lab</td><td>150</td><td class="hl">sbad_lab_04.html</td></tr>
+          <tr><th style="width:30px"></th><th>Content</th><th style="width:114px">Delivery Type</th><th style="width:38px">Mins</th><th style="width:96px">Objectives</th></tr>
+          <tr><td>2</td><td>REST controllers &amp; DTOs</td><td>Concept/Lecture</td><td>60</td><td class="hl">SBAD-K1</td></tr>
+          <tr><td>3</td><td>Lab: paginated CRUD</td><td>Assignment/Lab</td><td>120</td><td class="hl">SBAD-K1</td></tr>
+          <tr><td>4</td><td>Quiz 1 — Spring Boot basics</td><td>Test/Quiz</td><td>30</td><td class="hl">SBAD-K1</td></tr>
+          <tr><td>5</td><td>Transactions &amp; locking</td><td>Concept/Lecture</td><td>90</td><td class="hl">SBAD-K2</td></tr>
+          <tr><td>6</td><td>Lab: cancel an order</td><td>Assignment/Lab</td><td>150</td><td class="hl">SBAD-K2</td></tr>
         </table>
-        <div class="tabs"><span>Syllabus</span><span class="on">ScheduleDetail</span><span>Author</span></div>
+        <div class="tabs"><span>Cover</span><span>SBAD_Syllabus</span><span class="on">SBAD_ScheduleDetail</span><span>Author and Rec of Changes</span></div>
       </div>
     </div>
   </div>
@@ -542,13 +544,15 @@ footer nav a:hover, .fbottom a:hover { color: var(--ink); }
   <div class="wrap">
     <div class="copy reveal">
       <div class="kick">Material</div>
-      <h2><span class="vi">Slide và lab cho từng buổi, bài giảng cô đọng cho cả module</span><span class="en">Slides and labs for every session, one lecture note per module</span></h2>
+      <h2><span class="vi">Học liệu đầy đủ, sẵn sàng lên lớp</span><span class="en">Complete material, ready to teach</span></h2>
+      <p class="lead"><span class="vi">Từ session plan đến slide, bài giảng và lab, theo một chuẩn FSA.</span><span class="en">From session plan to slides, lecture note and labs, to one FSA standard.</span></p>
       <ul class="ticks">
-        <li><span class="vi">Slide đúng template FSA, xuất ra .pptx và .pdf</span><span class="en">Slides on the FSA template, exported to .pptx and .pdf</span></li>
-        <li><span class="vi">Duyệt dàn ý trước khi viết bất kỳ tài liệu nào</span><span class="en">Every document starts as an outline you approve</span></li>
-        <li><span class="vi">Một bài giảng cho mỗi module: lý thuyết cô đọng, câu hỏi ôn thi và phỏng vấn kèm đáp án; lab ghi rõ kết quả từng bước</span><span class="en">One lecture note per module: condensed theory, exam and interview questions with answers; labs with the result of every step</span></li>
-        <li><span class="vi">Viết bằng tiếng Việt hay tiếng Anh: slide, nhãn và PDF đều theo đúng ngôn ngữ</span><span class="en">Written in Vietnamese or English: slides, labels and PDFs follow the document's language</span></li>
-        <li><span class="vi">Tự kiểm tra: mục tiêu, câu hỏi, thời lượng, cỡ chữ và trình bày</span><span class="en">Checked for objectives, questions, timing, type size and layout</span></li>
+        <li><span class="vi">Slide theo template FSA, kèm speaker notes, mở <b>PowerPoint</b> là dạy</span><span class="en">Slides on the FSA template with speaker notes, ready to teach in <b>PowerPoint</b></span></li>
+        <li><span class="vi">Mỗi module một bài giảng cô đọng, kèm câu hỏi ôn thi, phỏng vấn và đáp án</span><span class="en">One concise lecture note per module, with exam and interview questions and answers</span></li>
+        <li><span class="vi">Lab nêu kết quả từng bước, học viên tự kiểm tra</span><span class="en">Labs state the expected result of each step for self-checking</span></li>
+        <li><span class="vi">Nguồn HTML, trainer chỉnh sửa trực tiếp</span><span class="en">HTML source the trainer edits directly</span></li>
+        <li><span class="vi">Export <b>.pptx</b>, <b>.pdf</b> thuận tiện cho trình giảng và gửi học viên</span><span class="en">Exports to <b>.pptx</b> and <b>.pdf</b>, ready to present and to send to trainees</span></li>
+        <li><span class="vi">Duyệt dàn ý trước khi viết, tự kiểm tra layout</span><span class="en">Outline approved before writing, layout checked automatically</span></li>
       </ul>
     </div>
     <div class="visual reveal">
@@ -557,27 +561,26 @@ footer nav a:hover, .fbottom a:hover { color: var(--ink); }
         <div class="toc">
           <div class="col">
             <div class="grp">Slides</div>
-            <div class="row dk"><code>01_REST_APIs.deck.html</code><span class="s">S1</span></div>
-            <div class="row dk"><code>04_Transactions.deck.html</code><span class="s">S3</span></div>
-            <div class="ex"><span>.pptx</span><span>.pdf</span></div>
+            <div class="row dk"><code>01_REST_APIs.deck.pptx</code><span class="s">S1</span></div>
+            <div class="row dk"><code>04_Transactions.deck.pptx</code><span class="s">S3</span></div>
             <div class="grp">Lecture note</div>
-            <div class="row ln open"><code>sbad_lecture_note.html</code><span class="s">S1–S3</span></div>
+            <div class="row ln open"><code>sbad_lecture_note.pdf</code><span class="s">S1–S3</span></div>
             <ol class="secs">
               <li>Module Map &amp; How to Study</li>
               <li>REST APIs <i>code</i></li>
               <li>Transactions &amp; Locking <i>table</i><i>diagram</i></li>
               <li>Common Misconceptions</li>
+              <li>Summary</li>
               <li>Review Questions <i>answers</i></li>
               <li>Full Syllabus Map</li>
             </ol>
-            <div class="ex"><span>.pdf</span></div>
           </div>
           <div class="col">
             <div class="grp">Labs</div>
-            <div class="row lb"><code>sbad_lab_01.html</code><span class="s">S1</span></div>
-            <div class="row lb"><code>sbad_lab_02.html</code><span class="s">S1</span></div>
-            <div class="row lb"><code>sbad_lab_03.html</code><span class="s">S2</span></div>
-            <div class="row lb open"><code>sbad_lab_04.html</code><span class="s">S3</span></div>
+            <div class="row lb"><code>sbad_lab_01.pdf</code><span class="s">S1</span></div>
+            <div class="row lb"><code>sbad_lab_02.pdf</code><span class="s">S1</span></div>
+            <div class="row lb"><code>sbad_lab_03.pdf</code><span class="s">S2</span></div>
+            <div class="row lb open"><code>sbad_lab_04.pdf</code><span class="s">S3</span></div>
             <ol class="secs">
               <li>Steps <i>expected</i><i>hints</i></li>
               <li>Acceptance</li>
@@ -601,8 +604,10 @@ footer nav a:hover, .fbottom a:hover { color: var(--ink); }
           <h3>Program</h3>
           <div class="pills">
             <span class="vi">Tạo chương trình</span><span class="en">New programme</span>
-            <span class="vi">Thêm module</span><span class="en">Add a module</span>
-            <span class="vi">Cập nhật lịch học</span><span class="en">Revise a schedule</span>
+            <span class="vi">Thêm topic &amp; syllabus</span><span class="en">Add a topic</span>
+            <span class="vi">Sửa session plan</span><span class="en">Revise a session plan</span>
+            <span class="vi">Kiểm tra chương trình</span><span class="en">Verify a programme</span>
+            <span class="vi">Xuất workbook Excel</span><span class="en">Export the workbook</span>
           </div>
         </div>
         <div class="lane" style="--c:var(--blue)">
@@ -611,7 +616,10 @@ footer nav a:hover, .fbottom a:hover { color: var(--ink); }
             <span class="vi">Soạn học liệu cả module</span><span class="en">Full module pack</span>
             <span class="vi">Bổ sung học liệu thiếu</span><span class="en">Fill the gaps</span>
             <span class="vi">Slide bài giảng</span><span class="en">Lesson slides</span>
+            <span class="vi">Bài giảng module</span><span class="en">Lecture note</span>
+            <span class="vi">Lab &amp; worksheet</span><span class="en">Labs &amp; worksheets</span>
             <span class="vi">Xuất PPTX / PDF</span><span class="en">Export PPTX / PDF</span>
+            <span class="vi">Bộ PDF cho học viên</span><span class="en">Trainee hand-out</span>
           </div>
         </div>
       </div>
@@ -628,6 +636,7 @@ footer nav a:hover, .fbottom a:hover { color: var(--ink); }
           <span class="vi">Thi lại</span><span class="en">Retakes</span>
           <span class="vi">Tổng hợp điểm quiz</span><span class="en">Quiz reports</span>
           <span class="vi">Kiểm tra gian lận</span><span class="en">Cheat check</span>
+          <span class="vi">Nhận xét học viên</span><span class="en">Learner remarks</span>
         </div>
       </div>
     </div>
