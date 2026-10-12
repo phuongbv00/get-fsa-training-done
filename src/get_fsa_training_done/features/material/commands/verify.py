@@ -46,6 +46,13 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
         "(default: %(default)s)",
     )
     parser.add_argument(
+        "--min-fill",
+        type=float,
+        default=checks.MIN_FILL,
+        help="report a content slide whose content fills less than this share of its "
+        "room (default: %(default)s)",
+    )
+    parser.add_argument(
         "--export",
         action="store_true",
         help="also apply the rules that only matter for a .pptx or .pdf (MAT-X*)",
@@ -125,5 +132,6 @@ def _check(path: Path, args: argparse.Namespace, report: Report, minutes_per_sli
         export=args.export,
         minutes_per_slide=minutes_per_slide,
         min_fit=args.min_fit,
+        min_fill=args.min_fill,
     )
     return kind.key

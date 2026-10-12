@@ -48,7 +48,9 @@ approval of each. No files.
 - The slide budget: minutes ÷ slides, inside the 1.5–6 minutes a slide `verify`
   allows.
 - Per slide, in order: number · `data-layout` · the title as a statement · one
-  line on what it shows · for a check slide, the question and its answer.
+  line on what it says · **the illustration it shows** (a diagram to draw, a
+  screenshot, a table of rows, code) or "none" · for a check slide, the
+  question and its answer. Every section has at least one illustration.
 - Cover, toc, objectives (each with its code), then per section its cover and
   slides, then the summary (each item with the code it closes) and the closing
   layout.

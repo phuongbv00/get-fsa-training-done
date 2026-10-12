@@ -121,6 +121,30 @@ def test_x02_a_slot_that_cannot_fit_is_reported(module, capsys):
     assert "MAT-X02" in capsys.readouterr().out
 
 
+def test_an_svg_picture_reaches_the_pptx_and_the_pdf(module, pptx):
+    """PowerPoint and the PDF writers place raster images: the SVG is drawn to a
+    PNG for them rather than skipped."""
+    pytest.importorskip("pypdfium2")
+    assert main(["material", "export", "pptx", str(module / DECK)]) == 0
+    slides = list(pptx.Presentation(str(module / "01_Relational_Modelling.deck.pptx")).slides)
+    # Slide 5 is "Entities are nouns with facts", its picture an SVG.
+    assert any(shape.shape_type == 13 for shape in slides[4].shapes)
+    assert main(["material", "export", "pdf", str(module / DECK)]) == 0
+    data = (module / "01_Relational_Modelling.deck.pdf").read_bytes()
+    assert data.count(b"/Subtype /Image") >= 3  # the ER diagram and both drawings
+
+
+def test_an_svg_is_drawn_in_the_modules_fonts():
+    from get_fsa_training_done.features.material.core import svg
+
+    text = svg.normalise_fonts(
+        '<svg xmlns="http://www.w3.org/2000/svg"><text font-family="Arial">a</text>'
+        '<text style="font-family: Consolas; fill: red">b</text></svg>'
+    )
+    assert 'font-family="FsaSans"' in text and "font-family: FsaMono" in text
+    assert text.startswith('<svg font-family="FsaSans"')
+
+
 def test_a_note_exports_to_an_a4_pdf(module):
     pytest.importorskip("xhtml2pdf")
     from get_fsa_training_done.features.common.render import pdf as pdf_mod

@@ -251,6 +251,8 @@ Applied to a deck, against the FSA template.
 | `MAT-S08` | warning | A slot stays within its layout's limits |
 | `MAT-S09` | warning | The number of slides fits the session's minutes |
 | `MAT-S10` | warning | A title or short text keeps close to the template's size |
+| `MAT-S11` | warning | A content slide fills its space |
+| `MAT-S12` | warning | Every section shows something, not only tells |
 
 ### `MAT-S01` — The deck follows the template's order
 
@@ -292,6 +294,14 @@ Derived from `fsa:minutes` and `--minutes-per-slide`. Far too many slides for th
 
 A slot's text shrinks to fit, but past a point (`--min-fit`, 70% by default) the deck's titles stop being one size: one slide's at 36pt, the next at 22pt. The fix is fewer words, not a smaller box.
 
+### `MAT-S11` — A content slide fills its space
+
+Measured as `export pdf` lays the slide out (`--min-fill`, 60% by default): three bullets on a white slide leave its lower half blank, and a room reads a blank half as a slide with nothing to say. Show what the words describe — the picture, diagram, table or code — pick a layout with fewer, larger parts, or merge the slide with the next.
+
+### `MAT-S12` — Every section shows something, not only tells
+
+A section of bullets is heard and forgotten; a diagram, a screenshot, a table of real rows or code beside its output is what a trainee remembers and comes back to. Each section carries at least one.
+
 
 ## Rules — exporting
 
@@ -301,7 +311,8 @@ Applied by `export`, and by `verify --export`: what a .pptx or .pdf cannot carry
 |---|---|---|
 | `MAT-X01` | warning | A diagram exported to a file has a rendered image |
 | `MAT-X02` | warning | Every slot's content fits its placeholder |
-| `MAT-X03` | warning | Every image an export embeds is a PNG, JPEG or GIF inside the module |
+| `MAT-X03` | warning | Every image an export embeds is a PNG, JPEG, GIF or SVG inside the module |
+| `MAT-X04` | warning | An SVG uses only what the exporters can draw |
 
 ### `MAT-X01` — A diagram exported to a file has a rendered image
 
@@ -311,9 +322,13 @@ Mermaid is drawn by the browser. PowerPoint and the PDF writer cannot run it, so
 
 Found while drawing the PDF: text that does not fit even after shrinking to the smallest readable size is cut, so the slide says less than its author wrote.
 
-### `MAT-X03` — Every image an export embeds is a PNG, JPEG or GIF inside the module
+### `MAT-X03` — Every image an export embeds is a PNG, JPEG, GIF or SVG inside the module
 
-PowerPoint and the PDF writer place raster images only, so an SVG has to be exported to PNG first. And an export embeds files from the module's own folder: a `src` reaching out with `../` would put an unrelated file into a deck handed to a class.
+PowerPoint and the PDF writer place raster images: an SVG is drawn to a PNG for them, and anything else is skipped. And an export embeds files from the module's own folder: a `src` reaching out with `../` would put an unrelated file into a deck handed to a class.
+
+### `MAT-X04` — An SVG uses only what the exporters can draw
+
+The export draws an SVG with svglib, which has no markers, filters, masks, patterns, text paths or HTML inside the SVG. Each would vanish from the slide handed out while the browser still shows it: draw an arrowhead as a polygon, and leave out the shadow.
 
 
 ## Rules — material against the session plan
@@ -345,4 +360,4 @@ A code the syllabus does not list is a typo or a missing objective.
 
 ---
 
-42 rules: 21 errors, 21 warnings.
+45 rules: 21 errors, 24 warnings.

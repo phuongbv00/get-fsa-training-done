@@ -11,9 +11,10 @@ from __future__ import annotations
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
-#: What PowerPoint and the PDF writer can place. An SVG has to be exported to
-#: PNG first.
+#: What PowerPoint and the PDF writer can place as they are.
 RASTER = (".png", ".jpg", ".jpeg", ".gif")
+#: What an export draws to a PNG first (`core/svg.py`).
+VECTOR = (".svg",)
 
 
 def is_external(href: str) -> bool:
@@ -52,6 +53,7 @@ def embeddable(document: Path, src: str) -> tuple[Path | None, str]:
 
     An export embeds only images inside the module's folder: a `src` reaching
     out with `../../` would put an unrelated file into a deck handed to a class.
+    An SVG is drawn to a PNG first, and that PNG is what is returned.
     """
     if is_external(src):
         return None, f"{src} is not a local file"
@@ -62,9 +64,17 @@ def embeddable(document: Path, src: str) -> tuple[Path | None, str]:
         return None, f"{src} is outside the module's folder"
     if not path.is_file():
         return None, f"{src} does not exist"
-    if path.suffix.lower() not in RASTER:
-        return None, f"{path.name} is not PNG, JPEG or GIF"
+    suffix = path.suffix.lower()
+    if suffix in VECTOR:
+        from . import svg
+
+        try:
+            return svg.to_png(path), ""
+        except Exception as exc:  # svglib and pdfium raise their own kinds
+            return None, f"{path.name} could not be drawn: {exc}"
+    if suffix not in RASTER:
+        return None, f"{path.name} is not PNG, JPEG, GIF or SVG"
     return path, ""
 
 
-__all__ = ["RASTER", "embeddable", "inside", "is_external", "resolve", "split"]
+__all__ = ["RASTER", "VECTOR", "embeddable", "inside", "is_external", "resolve", "split"]

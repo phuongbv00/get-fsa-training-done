@@ -50,6 +50,9 @@ MINUTES_PER_SLIDE = (1.5, 6.0)
 #: Below this share of the template's size, a shrunk title or text slot is
 #: reported: the deck's type stops looking like one deck.
 MIN_FIT = 0.7
+#: Below this share of its body room filled, a white content slide is reported:
+#: its lower part is blank.
+MIN_FILL = 0.6
 
 
 def check(document: Document, kind: grammar.Kind, report: Report, **options) -> None:
@@ -178,6 +181,11 @@ def _images(document: Document, report: Report, where: str, *, export: bool) -> 
             _, problem = assets.embeddable(document.path, src)
             if problem:
                 report.warn("MAT-X03", where, f"line {image.line}: {problem}")
+            elif path is not None and path.suffix.lower() in assets.VECTOR:
+                from . import svg
+
+                for dropped in svg.unsupported(path):
+                    report.warn("MAT-X04", where, f"line {image.line}: {path.name} uses {dropped}")
 
 
 def _links(document: Document, report: Report, where: str) -> None:
@@ -423,6 +431,7 @@ def check_deck(
     *,
     minutes_per_slide: tuple[float, float] = MINUTES_PER_SLIDE,
     min_fit: float = MIN_FIT,
+    min_fill: float = MIN_FILL,
 ) -> list[deck_mod.Slide]:
     where = document.path.name
     slides = deck_mod.read(document)
@@ -435,8 +444,54 @@ def check_deck(
     _order(slides, report, where)
     _deck_objectives(document, slides, report, where)
     _checks_per_section(slides, report, where)
+    _shows_per_section(slides, report, where)
+    _fill(document, slides, report, where, min_fill)
     _slide_budget(document, slides, report, where, minutes_per_slide)
     return slides
+
+
+def _shows(slide: deck_mod.Slide) -> bool:
+    """Does the slide carry an illustration: a picture, a diagram, a table, code?"""
+    for element in slide.slots.values():
+        if element.tag in ("img", "table", "pre", "figure"):
+            return True
+        if any(element.find(tag) is not None for tag in ("img", "table", "pre", "figure")):
+            return True
+    return False
+
+
+def _shows_per_section(slides: list[deck_mod.Slide], report: Report, where: str) -> None:
+    for cover, inside in deck_mod.sections(slides):
+        if inside and not any(_shows(slide) for slide in inside):
+            report.warn(
+                "MAT-S12",
+                where,
+                f"section {cover.title()!r} has no picture, diagram, table or code: "
+                "show what its slides describe",
+            )
+
+
+def _fill(
+    document: Document,
+    slides: list[deck_mod.Slide],
+    report: Report,
+    where: str,
+    min_fill: float,
+) -> None:
+    from . import export_pdf
+
+    for slide in slides:
+        if slide.layout is None or slide.role_kind != L.CONTENT:
+            continue
+        share = export_pdf.fill(slide, document)
+        if share is not None and share < min_fill:
+            report.warn(
+                "MAT-S11",
+                where,
+                f"{slide.where()}: its content fills {share:.0%} of the slide's room; "
+                "add the picture, diagram, table or code it describes, use a layout with "
+                "fewer, larger parts, or merge it with the next slide",
+            )
 
 
 def _slide(slide: deck_mod.Slide, report: Report, where: str, min_fit: float = MIN_FIT) -> None:

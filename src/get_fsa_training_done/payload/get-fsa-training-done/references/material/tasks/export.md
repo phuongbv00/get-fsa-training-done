@@ -26,8 +26,10 @@ lecture note is handed out as its HTML and that PDF only.
    `MAT-X01` is a diagram with no image: PowerPoint and the PDF writer cannot
    run Mermaid, so put a PNG of it in the same `<figure>` (`<img src="…png"
    alt="…">`), or accept that the export shows its source. `MAT-X03` is an image
-   an export will not embed: an SVG (export it to PNG) or a file outside the
-   module's folder (move it in).
+   an export will not embed: not PNG, JPEG, GIF or SVG, an SVG that cannot be
+   drawn, or a file outside the module's folder (move it in). An SVG is drawn
+   to a PNG for both files on its own; `MAT-X04` names anything in it the
+   drawing would drop.
 2. Export:
 
    ```bash

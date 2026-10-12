@@ -13,6 +13,12 @@
 #
 # python-pptx writes a deck into the FSA template for `material export pptx`;
 # it is pure Python, and its own dependencies (lxml, Pillow) ship wheels.
+#
+# pypdfium2 draws a material's SVG illustrations to PNG for both exports:
+# svglib (which xhtml2pdf already brings) reads the SVG, reportlab writes it as
+# a PDF page, pdfium renders the page. Its wheels carry pdfium, so no browser
+# or system library is needed — reportlab's own raster backend needs Cairo.
 xhtml2pdf>=0.2.16,<0.3
 py7zr>=0.20,<2
 python-pptx>=1.0,<2
+pypdfium2>=4.30,<6

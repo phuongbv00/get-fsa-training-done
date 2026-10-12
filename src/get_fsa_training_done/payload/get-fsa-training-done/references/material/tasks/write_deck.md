@@ -45,17 +45,27 @@ condenses the theory of every deck into one file to revise from.
    enough for its column. Use `two-content` with `pre class="wrong"`/`"right"` for a
    common mistake, and the box, column and row layouts for three or four parallel
    ideas rather than a long list.
-7. End every section with a check slide: `data-role="check"`, a question the
-   room answers from what they just saw, the answer in `<details>` (`MAT-S07`).
-8. Write speaker notes on every objectives and content slide, in the trainer's
+7. **Show, then say.** Give every section an illustration (`MAT-S12`) and every
+   white content slide enough to fill it (`MAT-S11`): the diagram, the
+   screenshot, the table of real rows or the code the words describe. Put a
+   point beside its picture with `content-picture`, a whole-slide diagram on
+   `title-only`, data under its sentence as a `<table>`. Draw what has no
+   picture as an SVG by `references/material/conventions.md` § Drawing an
+   illustration as SVG. A slide still half empty is too thin: merge it with the
+   next rather than adding bullets.
+8. End every section with a check slide: `data-role="check"`, a question the
+   room answers from what they just saw — with the rows, code or picture it is
+   about on the slide — and the answer in `<details>` (`MAT-S07`).
+9. Write speaker notes on every objectives and content slide, in the trainer's
    words: what to say, what to ask, what to point at. They become the `.pptx`
    notes and, later, a recording script (`MAT-S06`).
-9. Draw diagrams by `references/material/conventions.md` § Diagrams.
+10. Draw diagrams by `references/material/conventions.md` § Diagrams.
 
 ## Done when
 
-`FSA material verify "<materials_dir>"` reports no errors for the deck, and it
-reads correctly in a browser (arrow keys; N for notes, O for the overview).
+`FSA material verify "<materials_dir>" --export` reports no errors and no
+`MAT-S11`, `MAT-S12` or `MAT-X04` for the deck, and it reads correctly in a
+browser (arrow keys; N for notes, O for the overview).
 
 ## Hands off to
 

@@ -373,6 +373,7 @@ def _flowables(
                 if block.header:
                     commands.append(("BACKGROUND", (0, 0), (-1, 0), "#034ea1"))
                 table.setStyle(TableStyle(commands))
+                table.spaceBefore, table.spaceAfter = base * 0.15, base * 0.3
                 items.append(table)
             continue
         indent = 14 * scale
@@ -409,6 +410,63 @@ def _flowables(
     return items
 
 
+def _room(spec: L.Slot, width, height) -> tuple[float, float]:
+    """The width and height a slot's content has inside its insets."""
+    return (
+        spec.box.width / 100 * width - 2 * L.INSET_X,
+        spec.box.height / 100 * height - 2 * L.INSET_Y,
+    )
+
+
+def _fit(spec: L.Slot, content, document: Document, scales, avail_w, avail_h):
+    """The first of `scales` at which a body's content fits: its flowables, their
+    sizes, the height they take, and whether they fit at all."""
+    items, sizes, used = [], [], 0.0
+    for scale in scales:
+        items = _flowables(spec, content, document, scale, avail_w, avail_h)
+        sizes = [item.wrap(avail_w, avail_h) for item in items]
+        used = sum(h + _gap(item) for item, (_, h) in zip(items, sizes, strict=True))
+        if used <= avail_h:
+            return items, sizes, used, True
+    return items, sizes, used, False
+
+
+def _gap(item) -> float:
+    """The space a flowable asks for around itself. `wrap` leaves it out, and
+    without it a paragraph's last line runs under the table that follows."""
+    return item.getSpaceBefore() + item.getSpaceAfter()
+
+
+#: The white content layouts, where an unfilled body is empty slide. The card,
+#: column and row layouts are drawn full by the template, and a picture fills
+#: what its body leaves.
+FILLABLE = frozenset({"content", "two-content", "three-content", "subtitle-content", "title-only"})
+
+
+def fill(slide: deck_mod.Slide, document: Document) -> float | None:
+    """How much of a content slide's body room its content takes, laid out as
+    `export pdf` draws it: 0.4 is a slide whose lower half and more is blank.
+    None for a slide whose layout is not one of `FILLABLE`."""
+    layout = slide.layout
+    if layout is None or layout.name not in FILLABLE:
+        return None
+    _fonts()
+    width, height = L.SLIDE_WIDTH_PT, L.SLIDE_HEIGHT_PT
+    scales = [scale for scale in L.FIT_SCALES if scale >= MIN_SCALE]
+    used_total = room_total = 0.0
+    for spec in layout.slots:
+        if spec.kind != L.BODY:
+            continue
+        avail_w, avail_h = _room(spec, width, height)
+        room_total += avail_h
+        element = slide.slots.get(spec.name)
+        if element is None:
+            continue
+        _, _, used, _ = _fit(spec, rich.blocks(element), document, scales, avail_w, avail_h)
+        used_total += min(used, avail_h)
+    return used_total / room_total if room_total else None
+
+
 def _draw_slot(pdf, spec: L.Slot, content, document: Document, width, height) -> bool:
     x = spec.box.left / 100 * width + L.INSET_X
     top = height - spec.box.top / 100 * height - L.INSET_Y
@@ -424,14 +482,7 @@ def _draw_slot(pdf, spec: L.Slot, content, document: Document, width, height) ->
         scales = [scale for scale in L.FIT_SCALES if scale <= start]
     else:
         scales = [scale for scale in L.FIT_SCALES if scale >= MIN_SCALE]
-    fitted = False
-    for scale in scales:
-        items = _flowables(spec, content, document, scale, avail_w, avail_h)
-        sizes = [item.wrap(avail_w, avail_h) for item in items]
-        used = sum(h for _, h in sizes)
-        if used <= avail_h:
-            fitted = True
-            break
+    items, sizes, used, fitted = _fit(spec, content, document, scales, avail_w, avail_h)
     offset = 0.0
     if fitted and spec.anchor == "middle":
         offset = (avail_h - used) / 2
@@ -442,13 +493,14 @@ def _draw_slot(pdf, spec: L.Slot, content, document: Document, width, height) ->
     for item, (w, h) in zip(items, sizes, strict=True):
         # A title or text slot is drawn whole, running past its box as it does in
         # the browser and in PowerPoint; a body is cut where its box ends.
+        y -= item.getSpaceBefore()
         if not fitted and not spec.fits and y - h < floor:
             break
         x_item = (
             x + (avail_w - w) / 2 if spec.align == "center" or hasattr(item, "imageWidth") else x
         )
         item.drawOn(pdf, x_item, y - h)
-        y -= h
+        y -= h + item.getSpaceAfter()
     return fitted or spec.fits
 
 

@@ -115,7 +115,8 @@ Prefer a folder: the index rules only mean anything across a whole module.
   before code, what to expect after each lab step).
 - `MAT-S*` — a deck against the template: its order, its layouts and slots, the
   objectives the session claims stated and summarised, speaker notes, a check
-  slide per section, slot limits, and a slide count that fits the minutes.
+  slide per section, slot limits, a slide count that fits the minutes, a
+  content slide that fills its room, and an illustration in every section.
 - `MAT-X*` — what an export cannot carry, with `--export`.
 
 Every finding names its rule, and
@@ -167,7 +168,9 @@ Verifies first and refuses a document with errors. `pptx` adds each slide from
 the template's own layout and fills its placeholders; a check slide's answer
 goes to the notes. `pdf` draws a deck with reportlab, shrinking a slot's text to
 fit and reporting `MAT-X02` past a readable floor; a long-form document is
-rendered by `xhtml2pdf` with the embedded fonts `assessment render` uses. Its
+rendered by `xhtml2pdf` with the embedded fonts `assessment render` uses. An
+SVG illustration is drawn to a PNG for both formats (`core/svg.py`: svglib,
+reportlab and pypdfium2, in the managed venv), in the module's fonts. Its
 links to `#ids` jump inside the PDF; a link to a sibling file names the PDF to
 open instead, since a PDF cannot open the file beside it.
 
@@ -202,6 +205,7 @@ features/material/
 │   ├── export_pptx.py   # into the template
 │   ├── export_pdf.py    # slides with reportlab, documents with xhtml2pdf
 │   ├── coverage.py      # MAT-C*, the cross-feature half
+│   ├── svg.py           # SVG illustrations drawn to PNG for the exports
 │   └── syllabus_map.py  # the derived syllabus map
 └── theme/               # fsa.css, layouts.css (GENERATED), deck.js, doc.js, img/, fsa_base.pptx
 

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 420" width="520" height="420" font-family="sans-serif">
+  <rect x="0" y="0" width="520" height="420" rx="16" fill="#f2f5fa"/>
+  <!-- A loan slip: the paper form the description talks about. -->
+  <rect x="40" y="34" width="440" height="350" rx="12" fill="#ffffff" stroke="#d3dbe8" stroke-width="2"/>
+  <rect x="40" y="34" width="440" height="58" rx="12" fill="#034ea1"/>
+  <rect x="40" y="70" width="440" height="22" fill="#034ea1"/>
+  <text x="260" y="72" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="middle">Library loan slip</text>
+  <text x="70" y="140" font-size="18" fill="#5b6370">Member</text>
+  <text x="200" y="140" font-size="20" fill="#1f2328">Ana Tran</text>
+  <line x1="70" y1="156" x2="450" y2="156" stroke="#d3dbe8"/>
+  <text x="70" y="196" font-size="18" fill="#5b6370">Book</text>
+  <text x="200" y="196" font-size="20" fill="#1f2328">Database Design</text>
+  <line x1="70" y1="212" x2="450" y2="212" stroke="#d3dbe8"/>
+  <text x="70" y="252" font-size="18" fill="#5b6370">Borrowed</text>
+  <text x="200" y="252" font-size="20" fill="#1f2328">2026-10-01</text>
+  <line x1="70" y1="268" x2="450" y2="268" stroke="#d3dbe8"/>
+  <text x="70" y="308" font-size="18" fill="#5b6370">Due</text>
+  <text x="200" y="308" font-size="20" fill="#1f2328">2026-10-15</text>
+  <line x1="70" y1="324" x2="450" y2="324" stroke="#d3dbe8"/>
+  <rect x="330" y="340" width="120" height="30" rx="6" fill="#50b748"/>
+  <text x="390" y="361" font-size="16" fill="#ffffff" text-anchor="middle">No. 1042</text>
+</svg>

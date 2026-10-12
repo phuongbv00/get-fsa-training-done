@@ -19,10 +19,20 @@ speaker notes carry the explanation.
 
 - **One idea per slide**, and a title that states it: "Prefer a surrogate key",
   not "Keys".
+- **Show, then say.** Every section carries an illustration (`MAT-S12`): a
+  diagram, a screenshot, a table of real rows, code beside its output. Words
+  describe; the picture is what a trainee remembers. Reach for the picture
+  layouts — `content-picture` for a point beside what it describes,
+  `title-only` for a diagram that needs the whole slide — before a list.
+- **Fill the slide** (`MAT-S11`). Three bullets on a white layout leave its
+  lower half blank. Add what they describe, choose a layout with fewer, larger
+  parts, or merge the slide with the next; never pad with more bullets.
 - **Parallel ideas go side by side.** Three or four related ideas belong in the
   box, column or row layouts, not in a long list.
 - **A check slide ends every section**: a question answered from what was just
   shown, the answer folded into `<details>` and revealed after the room commits.
+  Give it something to look at: the rows, the code or the picture the question
+  is about, not the question alone.
 - **Speaker notes are the lesson in the trainer's voice**: what to say, what to
   ask, what to point at. Write them so another trainer could give the session.
 - **The note follows the decks.** The lecture note has one topic per lesson,
@@ -88,9 +98,30 @@ pick the diagram type for what it shows:
   edges and layout exactly as they were.
 - An entity is a *type*: a table's rows are its instances. Say which one a
   diagram shows.
-- **Before exporting**, add a PNG of the rendered diagram to the same figure
-  (`<img src="…png" alt="…">`). PowerPoint and the PDF writer cannot run
+- **Before exporting**, add an image of the diagram to the same figure
+  (`<img src="…" alt="…">`). PowerPoint and the PDF writer cannot run
   Mermaid; the browser shows the image when there is one (`MAT-X01`).
+
+### Drawing an illustration as SVG
+
+When no screenshot or photograph shows the point, draw it: an SVG file under
+`img/`, linked from an `<img>` like any picture. The browser shows it as it is,
+and `export` draws it to a PNG for the `.pptx` and the `.pdf` — no tool to run.
+
+- **The theme's colours**: brand blue `#034ea1`, green `#50b748`, ink
+  `#1f2328`, muted text `#5b6370`, surface `#f2f5fa`, rules `#d3dbe8`. Give the
+  drawing its own background (a `#f2f5fa` or white rectangle), so it reads on a
+  dark page too.
+- **Type**: `font-family="sans-serif"` on the root, or `monospace` for code;
+  the export draws them in the module's own fonts, so Vietnamese keeps its
+  diacritics. Text no smaller than 14 at a 600-wide `viewBox`.
+- **Shapes only**: rectangles, circles, lines, paths, polygons, text and
+  groups. No `<marker>` (draw an arrowhead as a small `<polygon>`), filters,
+  masks, patterns, text paths or HTML inside — the export cannot draw them and
+  they vanish from the file handed out (`MAT-X04`).
+- One idea per drawing, labelled in the lesson's words, with a `viewBox`
+  close to the slot's shape: about 3:2 beside a body, 2:1 for a whole slide.
+- Every `<img>` says what it shows in `alt` (`MAT-D24`).
 
 ## A running domain
 

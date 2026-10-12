@@ -335,6 +335,26 @@ RULES: tuple[Rule, ...] = (
         "The fix is fewer words, not a smaller box.",
     ),
     Rule(
+        "MAT-S11",
+        "deck",
+        WARNING,
+        "A content slide fills its space",
+        "Measured as `export pdf` lays the slide out (`--min-fill`, 60% by default): "
+        "three bullets on a white slide leave its lower half blank, and a room reads a "
+        "blank half as a slide with nothing to say. Show what the words describe — the "
+        "picture, diagram, table or code — pick a layout with fewer, larger parts, or "
+        "merge the slide with the next.",
+    ),
+    Rule(
+        "MAT-S12",
+        "deck",
+        WARNING,
+        "Every section shows something, not only tells",
+        "A section of bullets is heard and forgotten; a diagram, a screenshot, a table "
+        "of real rows or code beside its output is what a trainee remembers and comes "
+        "back to. Each section carries at least one.",
+    ),
+    Rule(
         "MAT-X01",
         "export",
         WARNING,
@@ -356,11 +376,21 @@ RULES: tuple[Rule, ...] = (
         "MAT-X03",
         "export",
         WARNING,
-        "Every image an export embeds is a PNG, JPEG or GIF inside the module",
-        "PowerPoint and the PDF writer place raster images only, so an SVG has to be "
-        "exported to PNG first. And an export embeds files from the module's own "
-        "folder: a `src` reaching out with `../` would put an unrelated file into a "
-        "deck handed to a class.",
+        "Every image an export embeds is a PNG, JPEG, GIF or SVG inside the module",
+        "PowerPoint and the PDF writer place raster images: an SVG is drawn to a PNG "
+        "for them, and anything else is skipped. And an export embeds files from the "
+        "module's own folder: a `src` reaching out with `../` would put an unrelated "
+        "file into a deck handed to a class.",
+    ),
+    Rule(
+        "MAT-X04",
+        "export",
+        WARNING,
+        "An SVG uses only what the exporters can draw",
+        "The export draws an SVG with svglib, which has no markers, filters, masks, "
+        "patterns, text paths or HTML inside the SVG. Each would vanish from the slide "
+        "handed out while the browser still shows it: draw an arrowhead as a polygon, "
+        "and leave out the shadow.",
     ),
     Rule(
         "MAT-C01",

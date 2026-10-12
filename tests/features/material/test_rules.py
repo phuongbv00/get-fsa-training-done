@@ -10,6 +10,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+import pytest
+
 from get_fsa_training_done.features.material.core import rules
 
 DECK = "01_Relational_Modelling.deck.html"
@@ -435,6 +437,48 @@ def test_s09_the_range_is_a_flag(module, edit, verify):
     assert "MAT-S09" not in rules_fired
 
 
+THIN_SLIDE = """<section class="slide" data-layout="content">
+  <h2 data-slot="title">One more thing</h2>
+  <div data-slot="body"><ul><li>Keep a key short</li></ul></div>
+  <aside class="notes">Say that a short key keeps every index that holds it small, and move
+  on to the summary without dwelling on it.</aside>
+</section>
+
+"""
+SUMMARY = '<section class="slide" data-layout="summary">'
+
+
+def test_s11_a_half_empty_slide_warns(fired, module, edit, verify):
+    edit(module, DECK, SUMMARY, THIN_SLIDE + SUMMARY)
+    assert "MAT-S11" in fired(module / DECK)
+    relaxed = {f["rule"] for f in verify(module / DECK, "--min-fill", "0.05")["findings"]}
+    assert "MAT-S11" not in relaxed
+
+
+def test_s11_a_slide_filled_by_its_table_passes(module):
+    from get_fsa_training_done.features.material.core import deck, dom, export_pdf
+
+    document = dom.parse(module / DECK)
+    email = next(s for s in deck.read(document) if s.title().startswith("Is an email"))
+    assert export_pdf.fill(email, document) >= 0.6
+
+
+def test_s12_a_section_of_only_words_warns(fired, module, edit):
+    words_only = (
+        '<section class="slide" data-layout="section">\n'
+        '  <h2 data-slot="title">Naming</h2>\n</section>\n\n'
+        + THIN_SLIDE.replace(
+            'data-layout="content"', 'data-layout="content" data-role="check"'
+        ).replace("</div>", "<details><summary>Answer</summary><p>Yes.</p></details></div>")
+    )
+    edit(module, DECK, SUMMARY, words_only + SUMMARY)
+    assert "MAT-S12" in fired(module / DECK)
+
+
+def test_s12_every_shipped_section_shows_something(fired, module):
+    assert "MAT-S12" not in fired(module / DECK)
+
+
 # --- Exporting --------------------------------------------------------------
 
 
@@ -449,6 +493,26 @@ def test_x01_a_diagram_with_its_image_passes(module, verify):
 
 
 # X02 is found while drawing a deck's PDF; see test_export.py.
+
+
+def test_x04_an_svg_arrowhead_drawn_with_a_marker_warns_for_export(module, verify):
+    pytest.importorskip("pypdfium2")
+    path = module / "img" / "nouns_to_entities.svg"
+    text = path.read_text(encoding="utf-8").replace(
+        'stroke="#034ea1" stroke-width="3"/>',
+        'stroke="#034ea1" stroke-width="3" marker-end="url(#head)"/>',
+        1,
+    )
+    path.write_text(text, encoding="utf-8")
+    found = [f for f in verify(module / DECK, "--export")["findings"] if f["rule"] == "MAT-X04"]
+    assert len(found) == 1 and "marker" in found[0]["message"]
+    assert "MAT-X04" not in {f["rule"] for f in verify(module / DECK)["findings"]}
+
+
+def test_x04_the_shipped_drawings_use_only_what_the_export_draws(module, verify):
+    pytest.importorskip("pypdfium2")
+    rules_fired = {f["rule"] for f in verify(module / DECK, "--export")["findings"]}
+    assert not rules_fired & {"MAT-X03", "MAT-X04"}
 
 
 # --- Against the session plan --------------------------------------------
@@ -668,7 +732,7 @@ def test_a_picture_slot_may_be_the_image_itself(fired, module, edit):
     assert "MAT-S03" not in rules_fired and "MAT-S02" not in rules_fired
 
 
-def test_x03_an_svg_or_an_outside_image_warns_for_export(module, edit, verify):
+def test_x03_an_svg_that_cannot_be_drawn_or_an_outside_image_warns_for_export(module, edit, verify):
     (module / "img" / "d.svg").write_text("<svg/>", encoding="utf-8")
     (module.parent / "outside.png").write_bytes((module / "img" / "catalogue_er.png").read_bytes())
     edit(
