@@ -195,7 +195,10 @@ def test_d09_a_thin_knowledge_check_warns(fired, module):
     head, _, rest = text.partition('<section data-part="knowledge-check"')
     section, _, tail = rest.partition("</section>")
     first = section.split("</li>", 1)[0] + "</li>\n  </ol>\n"
-    path.write_text(head + '<section data-part="knowledge-check"' + first + "</section>" + tail)
+    path.write_text(
+        head + '<section data-part="knowledge-check"' + first + "</section>" + tail,
+        encoding="utf-8",
+    )
     assert "MAT-D09" in fired(path)
 
 

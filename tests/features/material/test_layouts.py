@@ -253,5 +253,7 @@ def test_the_viewers_fit_is_the_pythons(tmp_path):
         + "console.log(JSON.stringify(bad));\n",
         encoding="utf-8",
     )
-    result = subprocess.run([node, str(script)], capture_output=True, text=True, check=True)
+    result = subprocess.run(
+        [node, str(script)], capture_output=True, text=True, encoding="utf-8", check=True
+    )
     assert json.loads(result.stdout) == []
