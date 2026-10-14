@@ -1,6 +1,5 @@
 name: Góp ý của trainer / Trainer feedback
 description: Điều gì chạy tốt, điều gì vướng, điều gì nên có thêm. / What works, what gets in the way, what is missing.
-labels: ["feedback"]
 body:
   - type: markdown
     attributes:
