@@ -1,34 +1,32 @@
 """`gftd update` — upgrade the CLI from PyPI, then every installed skill.
 
-With no --platform or --dir, `update` finds every install that carries our
-receipt — each host, user and project scope — and upgrades them all, so a
-user who installed into Claude and Copilot gets both refreshed in one go.
+With no --platform, `update` finds every install that carries our
+receipt — the shared `.agents/skills` copy, each agent's own folder and the
+places earlier releases wrote to, at user and project scope — and brings them
+all to this version the way `install` would lay them out today: one shared
+copy, a symlink for each agent that needs one, and nothing left behind in an
+old location.
 """
 
 from __future__ import annotations
 
 import argparse
 import sys
-from pathlib import Path
 
 from ...__about__ import PACKAGE_NAME, __version__
-from ...errors import GftdError, NotInstalledError
+from ...errors import NotInstalledError
 from ...skill import SKILL, Skill
 from .. import selfupdate
-from ..install import migrations, planner
-from ..install import receipt as receipt_mod
+from ..install import planner
 from ..platforms import registry
 from ..platforms.base import Platform
+from . import deploy
 from .common import (
-    Target,
     add_target_args,
     format_dest,
-    print_plan,
     project_root_of,
-    resolve_targets,
     validate_payload_or_die,
 )
-from .install import _file_records, _report_conflicts, _venv_hint, apply_plan
 
 
 def add_parser(subparsers: argparse._SubParsersAction) -> None:
@@ -95,119 +93,63 @@ def _check_pypi(args: argparse.Namespace) -> str | None:
 
 def _run_skill(args: argparse.Namespace) -> int:
     skill = SKILL
-    exit_code = 0
-
-    payload = skill.payload_dir
+    name = args.name or skill.name
     if not args.check:
-        validate_payload_or_die(payload)
+        validate_payload_or_die(skill.payload_dir)
 
-    if args.platform is None and not args.dir:
-        targets = installed_targets(skill, args)
-        if not targets:
-            raise NotInstalledError(
-                f"{skill.name} is not installed anywhere",
-                hint="run `gftd install --platform all`",
-            )
-    else:
-        args.platform = args.platform or "claude"
-        args.scope = args.scope or "user"
-        targets = resolve_targets(args, skill)
+    project_root = project_root_of(args)
+    scopes = (registry.check_scope(args.scope),) if args.scope else ("user", "project")
+    founds = deploy.discover(name, scopes, project_root)
+    wanted = registry.resolve(args.platform) if args.platform else None
+    if wanted is not None:
+        founds = [f for f in founds if {*f.agents, *f.legacy_for} & set(wanted)]
+    if not founds:
+        who = ", ".join(p.label for p in wanted) if wanted else "anywhere"
+        raise NotInstalledError(
+            f"{skill.name} is not installed for {who}"
+            if wanted
+            else f"{skill.name} is not installed anywhere",
+            hint="run `gftd install`",
+        )
 
-    for platform, scope, dest in targets:
-        try:
-            outdated = _update_one(skill, platform, scope, dest, args, payload)
-            if args.check and outdated:
-                exit_code = 1
-        except GftdError as exc:
-            exit_code = max(exit_code, exc.exit_code)
-            print(f"ERROR: {skill.name}: {platform.label} ({scope}): {exc.message}")
-            if exc.hint:
-                print(f"       {exc.hint}")
+    where = ", ".join(f"{f.scope} {format_dest(f.dest)}" for f in founds)
+    print(f"{skill.name}: found {len(founds)} install(s): {where}")
+
+    if args.check:
+        return 1 if any(_outdated(skill, f) for f in founds) else 0
+
+    exit_code = 0
+    for scope in scopes:
+        agents: list[Platform] = []
+        for found in founds:
+            if found.scope != scope:
+                continue
+            for platform in [*found.agents, *found.legacy_for]:
+                if platform not in agents and (wanted is None or platform in wanted):
+                    agents.append(platform)
+        if not agents:
+            continue
+        dep = deploy.plan(agents, scope, name, project_root, force=args.force)
+        if deploy.deploy(skill, dep, args):
+            exit_code = 1
     return exit_code
 
 
-def installed_targets(skill: Skill, args: argparse.Namespace) -> list[Target]:
-    """Every destination holding our receipt, across hosts and scopes."""
-    name = args.name or skill.name
-    project_root = project_root_of(args)
-    scopes = (args.scope,) if args.scope else ("user", "project")
-    targets: list[Target] = []
-    seen: set[Path] = set()
-    for platform in registry.resolve(registry.ALL):
-        for scope in scopes:
-            if scope == "project" and not platform.project_subdir:
-                continue
-            dest = platform.dest(scope, name, project_root)
-            # From the home directory, project scope is the user-scope folder.
-            if dest.resolve() in seen or receipt_mod.read(dest) is None:
-                continue
-            seen.add(dest.resolve())
-            targets.append((platform, scope, dest))
-    if targets:
-        where = ", ".join(f"{p.label} ({s}) {format_dest(d)}" for p, s, d in targets)
-        print(f"{skill.name}: found {len(targets)} install(s): {where}")
-    return targets
+def _who(found: deploy.Found) -> str:
+    if found.shared:
+        return "shared copy"
+    agents = found.agents or found.legacy_for
+    return ", ".join(p.label for p in agents) or "unknown agent"
 
 
-def _update_one(
-    skill: Skill,
-    platform: Platform,
-    scope: str,
-    dest: Path,
-    args: argparse.Namespace,
-    payload: Path,
-) -> bool:
-    label = f"{skill.name}: {platform.label} ({scope})"
-    existing = receipt_mod.read(dest)
-    if existing is None:
-        raise NotInstalledError(
-            f"{dest} is not managed by get-fsa-training-done",
-            hint="run `gftd install` (add --force to adopt an existing directory)",
-        )
-
-    plan = planner.build_plan(dest, payload, existing, __version__)
-    same_version = existing.version == __version__
-
-    if args.check:
-        if same_version and not plan.changed:
-            print(f"{label}: up to date ({__version__})")
-            return False
-        print(f"{label}: {existing.version} installed, {__version__} available")
+def _outdated(skill: Skill, found: deploy.Found) -> bool:
+    label = f"{skill.name}: {_who(found)} ({found.scope})"
+    if found.legacy_for:
+        print(f"{label}: at an earlier release's location — `gftd update` moves it")
         return True
-
-    if same_version and not plan.changed and not args.force:
-        print(f"{label}: already at {__version__} — {dest}")
+    plan = planner.build_plan(found.dest, skill.payload_dir, found.receipt, __version__)
+    if found.receipt.version == __version__ and not plan.changed:
+        print(f"{label}: up to date ({__version__})")
         return False
-
-    if args.dry_run:
-        print(f"{label}: would update {existing.version} -> {__version__} at {dest}")
-        print_plan(plan, verbose=args.verbose)
-        return True
-
-    apply_plan(dest, payload, plan, force=args.force)
-
-    notes = migrations.run_all(dest, existing.version)
-
-    receipt_mod.write(
-        dest,
-        receipt_mod.Receipt(
-            version=__version__,
-            skill_name=existing.skill_name or skill.name,
-            platform=platform.key,
-            scope=scope,
-            dest=str(dest),
-            installed_at=receipt_mod.utc_now(),
-            installed_by=receipt_mod.installed_by(),
-            cli=receipt_mod.cli_invocation(),
-            dirs=plan.dirs,
-            files=_file_records(dest, plan, force=args.force),
-            venv=existing.venv or str(_venv_hint(skill)),
-        ),
-    )
-
-    print(f"{label}: updated {existing.version} -> {__version__} at {dest}")
-    print_plan(plan, verbose=args.verbose)
-    for note in notes:
-        print(f"  migration: {note}")
-    _report_conflicts(plan, force=args.force)
+    print(f"{label}: {found.receipt.version} installed, {__version__} available")
     return True

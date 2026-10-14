@@ -32,6 +32,12 @@ class UnmanagedDestinationError(GftdError):
     exit_code = 4
 
 
+class Cancelled(GftdError):
+    """The user backed out of an interactive prompt; nothing was changed."""
+
+    exit_code = 1
+
+
 class VerificationError(GftdError):
     """A `verify` run found structural problems."""
 

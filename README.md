@@ -46,30 +46,53 @@ It needs Python 3.12+.
 Then install the skill into your agent:
 
 ```bash
-gftd install --platform all
+gftd install
 ```
+
+In a terminal this asks which agents to install to (↑↓ to move, space to
+select, enter to confirm) and whether globally or for this project, shows an
+installation summary, and writes nothing until you answer yes. Nothing starts
+ticked.
+
+The skill is written **once**, to `.agents/skills/get-fsa-training-done` —
+`~/.agents/skills` globally, `./.agents/skills` for a project. Codex and GitHub
+Copilot read that folder directly, and Antigravity does for a project; every
+other agent gets a symlink to it, so one update reaches all of them. Where the
+system refuses symlinks (Windows without Developer Mode) that agent gets its
+own copy instead.
+
+| Agent | Global | Project |
+| --- | --- | --- |
+| Codex | `~/.agents/skills/…` | `./.agents/skills/…` |
+| GitHub Copilot | `~/.agents/skills/…` | `./.agents/skills/…` |
+| Claude Code | `~/.claude/skills/…` → link | `./.claude/skills/…` → link |
+| Antigravity | `~/.gemini/config/skills/…` → link | `./.agents/skills/…` |
+
+Releases before this one wrote Codex to `~/.codex/skills` and `./.codex/skills`
+and Copilot to `~/.copilot/skills` and `./.github/skills`. `gftd update` moves
+such an install to `.agents/skills`, so the agent does not load the skill twice.
 
 | Command | Effect |
 | --- | --- |
-| `gftd install --platform claude --scope user` | `~/.claude/skills/get-fsa-training-done` |
-| `gftd install --platform claude --scope project` | `./.claude/skills/get-fsa-training-done` |
-| `gftd install --platform codex --scope user` | `~/.codex/skills/get-fsa-training-done` |
-| `gftd install --platform codex --scope project` | `./.codex/skills/get-fsa-training-done` |
-| `gftd install --platform copilot --scope user` | `~/.copilot/skills/get-fsa-training-done` |
-| `gftd install --platform copilot --scope project` | `./.github/skills/get-fsa-training-done` |
-| `gftd install --platform antigravity --scope user` | `~/.gemini/config/skills/get-fsa-training-done` |
-| `gftd install --platform antigravity --scope project` | `./.agents/skills/get-fsa-training-done` |
+| `gftd install` | ask which agents and where, then install |
+| `gftd install --platform all --scope user` | every agent, globally, without asking |
+| `gftd install --platform claude --scope project` | Claude Code, for this project, without asking |
 | `gftd update` | upgrade the CLI from PyPI, then every install it finds, preserving files you edited |
-| `gftd uninstall --platform all` | remove exactly what was installed |
+| `gftd uninstall` | show every install and what goes, then remove all of it on yes |
 | `gftd status` | what is installed where, and whether it drifted |
 | `gftd doctor` | check this machine for the skill's prerequisites |
+
+Give `--platform` or `--scope` and `install` asks nothing; outside a terminal
+(CI, a pipe) it installs for Claude Code globally. `--yes` skips the questions.
+`uninstall` is all or nothing — the agents share one copy, so it cannot be
+taken from just one of them — and outside a terminal it needs `--yes`.
 
 Add `--dry-run` to any of `install`, `update`, or `uninstall` to see the exact
 file-by-file plan without touching anything.
 
 `gftd update` first upgrades the package itself to the latest PyPI release —
 through pip, pipx or `uv tool`, whichever installed it — then updates the skill
-in every host and scope that holds an install (`--platform`/`--scope` narrow
+in every agent and scope that holds an install (`--platform`/`--scope` narrow
 that). `--no-self-update`, `--offline` or
 `GET_FSA_TRAINING_DONE_NO_SELF_UPDATE=1` skip PyPI; an editable checkout is
 never upgraded, only reported.

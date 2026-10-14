@@ -10,6 +10,11 @@ Codex's validator ignores.
 virtualenv or run with `pipx run` may not be on the agent's `PATH`, so the skill
 would have no way to call back into it afterwards. Recording an absolute,
 replayable invocation at install time means the skill never has to guess.
+
+The shared copy in `.agents/skills` serves several agents. `agents` names the
+ones it was installed for (the ones reading it directly and the ones linked to
+it), and `links` the symlinks this CLI made into it, so `uninstall` can remove
+one agent without pulling the copy out from under the others.
 """
 
 from __future__ import annotations
@@ -57,6 +62,8 @@ class Receipt:
     dirs: list[str] = field(default_factory=list)
     files: list[FileRecord] = field(default_factory=list)
     venv: str = ""
+    agents: list[str] = field(default_factory=list)
+    links: list[str] = field(default_factory=list)
     schema: int = SCHEMA
     package: str = PACKAGE_NAME
     installed_by: str = ""
@@ -77,6 +84,8 @@ class Receipt:
             "dirs": data["dirs"],
             "files": data["files"],
             "venv": data["venv"],
+            "agents": data["agents"],
+            "links": data["links"],
         }
         return json.dumps(ordered, indent=2, ensure_ascii=False) + "\n"
 
@@ -96,7 +105,15 @@ class Receipt:
             dirs=list(data.get("dirs", [])),
             files=[FileRecord.from_dict(f) for f in data.get("files", [])],
             venv=data.get("venv", ""),
+            agents=list(data.get("agents", [])),
+            links=list(data.get("links", [])),
         )
+
+    def agent_keys(self) -> list[str]:
+        """The agents this install serves; a receipt from before `agents` names one."""
+        if self.agents:
+            return list(self.agents)
+        return [self.platform] if self.platform else []
 
     def file_hashes(self) -> dict[str, str]:
         return {f.path: f.sha256 for f in self.files}

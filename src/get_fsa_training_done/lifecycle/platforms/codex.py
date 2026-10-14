@@ -1,11 +1,14 @@
-"""Codex — the app, the CLI and the IDE extension share `$CODEX_HOME`.
+"""Codex — the app, the CLI and the IDE extension.
 
-User scope is `$CODEX_HOME/skills/<name>` (default `~/.codex/skills`). Project
-scope was verified empirically against codex-cli 0.147.0 with
-`codex --cd <root> debug prompt-input`: a skill at `<root>/.codex/skills/<name>`
-*and* one at `<root>/.agents/skills/<name>` both appear in the model-visible
-skills list; a plain `<root>/skills/<name>` does not. We write `.codex/skills`
-because it is unambiguous about which host it belongs to.
+Codex's docs list `$HOME/.agents/skills` for user skills and `.agents/skills`
+— from the working directory up to the repository root — for project skills,
+so Codex reads the shared copy directly at both scopes. Earlier releases of
+this CLI wrote `$CODEX_HOME/skills` (default `~/.codex/skills`) and
+`<root>/.codex/skills`; Codex still loads both (checked against codex-cli
+0.159.2 with `codex --cd <root> debug prompt-input`), but its source calls the
+first a deprecated location kept for backward compatibility. They are listed
+as legacy here, so `update` moves an install out of them rather than leaving
+Codex to load the skill twice.
 
 The validation rules below mirror Codex's own
 `$CODEX_HOME/skills/.system/skill-creator/scripts/quick_validate.py` and
@@ -20,7 +23,7 @@ import re
 from pathlib import Path
 
 from ..skillmeta import FrontmatterError, read_skill_frontmatter
-from .base import Platform, Problem
+from .base import AGENTS_HOME_ENV, UNIVERSAL_PROJECT_SUBDIR, Platform, Problem
 
 ALLOWED_FRONTMATTER_KEYS = {"name", "description", "license", "allowed-tools", "metadata"}
 ALLOWED_SUBDIRS = {"scripts", "references", "assets"}
@@ -120,10 +123,11 @@ def validate_payload(payload_dir: Path) -> list[Problem]:
 CODEX = Codex(
     key="codex",
     label="Codex",
-    home_env="CODEX_HOME",
-    home_default=".codex",
+    home_env=AGENTS_HOME_ENV,
+    home_default=".agents",
     skills_subdir="skills",
-    project_subdir=".codex/skills",
-    project_aliases=(".agents/skills",),
+    project_subdir=UNIVERSAL_PROJECT_SUBDIR,
     project_scope_verified=True,
+    legacy_homes=(("CODEX_HOME", ".codex"),),
+    legacy_project_subdirs=(".codex/skills",),
 )

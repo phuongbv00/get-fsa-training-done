@@ -76,6 +76,7 @@ jobs:
           CLAUDE_CONFIG_DIR: ${{ runner.temp }}/home/.claude
           CODEX_HOME: ${{ runner.temp }}/home/.codex
           COPILOT_HOME: ${{ runner.temp }}/home/.copilot
+          GET_FSA_TRAINING_DONE_AGENTS_HOME: ${{ runner.temp }}/home/.agents
           ANTIGRAVITY_HOME: ${{ runner.temp }}/home/.gemini/config
           GET_FSA_TRAINING_DONE_HOME: ${{ runner.temp }}/home/cache
         run: |
@@ -84,9 +85,10 @@ jobs:
           gftd install --platform all
           gftd status --json
           gftd update --check
-          gftd uninstall --platform all
-          test -z "$(find "$CLAUDE_CONFIG_DIR" "$CODEX_HOME" "$COPILOT_HOME" "$ANTIGRAVITY_HOME" -type f 2>/dev/null)" \
-            || { echo "uninstall left files behind"; find "$CLAUDE_CONFIG_DIR" "$CODEX_HOME" "$COPILOT_HOME" "$ANTIGRAVITY_HOME" -type f; exit 1; }
+          gftd uninstall --yes
+          homes=("$CLAUDE_CONFIG_DIR" "$CODEX_HOME" "$COPILOT_HOME" "$ANTIGRAVITY_HOME" "$GET_FSA_TRAINING_DONE_AGENTS_HOME")
+          test -z "$(find "${homes[@]}" \( -type f -o -type l \) 2>/dev/null)" \
+            || { echo "uninstall left files or links behind"; find "${homes[@]}" \( -type f -o -type l \); exit 1; }
       - name: emit and verify against the shipped fixtures
         run: |
           set -euo pipefail

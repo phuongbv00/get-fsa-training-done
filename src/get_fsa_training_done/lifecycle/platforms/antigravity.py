@@ -1,9 +1,10 @@
 """Google Antigravity (the Antigravity app and IDE).
 
 User scope is `~/.gemini/config/skills/<name>`, the global skills directory the
-Antigravity docs give for both the app and the IDE. Project scope is
-`<root>/.agents/skills/<name>`, the workspace default; Antigravity still reads
-the older `<root>/.agent/skills` too. The Antigravity CLI keeps its global
+Antigravity docs give for both the app and the IDE; it is a symlink into the
+shared `~/.agents/skills` copy. Project scope is `<root>/.agents/skills/<name>`,
+the workspace default, which *is* the shared copy; Antigravity still reads the
+older `<root>/.agent/skills` too. The Antigravity CLI keeps its global
 skills elsewhere (`~/.gemini/antigravity-cli/skills`) and is not targeted.
 
 Antigravity documents no environment variable that relocates `~/.gemini/config`.
@@ -20,7 +21,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .base import Platform, Problem
+from .base import UNIVERSAL_PROJECT_SUBDIR, Platform, Problem
 from .codex import validate_payload
 
 
@@ -35,6 +36,6 @@ ANTIGRAVITY = Antigravity(
     home_env="ANTIGRAVITY_HOME",
     home_default=".gemini/config",
     skills_subdir="skills",
-    project_subdir=".agents/skills",
+    project_subdir=UNIVERSAL_PROJECT_SUBDIR,
     project_aliases=(".agent/skills",),
 )

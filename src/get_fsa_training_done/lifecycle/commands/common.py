@@ -5,13 +5,10 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from ...errors import GftdError, UsageError
-from ...skill import Skill
+from ...errors import GftdError
 from ..install.planner import ACTION_ORDER, Action, Plan
 from ..platforms import registry
 from ..platforms.base import Platform
-
-Target = tuple[Platform, str, Path]
 
 _WARNED_SCOPES: set[tuple[str, str]] = set()
 
@@ -31,24 +28,29 @@ def add_verbose(parser: argparse.ArgumentParser) -> None:
     )
 
 
-def add_target_args(parser: argparse.ArgumentParser) -> None:
+def add_target_args(parser: argparse.ArgumentParser, *, interactive: bool = False) -> None:
+    """The flags that say where a skill goes.
+
+    With `interactive`, `--platform` and `--scope` default to None so the
+    command can tell "no flags given" apart from "claude, user" and ask in a
+    terminal instead; it fills in the old defaults itself when nobody is there.
+    There is no `--dir`: the skill only ever goes to the shared `.agents/skills`
+    copy and the agents' own folders, never a folder of the user's choosing,
+    so `update` and `uninstall` can always find it.
+    """
     add_verbose(parser)
+    default = "ask in a terminal, else claude" if interactive else "claude"
     parser.add_argument(
         "--platform",
-        default="claude",
-        help=f"target host: {', '.join(registry.names())}, or 'all' (default: claude)",
+        default=None if interactive else "claude",
+        help=f"target host: {', '.join(registry.names())}, or 'all' (default: {default})",
     )
+    default = "ask in a terminal, else user" if interactive else "user"
     parser.add_argument(
         "--scope",
-        default="user",
+        default=None if interactive else "user",
         choices=("user", "project"),
-        help="install for the whole account (user) or just this project (default: user)",
-    )
-    parser.add_argument(
-        "--dir",
-        dest="dir",
-        default=None,
-        help="explicit destination directory, overriding --platform/--scope",
+        help=f"install for the whole account (user) or just this project (default: {default})",
     )
     parser.add_argument(
         "--name",
@@ -75,30 +77,6 @@ def add_target_args(parser: argparse.ArgumentParser) -> None:
 def project_root_of(args: argparse.Namespace) -> Path | None:
     raw = getattr(args, "project_root", None)
     return Path(raw).expanduser().resolve() if raw else None
-
-
-def resolve_targets(args: argparse.Namespace, skill: Skill) -> list[Target]:
-    """Expand --platform/--scope/--dir into concrete destinations for `skill`."""
-    name = args.name or skill.name
-    scope = registry.check_scope(args.scope)
-    project_root = project_root_of(args)
-
-    if args.dir:
-        dest = Path(args.dir).expanduser().resolve()
-        platforms = registry.resolve(args.platform)
-        if args.platform == registry.ALL:
-            raise UsageError("--dir cannot be combined with --platform all")
-        return [(platforms[0], scope, dest)]
-
-    targets: list[Target] = []
-    for platform in registry.resolve(args.platform):
-        if scope == "project" and not platform.project_subdir:
-            print(f"SKIPPED: {platform.label} has no project scope")
-            continue
-        targets.append((platform, scope, platform.dest(scope, name, project_root)))
-    if not targets:
-        raise UsageError("no installable targets for the requested platform/scope")
-    return targets
 
 
 def warn_unverified_scope(platform: Platform, scope: str) -> None:
@@ -152,3 +130,13 @@ def format_dest(dest: Path) -> str:
         return "~/" + str(dest.relative_to(Path.home()))
     except ValueError:
         return str(dest)
+
+
+def short_dest(dest: Path, scope: str) -> str:
+    """A project path relative to the working directory, anything else `~/...`."""
+    if scope == "project":
+        try:
+            return "./" + dest.relative_to(Path.cwd()).as_posix()
+        except ValueError:
+            pass
+    return format_dest(dest)

@@ -1,11 +1,14 @@
 """Claude Code.
 
 User scope is `${CLAUDE_CONFIG_DIR:-~/.claude}/skills/<name>`; project scope is
-`<root>/.claude/skills/<name>`. Claude accepts frontmatter keys Codex rejects
-(`user-invocable`, for one) and does not restrict subdirectory names, so its
-validation is a strict subset of Codex's — we run Codex's rules here too rather
-than maintaining a second, laxer checker that would let a Codex-invalid payload
-through whenever someone installs for Claude only.
+`<root>/.claude/skills/<name>`. Claude Code reads neither `.agents/skills`
+folder, so both are symlinks into the shared copy there.
+
+Claude accepts frontmatter keys Codex rejects (`user-invocable`, for one) and
+does not restrict subdirectory names, so its validation is a strict subset of
+Codex's — we run Codex's rules here too rather than maintaining a second, laxer
+checker that would let a Codex-invalid payload through whenever someone
+installs for Claude only.
 """
 
 from __future__ import annotations
