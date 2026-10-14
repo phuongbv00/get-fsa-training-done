@@ -37,9 +37,3 @@ body:
         - Khác / Other
     validations:
       required: false
-  - type: textarea
-    id: wish
-    attributes:
-      label: Bạn muốn có thêm gì? / What would you like added?
-    validations:
-      required: false
