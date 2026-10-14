@@ -372,7 +372,7 @@ def test_status_shows_where_a_link_points(isolated_home, skill, capsys):
     assert main(["status"]) == 0
     out = capsys.readouterr().out
     assert f"{skill.name} → " in out
-    assert out.rstrip().endswith(f".agents/skills/{skill.name}")
+    assert out.rstrip().endswith(os.path.join(".agents", "skills", skill.name))
 
 
 def test_status_lists_only_the_agents_installed_for(isolated_home, skill, capsys, monkeypatch):
