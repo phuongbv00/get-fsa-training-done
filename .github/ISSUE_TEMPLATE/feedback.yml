@@ -1,16 +1,16 @@
-name: Góp ý của trainer / Trainer feedback
-description: Điều gì chạy tốt, điều gì vướng, điều gì nên có thêm. / What works, what gets in the way, what is missing.
+name: Trainer feedback
+description: What works, what gets in the way, what is missing.
 body:
   - type: dropdown
     id: feature
     attributes:
-      label: Tính năng / Feature
+      label: Feature
       options:
-        - Program (chương trình, syllabus, workbook)
-        - Material (slide, bài giảng, lab)
-        - Assessment (quiz, đề thi, chấm bài)
-        - Cài đặt / Install
-        - Khác / Other
+        - Program (curriculum, syllabus, workbook)
+        - Material (slides, lecture note, labs)
+        - Assessment (quizzes, exams, grading)
+        - Install
+        - Other
     validations:
       required: false
   - type: dropdown
@@ -22,13 +22,13 @@ body:
         - Codex
         - GitHub Copilot
         - Antigravity
-        - Khác / Other
+        - Other
     validations:
       required: false
   - type: textarea
     id: feedback
     attributes:
-      label: Góp ý / Feedback
-      description: Bạn đã dùng skill vào việc gì, điều gì tốt, điều gì chưa ổn? / What did you use it for, what worked, what did not?
+      label: Feedback
+      description: What did you use it for, what worked, what did not?
     validations:
       required: true
