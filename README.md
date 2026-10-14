@@ -3,9 +3,9 @@
 One agent skill, and the CLI behind it, for getting FSA training done:
 designing a programme, writing its teaching material, and designing and grading
 its assessments. It installs into [Claude Code](https://claude.com/claude-code),
-[Codex](https://developers.openai.com/codex) (the app, the CLI and the IDE extension) and
+[Codex](https://developers.openai.com/codex) (the app, the CLI and the IDE extension),
 [GitHub Copilot](https://docs.github.com/en/copilot) (the Copilot CLI and agent
-mode in VS Code).
+mode in VS Code) and [Antigravity](https://antigravity.google) (the app and the IDE).
 
 The [landing page](https://phuongbv00.github.io/get-fsa-training-done/) shows
 how it works, in real files; its source is in `docs/`.
@@ -57,6 +57,8 @@ gftd install --platform all
 | `gftd install --platform codex --scope project` | `./.codex/skills/get-fsa-training-done` |
 | `gftd install --platform copilot --scope user` | `~/.copilot/skills/get-fsa-training-done` |
 | `gftd install --platform copilot --scope project` | `./.github/skills/get-fsa-training-done` |
+| `gftd install --platform antigravity --scope user` | `~/.gemini/config/skills/get-fsa-training-done` |
+| `gftd install --platform antigravity --scope project` | `./.agents/skills/get-fsa-training-done` |
 | `gftd update` | upgrade the CLI from PyPI, then every install it finds, preserving files you edited |
 | `gftd uninstall --platform all` | remove exactly what was installed |
 | `gftd status` | what is installed where, and whether it drifted |

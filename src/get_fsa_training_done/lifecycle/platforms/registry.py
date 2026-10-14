@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 from ...errors import UsageError
+from .antigravity import ANTIGRAVITY
 from .base import SCOPES, Platform, Problem
 from .claude import CLAUDE
 from .codex import CODEX
 from .copilot import COPILOT
 
-_PLATFORMS: dict[str, Platform] = {p.key: p for p in (CLAUDE, CODEX, COPILOT)}
+_PLATFORMS: dict[str, Platform] = {p.key: p for p in (CLAUDE, CODEX, COPILOT, ANTIGRAVITY)}
 
 ALL = "all"
 
