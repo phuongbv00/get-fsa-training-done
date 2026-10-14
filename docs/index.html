@@ -215,8 +215,8 @@ body, .card, .lane, .file, header { transition: background-color .3s ease, borde
 .motion .in .opt.ok { animation: glow 2.4s ease-in-out .8s infinite; }
 .motion .lane { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
 .motion .in .lane { opacity: 1; transform: none; }
-.motion .in .lane-stack .lane:nth-child(2) { transition-delay: .12s; }
-.motion .in .lanes > .lane { transition-delay: .2s; }
+.motion .in .lanes > .lane:nth-child(2) { transition-delay: .12s; }
+.motion .in .lanes > .lane:nth-child(3) { transition-delay: .24s; }
 .card, .lane, .agent, .pills span { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
 .visual .card:hover { transform: translateY(-4px); }
 .pills span:hover { border-color: var(--c); transform: translateY(-2px); }
@@ -346,8 +346,7 @@ body, .card, .lane, .file, header { transition: background-color .3s ease, borde
 .cap { padding: 88px 0; text-align: center; }
 .cap h2 { font-size: clamp(26px, 3.4vw, 36px); font-weight: 800; }
 .cap .lead { margin: 12px auto 0; max-width: 560px; color: var(--ink-2); font-size: 17px; }
-.lanes { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 40px; text-align: left; }
-.lane-stack { display: grid; gap: 18px; min-width: 0; }
+.lanes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 40px; text-align: left; }
 #ver { color: inherit; }
 .lanes > * { min-width: 0; }
 .lane { border: 1px solid var(--line); border-top: 4px solid var(--c); border-radius: 14px; padding: 18px; background: var(--surface); }
@@ -599,28 +598,26 @@ footer nav a:hover, .fbottom a:hover { color: var(--ink); }
     <h2><span class="vi">Từ thiết kế chương trình đến chấm bài</span><span class="en">From programme design to grading</span></h2>
     <p class="lead"><span class="vi">Nêu yêu cầu, agent sẽ chọn workflow phù hợp.</span><span class="en">Describe the job; the agent picks the right workflow.</span></p>
     <div class="lanes">
-      <div class="lane-stack">
-        <div class="lane" style="--c:var(--orange)">
-          <h3>Program</h3>
-          <div class="pills">
-            <span class="vi">Tạo chương trình</span><span class="en">New programme</span>
-            <span class="vi">Thêm topic &amp; syllabus</span><span class="en">Add a topic</span>
-            <span class="vi">Sửa session plan</span><span class="en">Revise a session plan</span>
-            <span class="vi">Kiểm tra chương trình</span><span class="en">Verify a programme</span>
-            <span class="vi">Xuất workbook Excel</span><span class="en">Export the workbook</span>
-          </div>
+      <div class="lane" style="--c:var(--orange)">
+        <h3>Program</h3>
+        <div class="pills">
+          <span class="vi">Tạo chương trình</span><span class="en">New programme</span>
+          <span class="vi">Thêm topic &amp; syllabus</span><span class="en">Add a topic</span>
+          <span class="vi">Sửa session plan</span><span class="en">Revise a session plan</span>
+          <span class="vi">Kiểm tra chương trình</span><span class="en">Verify a programme</span>
+          <span class="vi">Xuất workbook Excel</span><span class="en">Export the workbook</span>
         </div>
-        <div class="lane" style="--c:var(--blue)">
-          <h3>Material</h3>
-          <div class="pills">
-            <span class="vi">Soạn học liệu cả module</span><span class="en">Full module pack</span>
-            <span class="vi">Bổ sung học liệu thiếu</span><span class="en">Fill the gaps</span>
-            <span class="vi">Slide bài giảng</span><span class="en">Lesson slides</span>
-            <span class="vi">Bài giảng module</span><span class="en">Lecture note</span>
-            <span class="vi">Lab &amp; worksheet</span><span class="en">Labs &amp; worksheets</span>
-            <span class="vi">Xuất PPTX / PDF</span><span class="en">Export PPTX / PDF</span>
-            <span class="vi">Bộ PDF cho học viên</span><span class="en">Trainee hand-out</span>
-          </div>
+      </div>
+      <div class="lane" style="--c:var(--blue)">
+        <h3>Material</h3>
+        <div class="pills">
+          <span class="vi">Soạn học liệu cả module</span><span class="en">Full module pack</span>
+          <span class="vi">Bổ sung học liệu thiếu</span><span class="en">Fill the gaps</span>
+          <span class="vi">Slide bài giảng</span><span class="en">Lesson slides</span>
+          <span class="vi">Bài giảng module</span><span class="en">Lecture note</span>
+          <span class="vi">Lab &amp; worksheet</span><span class="en">Labs &amp; worksheets</span>
+          <span class="vi">Xuất PPTX / PDF</span><span class="en">Export PPTX / PDF</span>
+          <span class="vi">Bộ PDF cho học viên</span><span class="en">Trainee hand-out</span>
         </div>
       </div>
       <div class="lane" style="--c:var(--green)">
