@@ -1,11 +1,6 @@
 name: Góp ý của trainer / Trainer feedback
 description: Điều gì chạy tốt, điều gì vướng, điều gì nên có thêm. / What works, what gets in the way, what is missing.
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Cảm ơn bạn đã dành thời gian góp ý. Viết tiếng Việt hay tiếng Anh đều được; chỉ cần ô Góp ý, các ô còn lại tùy bạn.
-        Thanks for taking the time. Vietnamese or English both work; only the Feedback box is required.
   - type: dropdown
     id: feature
     attributes:
