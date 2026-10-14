@@ -1,0 +1,47 @@
+name: Góp ý của trainer / Trainer feedback
+description: Điều gì chạy tốt, điều gì vướng, điều gì nên có thêm. / What works, what gets in the way, what is missing.
+title: "[Góp ý] "
+labels: ["feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Cảm ơn bạn đã dành thời gian góp ý. Viết tiếng Việt hay tiếng Anh đều được; chỉ cần ô đầu tiên, các ô còn lại tùy bạn.
+        Thanks for taking the time. Vietnamese or English both work; only the first box is required.
+  - type: textarea
+    id: feedback
+    attributes:
+      label: Góp ý / Feedback
+      description: Bạn đã dùng skill vào việc gì, điều gì tốt, điều gì chưa ổn? / What did you use it for, what worked, what did not?
+    validations:
+      required: true
+  - type: dropdown
+    id: feature
+    attributes:
+      label: Phần liên quan / Feature
+      options:
+        - Program (chương trình, syllabus, workbook)
+        - Material (slide, bài giảng, lab)
+        - Assessment (quiz, đề thi, chấm bài)
+        - Cài đặt / Install
+        - Khác / Other
+    validations:
+      required: false
+  - type: dropdown
+    id: agent
+    attributes:
+      label: Agent
+      options:
+        - Claude Code
+        - Codex
+        - GitHub Copilot
+        - Antigravity
+        - Khác / Other
+    validations:
+      required: false
+  - type: textarea
+    id: wish
+    attributes:
+      label: Bạn muốn có thêm gì? / What would you like added?
+    validations:
+      required: false

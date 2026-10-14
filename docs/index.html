@@ -118,7 +118,7 @@ header .wrap { display: flex; align-items: center; gap: 16px; height: 64px; }
 .mark i:nth-child(1) { background: var(--orange); }
 .mark i:nth-child(2) { background: var(--blue); width: 72%; }
 .mark i:nth-child(3) { background: var(--green); width: 44%; }
-.lang { margin-left: auto; display: inline-flex; border: 1px solid var(--line-2); border-radius: 999px; padding: 3px; }
+.lang { display: inline-flex; border: 1px solid var(--line-2); border-radius: 999px; padding: 3px; }
 .lang button { border: 0; background: none; color: var(--ink-3); font: 600 12.5px var(--font-body); padding: 4px 10px; border-radius: 999px; cursor: pointer; }
 .lang button[aria-pressed="true"] { background: var(--navy); color: #fff; }
 .gh { color: var(--ink-2); display: inline-flex; }
@@ -133,6 +133,11 @@ header .wrap { display: flex; align-items: center; gap: 16px; height: 64px; }
 }
 body, .card, .lane, .file, header { transition: background-color .3s ease, border-color .3s ease, color .3s ease; }
 
+/* feedback button in the header */
+.fb-btn { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--ink-2); font: 600 13px var(--font-body); transition: background-color .2s, border-color .2s, color .2s; }
+.fb-btn:hover { background: var(--navy); border-color: var(--navy); color: #fff; }
+.fb-btn svg { flex: none; }
+@media (max-width: 520px) { .fb-btn span { display: none !important; } .fb-btn { padding: 7px; } }
 
 /* hero */
 .hero { padding: 72px 0 88px; text-align: center; }
@@ -402,6 +407,10 @@ footer nav a:hover, .fbottom a:hover { color: var(--ink); }
 <header class="top">
   <div class="wrap">
     <span class="brand"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>gftd</span>
+    <a class="fb-btn" href="https://github.com/phuongbv00/get-fsa-training-done/issues/new?template=feedback.yml" target="_blank" rel="noopener" title="Góp ý / Feedback">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span class="vi">Góp ý</span><span class="en">Feedback</span>
+    </a>
     <div class="lang" role="group" aria-label="Language">
       <button type="button" data-set-lang="vi" aria-pressed="true">VI</button>
       <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
