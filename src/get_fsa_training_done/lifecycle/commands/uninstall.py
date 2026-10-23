@@ -5,7 +5,8 @@ Uninstall is all or nothing: every install is found — the shared
 agent's own copy and what an earlier release left behind — shown in one
 summary, and removed on a single yes. There is no removing it from one agent:
 the agents share one copy, so taking it from one would take it from all.
-Without a terminal to ask in, `--yes` is the answer.
+Without a terminal to ask in, `--yes` is the answer. The setup steps
+`install --cloud` added to the project go with it.
 """
 
 from __future__ import annotations
@@ -20,7 +21,7 @@ from .. import prompt
 from ..install import links, removal
 from ..install import receipt as receipt_mod
 from ..platforms.base import Platform
-from . import deploy
+from . import cloud, deploy
 from .common import add_verbose, format_dest, project_root_of, short_dest
 
 #: How many kept files the summary names before it says `+N more`.
@@ -104,8 +105,16 @@ def _uninstall_everything(skill: Skill, args: argparse.Namespace) -> tuple[bool,
         print(f"{skill.name} is not installed anywhere")
         return None if args.dry_run else (False, 0)
 
+    root = project_root_of(args) or Path.cwd()
+    has_project = any(found.scope == "project" for found in founds)
+    wired = cloud.teardown(root, name, dry_run=True) if has_project else []
+
     title = "Uninstall Summary" + (" (dry run)" if args.dry_run else "")
-    prompt.box(title, summary(founds, args))
+    lines = summary(founds, args)
+    for change in wired:
+        lines += ["", prompt.paint(short_dest(change.path, "project"), "36")]
+        lines.append(f"  {prompt.paint('removes:', '31')} the {change.detail}")
+    prompt.box(title, lines)
     if args.dry_run:
         prompt.end("dry run; nothing was removed")
         return None
@@ -130,6 +139,8 @@ def _uninstall_everything(skill: Skill, args: argparse.Namespace) -> tuple[bool,
         except GftdError as exc:
             failures += 1
             _report(skill, _who(found), found.scope, exc)
+    if wired:
+        cloud.report_teardown(root, cloud.teardown(root, name))
     return True, failures
 
 

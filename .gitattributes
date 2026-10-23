@@ -2,3 +2,7 @@
 # Blooket import is CRLF on purpose, the Coderbyte JSON is LF). A checkout must
 # never rewrite their line endings, or the comparison fails on Windows only.
 tests/fixtures/** -text
+
+# The payload's setup script runs under `sh` in a cloud agent's container; a
+# CRLF checkout on Windows would ship a script no shell can read.
+*.sh text eol=lf

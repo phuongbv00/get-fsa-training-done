@@ -41,8 +41,14 @@ Do this once per session, before the first command, and call the result `FSA`.
 1. Read `.get-fsa-training-done-install.json` next to this `SKILL.md`; use its
    `cli.invocation` array, adding its `pythonpath` to `PYTHONPATH`.
 2. Otherwise try `get-fsa-training-done --version` on `PATH`.
-3. Otherwise stop and ask the user to run `pip install get-fsa-training-done`.
-   Do not improvise a path to a script.
+3. Otherwise run `sh <SKILL_DIR>/scripts/setup.sh`. It installs the CLI at the
+   version in `VERSION` — this is how a cloud agent's container, or a fresh
+   clone of a repository that commits the skill, gets it — and its last line
+   reads `FSA: <command>`; that command is `FSA`. A cloud setup step may have
+   run it already and printed that line; the script then finds what it
+   installed without touching the network.
+4. When that fails, stop: show its error and ask the user to run
+   `pip install get-fsa-training-done`. Do not improvise a path to a script.
 
 A receipt written on another machine names an interpreter that does not exist
 here; when its invocation fails to run, fall through to option 2. If option 2

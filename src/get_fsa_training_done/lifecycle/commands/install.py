@@ -1,7 +1,9 @@
 """`gftd install` — put the skill where each chosen agent looks for it.
 
 One real copy goes to `.agents/skills`; agents that do not read that folder
-get a symlink to it (see `deploy`).
+get a symlink to it (see `deploy`). `--cloud` installs into the project for
+every agent and wires the skill's setup script into the cloud agents' setup
+steps (see `cloud`).
 """
 
 from __future__ import annotations
@@ -11,11 +13,12 @@ import shutil
 from pathlib import Path
 
 from ...__about__ import __version__
-from ...errors import Cancelled, GftdError
+from ...errors import Cancelled, GftdError, UsageError
 from ...skill import SKILL, Skill
 from .. import prompt
 from ..platforms import registry
 from ..platforms.base import SCOPES, universal_root
+from . import cloud
 from . import deploy as deploy_mod
 from .common import (
     add_target_args,
@@ -49,6 +52,14 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
         help="overwrite an unmanaged destination, or user-modified files",
     )
     parser.add_argument(
+        "--cloud",
+        action="store_true",
+        help=(
+            "install into this project for every agent and add the setup steps cloud "
+            "agents run (Claude Code on the web, GitHub Copilot coding agent, Codex cloud)"
+        ),
+    )
+    parser.add_argument(
         "--no-prewarm",
         action="store_true",
         help="skip building the managed virtualenv(s) during install",
@@ -60,6 +71,13 @@ def run(args: argparse.Namespace) -> int:
     skill = SKILL
     validate_payload_or_die(skill.payload_dir)
     name = args.name or skill.name
+    if args.cloud:
+        if args.scope == "user":
+            raise UsageError(
+                "--cloud installs into the project: a cloud agent sees only the repository"
+            )
+        args.scope = "project"
+        args.platform = args.platform or registry.ALL
 
     try:
         dep = _deployment(skill, name, args)
@@ -67,6 +85,12 @@ def run(args: argparse.Namespace) -> int:
         prompt.end("Installation cancelled; nothing was written")
         return 1
     failures = deploy_mod.deploy(skill, dep, args)
+
+    if args.cloud and not failures:
+        root = dep.shared.parent.parent.parent
+        cloud.report(
+            root, name, cloud.setup(root, name, dry_run=args.dry_run), dry_run=args.dry_run
+        )
 
     if not args.dry_run and not failures and not args.no_prewarm:
         _prewarm(skill, args)

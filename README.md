@@ -77,6 +77,7 @@ such an install to `.agents/skills`, so the agent does not load the skill twice.
 | `gftd install` | ask which agents and where, then install |
 | `gftd install --platform all --scope user` | every agent, globally, without asking |
 | `gftd install --platform claude --scope project` | Claude Code, for this project, without asking |
+| `gftd install --cloud` | every agent, for this project, plus the setup steps cloud agents run (see below) |
 | `gftd update` | upgrade the CLI from PyPI, then every install it finds, preserving files you edited |
 | `gftd uninstall` | show every install and what goes, then remove all of it on yes |
 | `gftd status` | what is installed where, and whether it drifted |
@@ -96,6 +97,38 @@ in every agent and scope that holds an install (`--platform`/`--scope` narrow
 that). `--no-self-update`, `--offline` or
 `GET_FSA_TRAINING_DONE_NO_SELF_UPDATE=1` skip PyPI; an editable checkout is
 never upgraded, only reported.
+
+### Cloud agents
+
+A cloud agent — [Claude Code on the web](https://code.claude.com/docs/en/claude-code-on-the-web),
+Codex cloud, the GitHub Copilot coding agent —
+works in a fresh container that holds a clone of your repository and nothing
+else: a global install on your machine never reaches it. Install the skill
+into the repository instead, and commit it:
+
+```bash
+cd your-project
+gftd install --cloud
+git add .agents .claude .github && git commit -m "Add the get-fsa-training-done skill"
+```
+
+`--cloud` installs for every agent at project scope and adds the setup step
+each host reads from the repository, so the container gets the CLI too:
+
+| Agent | Setup step | Written to |
+| --- | --- | --- |
+| Claude Code on the web | a SessionStart hook, run only when `CLAUDE_CODE_REMOTE` is set | `.claude/settings.json` |
+| GitHub Copilot coding agent | a `copilot-setup-steps` job | `.github/workflows/copilot-setup-steps.yml` |
+| Codex cloud | none in the repository: paste `sh .agents/skills/get-fsa-training-done/scripts/setup.sh` into the environment's **Setup script** | — |
+
+Each step runs `scripts/setup.sh` from the skill, which installs
+`get-fsa-training-done` at the skill's own version (with uv, pip or pipx) and
+builds the workers' environment, so it needs a network during setup only —
+Codex cloud turns the agent's internet off by default. An agent with no setup
+step at all still works when it has a network: the skill runs the same script
+itself when it cannot find the CLI. Your own hooks and an existing
+`copilot-setup-steps.yml` are left alone (the step to add is printed);
+`gftd uninstall` takes back only what `--cloud` added.
 
 ## Dependencies
 
