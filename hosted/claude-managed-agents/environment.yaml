@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=https://platform.claude.com/schemas/ant/beta/environment.json
+# The sandbox for the FSA Training agent. The skill installs its CLI from PyPI
+# on first use (scripts/setup.sh), so package managers must be reachable;
+# nothing else is.
+name: fsa-training
+config:
+  type: cloud
+  networking:
+    type: limited
+    allow_package_managers: true
