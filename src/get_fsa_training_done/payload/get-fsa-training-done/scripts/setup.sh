@@ -1,6 +1,7 @@
 #!/bin/sh
 # Make this skill's CLI available on a machine that has only the skill folder:
-# a cloud agent's container (Claude Code on the web, Codex cloud, the GitHub
+# a hosted sandbox (Claude Managed Agents, given the skill as an upload), a
+# cloud agent's container (Claude Code on the web, Codex cloud, the GitHub
 # Copilot coding agent) or a fresh clone of a repository that commits the skill.
 #
 # It installs get-fsa-training-done at the version in ../VERSION — payload and

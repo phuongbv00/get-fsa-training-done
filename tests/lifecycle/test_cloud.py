@@ -148,3 +148,34 @@ def test_the_script_puts_a_cli_off_path_on_the_sessions_path(tmp_path):
     assert proc.returncode == 0, proc.stderr
     assert proc.stdout.splitlines()[-1] == f"FSA: {cli}"
     assert env_file.read_text(encoding="utf-8") == f'export PATH="{cli.parent}:$PATH"\n'
+
+
+# --- Hosted agents: the skill as an upload --------------------------------------
+
+
+def test_pack_writes_one_folder_with_skill_md_at_its_root(isolated_home, tmp_path):
+    import zipfile
+
+    from get_fsa_training_done.lifecycle.install.receipt import RECEIPT_NAME
+
+    output = tmp_path / "skill.zip"
+    assert main(["pack", str(output)]) == 0
+    names = zipfile.ZipFile(output).namelist()
+    assert f"{SKILL.name}/SKILL.md" in names
+    assert f"{SKILL.name}/scripts/setup.sh" in names
+    assert {name.split("/")[0] for name in names} == {SKILL.name}
+    assert not any(name.endswith(RECEIPT_NAME) for name in names)
+
+
+def test_pack_is_reproducible(isolated_home, tmp_path):
+    first, second = tmp_path / "a.zip", tmp_path / "b.zip"
+    assert main(["pack", str(first)]) == 0
+    assert main(["pack", str(second)]) == 0
+    assert first.read_bytes() == second.read_bytes()
+
+
+def test_pack_refuses_anything_but_a_zip(isolated_home, tmp_path):
+    from get_fsa_training_done.errors import GftdError
+
+    with pytest.raises(GftdError):
+        main(["pack", str(tmp_path / "skill.tar")])

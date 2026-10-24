@@ -1,7 +1,7 @@
 """Command-line entry point.
 
 Lifecycle commands (`install`, `update`, `uninstall`, `status`, `doctor`,
-`env`) run in whatever interpreter invoked them — they must work before any
+`env`, `pack`) run in whatever interpreter invoked them — they must work before any
 environment exists. Every feature's worker commands (reached under
 `gftd <namespace> <verb>`) re-exec into the skill's managed
 virtualenv first, so they always run against the same pinned dependencies
@@ -18,7 +18,7 @@ from .__about__ import CLI_NAME, SHORT_NAME, __version__
 from .errors import GftdError
 from .skill import SKILL
 
-LIFECYCLE_COMMANDS = {"install", "update", "uninstall", "status", "doctor", "env"}
+LIFECYCLE_COMMANDS = {"install", "update", "uninstall", "status", "doctor", "env", "pack"}
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -44,9 +44,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     subparsers = parser.add_subparsers(dest="command", required=True, metavar="<command>")
 
-    from .lifecycle.commands import doctor, env, install, status, uninstall, update
+    from .lifecycle.commands import doctor, env, install, pack, status, uninstall, update
 
-    for module in (install, update, uninstall, status, doctor, env):
+    for module in (install, update, uninstall, status, doctor, env, pack):
         module.add_parser(subparsers)
 
     features.add_parsers(subparsers)

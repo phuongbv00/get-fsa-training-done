@@ -78,6 +78,7 @@ such an install to `.agents/skills`, so the agent does not load the skill twice.
 | `gftd install --platform all --scope user` | every agent, globally, without asking |
 | `gftd install --platform claude --scope project` | Claude Code, for this project, without asking |
 | `gftd install --cloud` | every agent, for this project, plus the setup steps cloud agents run (see below) |
+| `gftd pack` | the skill as a zip, for a hosted agent that takes an upload (see below) |
 | `gftd update` | upgrade the CLI from PyPI, then every install it finds, preserving files you edited |
 | `gftd uninstall` | show every install and what goes, then remove all of it on yes |
 | `gftd status` | what is installed where, and whether it drifted |
@@ -129,6 +130,38 @@ step at all still works when it has a network: the skill runs the same script
 itself when it cannot find the CLI. Your own hooks and an existing
 `copilot-setup-steps.yml` are left alone (the step to add is printed);
 `gftd uninstall` takes back only what `--cloud` added.
+
+### Hosted agents (Claude Managed Agents)
+
+A hosted agent such as [Claude Managed Agents](https://platform.claude.com/docs/en/managed-agents/skills)
+takes a skill as an upload, not a folder on your machine. Pack it:
+
+```bash
+gftd pack            # writes get-fsa-training-done-<version>.zip
+```
+
+Each GitHub release also carries that zip. Upload it on the Claude Console's
+**Skills** page (or `POST /v1/skills`, or unzip it and `ant apply` the folder),
+then add it to the agent under **Skills** as a custom skill.
+
+The sandbox has Python, but not this skill's CLI. The first time the agent
+needs the CLI, the skill runs its own `scripts/setup.sh`, which installs
+`get-fsa-training-done` at the skill's version from PyPI and builds the
+workers' environment, so the agent's environment must reach PyPI. The Console
+creates environments with **Limited** networking; allow package managers:
+
+```yaml
+name: fsa-training
+config:
+  type: cloud
+  networking:
+    type: limited
+    allow_package_managers: true   # pypi.org and files.pythonhosted.org
+```
+
+The agent also needs its `bash` tool, which the default toolset includes. A
+surface whose sandbox has no network at all — code execution in the Messages
+API — can read the skill but cannot install the CLI, so its commands do not run there.
 
 ## Dependencies
 
