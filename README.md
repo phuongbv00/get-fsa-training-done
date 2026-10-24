@@ -240,7 +240,8 @@ The tag triggers `.github/workflows/release.yml`:
    version, and re-runs the version and generated-file gates.
 2. **pypi** — builds, checks the wheel carries the skill payload, and
    publishes through PyPI Trusted Publishing (environment `release`; no token).
-3. **github-release** — creates the GitHub release with generated notes.
+3. **github-release** — creates the GitHub release with generated notes and
+   attaches the skill as a zip (`gftd pack`), for hosted agents.
 
 The landing page reads the latest version from PyPI, so it needs no edit.
 Users pick the release up with `gftd update`, which upgrades the package from
