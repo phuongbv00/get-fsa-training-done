@@ -42,12 +42,10 @@ Do this once per session, before the first command, and call the result `FSA`.
    `cli.invocation` array, adding its `pythonpath` to `PYTHONPATH`.
 2. Otherwise try `get-fsa-training-done --version` on `PATH`.
 3. Otherwise run `sh <SKILL_DIR>/scripts/setup.sh`. It installs the CLI at the
-   version in `VERSION` — this is how a hosted sandbox (Claude Managed Agents,
-   a cloud agent's container) or a fresh clone of a repository that commits
-   the skill gets it — and its last line
-   reads `FSA: <command>`; that command is `FSA`. A cloud setup step may have
-   run it already and printed that line; the script then finds what it
-   installed without touching the network.
+   version in `VERSION` — this is how a hosted agent's sandbox (Claude
+   Managed Agents) gets it — and its last line reads `FSA: <command>`; that
+   command is `FSA`. Run again, it finds what it installed without touching
+   the network.
 4. When that fails, stop: show its error and ask the user to run
    `pip install get-fsa-training-done`, or, in a hosted sandbox, to let it
    reach PyPI (`pypi.org`, `files.pythonhosted.org`). Do not improvise a path

@@ -1,8 +1,7 @@
 #!/bin/sh
 # Make this skill's CLI available on a machine that has only the skill folder:
-# a hosted sandbox (Claude Managed Agents, given the skill as an upload), a
-# cloud agent's container (Claude Code on the web, Codex cloud, the GitHub
-# Copilot coding agent) or a fresh clone of a repository that commits the skill.
+# a hosted agent's sandbox (Claude Managed Agents, given the skill as an
+# upload), or any machine the skill was copied to without its CLI.
 #
 # It installs get-fsa-training-done at the version in ../VERSION — payload and
 # CLI ship in lockstep — unless that version is already reachable, then builds
@@ -87,22 +86,6 @@ install_cli() {
 	return 1
 }
 
-# Make the command reachable by name for the rest of the session, where the
-# host offers a way to: Claude Code's SessionStart hooks and GitHub Actions.
-export_path() {
-	[ -n "$cli_bin" ] || return 0
-	case "$cli_bin" in */*) ;; *) return 0 ;; esac
-	dir=$(dirname -- "$cli_bin")
-	case ":$PATH:" in *":$dir:"*) return 0 ;; esac
-	if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
-		printf 'export PATH="%s:$PATH"\n' "$dir" >> "$CLAUDE_ENV_FILE"
-	fi
-	if [ -n "${GITHUB_PATH:-}" ]; then
-		printf '%s\n' "$dir" >> "$GITHUB_PATH"
-	fi
-	return 0
-}
-
 if ! find_cli; then
 	install_cli
 	if ! find_cli; then
@@ -111,10 +94,8 @@ if ! find_cli; then
 	fi
 fi
 
-# Build the workers' environment now: a cloud agent's container may lose its
-# network once setup is over (Codex cloud does, by default).
+# Build the workers' environment now, while the network is known to work.
 cli env ensure >&2
-export_path
 
 if [ -n "$cli_bin" ]; then
 	printf 'FSA: %s\n' "$cli_bin"
