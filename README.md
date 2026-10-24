@@ -144,6 +144,10 @@ Each GitHub release also carries that zip. Upload it on the Claude Console's
 **Skills** page (or `POST /v1/skills`, or unzip it and `ant apply` the folder),
 then add it to the agent under **Skills** as a custom skill.
 
+[`hosted/`](hosted) holds the rest, ready to copy: the agent's system prompt
+and settings as an `ant apply` file, its environment, and the instructions for
+Microsoft Copilot Studio.
+
 The sandbox has Python, but not this skill's CLI. The first time the agent
 needs the CLI, the skill runs its own `scripts/setup.sh`, which installs
 `get-fsa-training-done` at the skill's version from PyPI and builds the
