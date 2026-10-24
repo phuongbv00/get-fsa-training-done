@@ -40,22 +40,24 @@ Do this once per session, before the first command, and call the result `FSA`.
 
 1. Read `.get-fsa-training-done-install.json` next to this `SKILL.md`; use its
    `cli.invocation` array, adding its `pythonpath` to `PYTHONPATH`.
-2. Otherwise try `get-fsa-training-done --version` on `PATH`.
-3. Otherwise run `sh <SKILL_DIR>/scripts/setup.sh`. It installs the CLI at the
-   version in `VERSION` — this is how a hosted agent's sandbox (Claude
-   Managed Agents) gets it — and its last line reads `FSA: <command>`; that
-   command is `FSA`. Run again, it finds what it installed without touching
+2. Otherwise try `get-fsa-training-done --version` on `PATH`, and use it if it
+   reports the version in the `VERSION` file beside this `SKILL.md`.
+3. Otherwise run `sh <SKILL_DIR>/scripts/setup.sh`. It installs the CLI at
+   that version from PyPI into a virtualenv of its own, and its last line
+   reads `FSA: <command>`; that command, quoted, is `FSA`. In a hosted agent's
+   sandbox (Claude Managed Agents) run it straight away — that is how the
+   sandbox gets the CLI. On a user's own machine, ask before running it: it
+   installs software. Run again, it finds what it installed without touching
    the network.
-4. When that fails, stop: show its error and ask the user to run
-   `pip install get-fsa-training-done`, or, in a hosted sandbox, to let it
-   reach PyPI (`pypi.org`, `files.pythonhosted.org`). Do not improvise a path
-   to a script.
+4. When that fails or the user declines, stop: show the error and ask the user
+   to run `pip install get-fsa-training-done` at the version in `VERSION`, or,
+   in a hosted sandbox, to let it reach PyPI (`pypi.org`,
+   `files.pythonhosted.org`). Do not improvise a path to a script.
 
 A receipt written on another machine names an interpreter that does not exist
-here; when its invocation fails to run, fall through to option 2. If option 2
-reports a version different from the `VERSION` file beside this `SKILL.md`, say
-so — payload and CLI ship in lockstep, and an older CLI left on `PATH` is not
-the one these workflows were written against.
+here; when its invocation fails to run, fall through to option 2. A CLI on
+`PATH` at another version is not the one these workflows were written against —
+payload and CLI ship in lockstep — so say so and go on to option 3.
 
 `FSA` is the **bare CLI**, with no subcommand attached. Each feature's work runs
 under its namespace — `FSA program verify`, `FSA material verify`,

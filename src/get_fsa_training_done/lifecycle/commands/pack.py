@@ -1,14 +1,13 @@
 """`gftd pack` — the skill as a zip to upload to a hosted agent.
 
-A hosted agent — Claude Managed Agents, the Claude API's code execution, a
-claude.ai workspace — never reads a folder on your machine: it takes a skill as
-an upload, a directory holding `SKILL.md` at its root, sent as a zip. The zip
-holds one folder, named after the skill, with the payload exactly as `install`
-writes it and no receipt: the receipt names an interpreter on this machine,
-and the sandbox gets its CLI from `scripts/setup.sh` instead.
+A hosted agent — Claude Managed Agents — never reads a folder on your machine:
+it takes a skill as an upload, a directory holding `SKILL.md` at its root, sent
+as a zip. The zip holds one folder, named after the skill, with the payload as
+the package ships it. No install receipt goes in, so the sandbox gets its CLI
+from `scripts/setup.sh`.
 
-The archive is reproducible — entries sorted, timestamps fixed — so the same
-version always packs to the same bytes.
+Entries are sorted and their timestamps, modes and origin fixed, so the same
+version packs to the same bytes wherever it is packed with the same zlib.
 """
 
 from __future__ import annotations
@@ -20,7 +19,7 @@ from pathlib import Path
 from ...__about__ import __version__
 from ...errors import GftdError
 from ...skill import SKILL
-from ..install import fsops, receipt
+from ..install import fsops
 from .common import validate_payload_or_die
 
 #: The Skills API refuses an upload this large or larger, uncompressed.
@@ -66,11 +65,7 @@ def pack(output: Path) -> tuple[int, int]:
     validate_payload_or_die(payload)
     _check_name(SKILL.name)
 
-    paths = [
-        rel
-        for rel in sorted(fsops.walk_files(payload), key=lambda p: p.as_posix())
-        if rel.name != receipt.RECEIPT_NAME
-    ]
+    paths = fsops.walk_files(payload)
     size = sum((payload / rel).stat().st_size for rel in paths)
     if size >= MAX_BYTES:
         raise GftdError(
@@ -83,6 +78,7 @@ def pack(output: Path) -> tuple[int, int]:
             source = payload / rel
             info = zipfile.ZipInfo(f"{SKILL.name}/{rel.as_posix()}", date_time=FIXED_TIME)
             info.compress_type = zipfile.ZIP_DEFLATED
+            info.create_system = 3  # Unix, whatever packs it, so the modes below hold
             mode = 0o755 if source.suffix == ".sh" else 0o644
             info.external_attr = (0o100000 | mode) << 16
             archive.writestr(info, source.read_bytes())

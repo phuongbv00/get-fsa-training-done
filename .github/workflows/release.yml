@@ -54,7 +54,8 @@ jobs:
           wheel = next(pathlib.Path("dist").glob("*.whl"))
           names = zipfile.ZipFile(wheel).namelist()
 
-          required = [f"get_fsa_training_done/payload/{SKILL.name}/SKILL.md"]
+          payload = f"get_fsa_training_done/payload/{SKILL.name}"
+          required = [f"{payload}/SKILL.md", f"{payload}/scripts/setup.sh"]
           missing = [name for name in required if name not in names]
           if missing:
               raise SystemExit(f"wheel is missing package data: {missing}")

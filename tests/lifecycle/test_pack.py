@@ -55,18 +55,37 @@ def test_pack_refuses_anything_but_a_zip(isolated_home, tmp_path):
 # --- The setup script -----------------------------------------------------------
 
 
-def fake_cli(path) -> None:
-    """A stand-in CLI: reports this version, and builds nothing."""
+def fake_cli(path, version: str = __version__) -> None:
+    """A stand-in CLI: reports `version`, and builds nothing."""
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
-        f'#!/bin/sh\n[ "$1" = --version ] && echo "get-fsa-training-done {__version__}"\nexit 0\n',
+        f'#!/bin/sh\n[ "$1" = --version ] && echo "get-fsa-training-done {version}"\nexit 0\n',
         encoding="utf-8",
     )
     path.chmod(0o755)
 
 
+def own_venv_cli(home):
+    return (
+        home
+        / ".local"
+        / "share"
+        / "get-fsa-training-done"
+        / "cli"
+        / "bin"
+        / "get-fsa-training-done"
+    )
+
+
 def run_script(home, path_dirs) -> subprocess.CompletedProcess:
-    env = {"HOME": str(home), "PATH": os.pathsep.join([*path_dirs, "/usr/bin", "/bin"])}
+    """Run setup.sh with `home` as HOME, kept off every package index: a test
+    that misses its fake CLI fails instead of installing anything."""
+    env = {
+        "HOME": str(home),
+        "PATH": os.pathsep.join([*path_dirs, "/usr/bin", "/bin"]),
+        "PIP_NO_INDEX": "1",
+        "UV_OFFLINE": "1",
+    }
     return subprocess.run(["sh", str(SCRIPT)], env=env, capture_output=True, text=True, check=False)
 
 
@@ -76,14 +95,24 @@ def test_the_script_uses_a_cli_already_at_its_version(tmp_path):
     fake_cli(bin_dir / "get-fsa-training-done")
     proc = run_script(tmp_path, [str(bin_dir)])
     assert proc.returncode == 0, proc.stderr
-    assert proc.stdout.splitlines()[-1] == "FSA: get-fsa-training-done"
+    assert proc.stdout.splitlines()[-1] == f"FSA: {bin_dir / 'get-fsa-training-done'}"
     assert "installing" not in proc.stderr
 
 
 @needs_sh
-def test_the_script_finds_a_cli_it_installed_off_path(tmp_path):
-    cli = tmp_path / ".local" / "bin" / "get-fsa-training-done"
-    fake_cli(cli)
-    proc = run_script(tmp_path, [])
+def test_the_script_finds_the_cli_it_installed(tmp_path):
+    home = tmp_path / "a home"
+    fake_cli(own_venv_cli(home))
+    proc = run_script(home, [])
     assert proc.returncode == 0, proc.stderr
-    assert proc.stdout.splitlines()[-1] == f"FSA: {cli}"
+    assert proc.stdout.splitlines()[-1] == f"FSA: {own_venv_cli(home)}"
+
+
+@needs_sh
+def test_the_script_passes_over_a_cli_at_another_version(tmp_path):
+    bin_dir = tmp_path / "bin"
+    fake_cli(bin_dir / "get-fsa-training-done", version="0.0.1")
+    fake_cli(own_venv_cli(tmp_path))
+    proc = run_script(tmp_path, [str(bin_dir)])
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.splitlines()[-1] == f"FSA: {own_venv_cli(tmp_path)}"
