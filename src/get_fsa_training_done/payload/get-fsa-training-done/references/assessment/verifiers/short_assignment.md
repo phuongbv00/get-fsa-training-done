@@ -10,12 +10,15 @@ Use this verifier after generating or editing an `short_assignment` brief and ru
 - `references/assessment/levels.md`, for that level's expected calibration.
 - Structural verifier output.
 - Rendered brief PDF path and its page count.
-- Relevant lecture/topic scope.
+- The trained topics and learning objectives in scope.
 
 ## Verification Focus
 
 Check both structure and content:
 
+- Nothing refers to the course material ("the lecture recommends", "as shown
+  in the slides", "theo bài giảng"); every question and task tests a trained
+  topic or objective on its own.
 - Brief follows the three-section long-form structure: title, then a header
   banner carrying **only** `Code:`, `Duration:` and `Topics:`, then
   **1. Problem Statement, 2. Tasks, 3. Deliverables**. The retired Context &
@@ -53,8 +56,8 @@ Check both structure and content:
   task weights, no rubric-only details.
 - Task headings and weights are clear, sum to 100%, and are appropriate for an
   assignment workload.
-- Required tools and constraints are covered by the module lectures; do not
-  require technologies outside the taught scope.
+- Required tools and constraints are within the module's trained topics; do
+  not require technologies outside the taught scope.
 - Rubric is instructor-only, uses matching `T1..Tn` ids and weights, and gives
   observable evidence for each criterion.
 - Per-task raw-point tables sum to 10.0 and can be applied by both a human

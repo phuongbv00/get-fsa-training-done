@@ -21,7 +21,7 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
-from .common import CheckResult, read_text
+from .common import CheckResult, check_no_material_reference, read_text
 from .long_form import parse_rubric_tasks, section_body
 
 #: The programme's five deliverables. The rubric maps these onto T1..T5, and
@@ -326,6 +326,7 @@ def verify(
             check_sprint_calendar(sprints, result)
             check_sprint_deliverables(sprints, result)
             check_checkpoint_gates(spec_text, result)
+            check_no_material_reference(spec_text, "Spec", result)
 
     # The brief and rubric are read again rather than passed in: long_form has
     # already reported them missing, and re-reporting it here is noise.

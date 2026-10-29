@@ -8,8 +8,11 @@ actually measure the Learning Objective (LO).
 
 - Question drifts from the LO — e.g. the LO requires "apply" but the question
   only tests "recall".
-- Learner can answer from general/prior knowledge without needing the course
-  content.
+- Learner can answer from general/prior knowledge without needing the trained
+  topic.
+- Question leans on the course material ("the lecture recommends X — why?",
+  "theo bài giảng ...") instead of the topic — it measures who remembers the
+  slides, not who meets the LO.
 - Options are trivially guessable — the correct one is obviously right, or
   the wrong ones are obviously silly.
 - Question is harder than the LO requires — someone who can actually do the
@@ -30,6 +33,16 @@ Do not write a Remember-level question for an Apply-level LO, or vice versa.
 ## Stem (question text)
 
 - Must actually assess the LO — not a nearby but different fact.
+- Never refer to the course material — no "the lecture", "the slides", "bài
+  giảng", "đã học". State the situation or the claim in the stem and ask about
+  it directly: "Why is X preferred over Y for Z?", not "The lecture recommends
+  X. Why?". Nor reuse the lecture's or lab's running example — its classes,
+  tables or domain (an Order with LineTotals): use a neutral domain (a shop,
+  a product, a student).
+- The keyed answer must be correct on technical grounds alone. When a framing
+  is dropped ("according to the lecture"), re-check that the answer is still
+  absolutely true: a JPA no-arg constructor is "public or protected", not just
+  "protected".
 - Force the learner to use information given *in the stem* to decide, rather
   than answer from memorized/generic knowledge alone.
 - Short, information-sufficient — no more, no less than needed.
@@ -43,7 +56,9 @@ Do not write a Remember-level question for an Apply-level LO, or vice versa.
 
 ## Options (answers)
 
-- Similar length across all options.
+- Similar length across all options. Write distractors as full, parallel
+  statements as long as the key; `FSA assessment verify` warns when the key is
+  1.3x or more longer than every distractor.
 - Concise.
 - Plain, familiar wording — no unexplained jargon unless the job itself
   requires recognizing that term.
@@ -97,8 +112,12 @@ tag-shaped is swallowed and the learner never sees it.
 ## Quick self-check before finalizing a question
 
 1. Does this question measure the stated LO at its stated Bloom level?
-2. Could someone answer this correctly using only outside/common knowledge,
-   without having learned the lecture content?
+2. Is the question about the topic itself, not about the lecture? The stem
+   and options never cite the material ("according to the lecture", "the note
+   recommends", "theo bài giảng", "theo bảng trong bài"), never reuse the
+   lecture's or lab's running example, classes or domain, and the keyed answer
+   is correct on technical grounds alone. A source reference belongs in the
+   instructor-only Note column.
 3. Is the correct option identifiable by its *shape* (length, specificity,
    phrasing) rather than its content?
 4. Are all distractors things a real learner might actually pick?

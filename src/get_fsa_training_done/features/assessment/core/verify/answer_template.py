@@ -12,7 +12,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from .common import CheckResult, normalize_name, read_text
+from .common import CheckResult, check_no_material_reference, normalize_name, read_text
 from .long_form import section_body
 
 CANDIDATE_LINE = "> **Candidate:**"
@@ -143,6 +143,8 @@ def verify(
                     f"{t_id} has slots {_slot_list(t_slots)}; the brief asks "
                     f"{_slot_list(b_slots)}, once each and in that order"
                 )
+
+    check_no_material_reference(template_text, "Answer template", result)
 
     plain_template = _plain(template_text)
     leaked = [line for line in question_lines(brief_text) if line in plain_template]

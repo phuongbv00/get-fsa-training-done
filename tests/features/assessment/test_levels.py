@@ -89,3 +89,17 @@ def test_upskill_hides_mechanisms_and_reskill_names_them():
 def test_quiz_timing_is_the_same_at_every_level():
     for level in levels.LEVELS:
         assert levels.time_map_for(level, "quiz") == levels.QUIZ_TIME_MAP
+
+
+@pytest.mark.parametrize(
+    ("assessment_type", "expected"),
+    [("quiz", levels.QUIZ_TIME_MAP), ("theory_exam", levels.EXAM_TIME_MAP)],
+)
+def test_verify_without_a_level_times_by_type(assessment_type, expected):
+    """A theory exam checked without --level must not be held to quiz timings."""
+    import argparse
+
+    from get_fsa_training_done.features.assessment.commands.verify import resolve_time_map
+
+    args = argparse.Namespace(type=assessment_type, time_map=None)
+    assert resolve_time_map(args) == expected

@@ -8,7 +8,7 @@ candidate answers in their own words.
 | Input | Notes |
 |---|---|
 | the confirmed plan | topics, duration, task grouping |
-| the scope | the material the questions may draw on |
+| the scope | the topics and learning objectives trained, e.g. a syllabus's objectives and session plan |
 
 ## Produces
 
@@ -49,6 +49,8 @@ task. Every question asks at most 2 things.
   ("which dependency breaks the next normal form?").
 - A practical question ("write the query that ...") belongs in a practice exam,
   not here.
+- Never point at the material: "Why prefer X over Y here?", not "The lecture
+  recommends X — why?" or "Theo bài giảng ...".
 - **Never teach the practice exam.** A theory exam usually sits before the
   practice exam of the same module. Leave out what discriminates in the
   practice exam — its tables, class names, and the hard point itself (if Task 4

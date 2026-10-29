@@ -21,14 +21,18 @@ A PASS or FAIL with its findings, and the verifier agent's verdict.
    | Form | Command |
    |---|---|
    | multiple-choice quiz | `FSA assessment verify --type quiz --master <stem>.csv --blooket <stem>_blooket.csv --level <L> --expect-count N` |
-   | multiple-choice theory exam | `FSA assessment verify --type theory_exam --master <stem>.csv --coderbyte <stem>_coderbyte.json --level <L>` |
+   | multiple-choice theory exam | `FSA assessment verify --type theory_exam --master <stem>.csv --coderbyte <stem>_coderbyte.json --level <L> --prior <earlier paper> ...` |
    | written quiz | `FSA assessment verify --type quiz --brief <stem>.md --rubric <stem>_rubric.md --pdf <stem>.pdf --level <L>` |
    | written theory exam | `FSA assessment verify --type theory_exam --brief <stem>.md --rubric <stem>_rubric.md --answer-template <stem>_answer_template.md --pdf <stem>.pdf --level <L>` |
    | assignment, practice exam | `FSA assessment verify --type <type> --brief <stem>.md --rubric <stem>_rubric.md --pdf <stem>.pdf --level <L>` (add `--answer-template` for a worksheet) |
 
    The files given decide the form: `--master` for multiple choice, `--brief`
    and `--rubric` for written. Level drift is a warning, never an error; pass
-   `--time-map` only when the confirmed map differs from the level's.
+   `--time-map` only when the confirmed map differs from the level's (without
+   `--level`, a theory exam defaults to 30/45/75 and a quiz to 5/10/20). For a
+   question set, add `--prior` once per earlier paper of the module — its
+   quizzes, an earlier theory exam's master or brief — to flag repeated
+   questions; there is no `--mcq` flag.
 2. Fix every error and re-run. A warning is either fixed or named as deliberate
    in the report.
 3. Run the type's verifier prompt from `references/assessment/verifiers/` with

@@ -9,6 +9,7 @@ hand-edited import file is exactly the kind of thing that silently diverges.
 from __future__ import annotations
 
 import csv
+import difflib
 import json
 import re
 from pathlib import Path
@@ -16,17 +17,28 @@ from pathlib import Path
 from get_fsa_training_done.features.common.levels import Level
 
 from . import calibration
+from .answer_template import question_lines
 from .common import (
     BLOOKET_COLUMNS,
     MASTER_COLUMNS,
     MAX_TIME_LIMIT_SECONDS,
     CheckResult,
     check_import_safe_text,
+    check_no_material_reference,
     normalize_name,
     parse_correct_answers,
 )
 
 _STRAY_LINE_ENDING = re.compile(rb"(?<!\r)\n|\r(?!\n)")
+
+#: A correct option this much longer than every wrong one is found by its
+#: shape, not its content.
+LONG_ANSWER_RATIO = 1.3
+
+#: How alike two stems must be (difflib ratio) before a prior paper's question
+#: is worth reading next to the new one. Low on purpose: it finds the topic,
+#: and the author decides whether it is the same question.
+PRIOR_OVERLAP_RATIO = 0.55
 
 
 def read_master(path: Path, result: CheckResult) -> list[dict[str, str]]:
@@ -73,6 +85,7 @@ def verify_master(
 
         for column in ("Question", "Answer 1", "Answer 2", "Answer 3", "Answer 4"):
             check_import_safe_text(row[column], f"Question {no}, {column}", result)
+            check_no_material_reference(row[column], f"Question {no}, {column}", result)
 
         parse_correct_answers(row["Correct Answer(s)"], no, result)
 
@@ -101,6 +114,72 @@ def verify_master(
             result.error(f"Question {no}: duplicate of question {seen[key]}")
         else:
             seen[key] = no
+
+
+def check_answer_lengths(rows: list[dict[str, str]], result: CheckResult) -> None:
+    """Warn when a single correct option is clearly longer than every distractor."""
+    for row in rows:
+        no = row["No"].strip()
+        correct = parse_correct_answers(row["Correct Answer(s)"], no, CheckResult())
+        if len(correct) != 1:
+            continue
+        lengths = [len(row[f"Answer {index}"].strip()) for index in range(1, 5)]
+        keyed = lengths[correct[0] - 1]
+        wrong = [length for index, length in enumerate(lengths, 1) if index != correct[0]]
+        if wrong and keyed >= LONG_ANSWER_RATIO * max(wrong):
+            result.warn(
+                f"Question {no}: the correct answer ({keyed} chars) is at least "
+                f"{LONG_ANSWER_RATIO}x every distractor (longest {max(wrong)}); write "
+                "the distractors as full, parallel statements"
+            )
+
+
+def _fold(text: str) -> str:
+    """Lowercase and drop punctuation, keeping Vietnamese letters."""
+    return " ".join(re.sub(r"[^\w]+", " ", text.lower()).split())
+
+
+def read_prior_stems(path: Path, result: CheckResult) -> list[str]:
+    """The questions of an earlier paper: a master CSV's stems or a brief's tasks."""
+    if not path.exists():
+        result.error(f"Missing prior paper: {path}")
+        return []
+    if path.suffix.lower() == ".csv":
+        with path.open(newline="", encoding="utf-8-sig") as handle:
+            reader = csv.DictReader(handle)
+            if "Question" not in (reader.fieldnames or []):
+                result.error(f"Prior paper {path.name} has no Question column")
+                return []
+            return [row["Question"] for row in reader if row["Question"].strip()]
+    return question_lines(path.read_text(encoding="utf-8"))
+
+
+def check_prior_overlap(
+    rows: list[dict[str, str]], prior_paths: list[str], result: CheckResult
+) -> None:
+    """Warn on every stem close to a question an earlier paper already asked."""
+    prior: list[tuple[str, str]] = []
+    for raw in prior_paths:
+        path = Path(raw)
+        prior.extend((path.name, _fold(stem)) for stem in read_prior_stems(path, result))
+    for row in rows:
+        stem = _fold(row["Question"])
+        best = (0.0, "", "")
+        for name, other in prior:
+            matcher = difflib.SequenceMatcher(None, stem, other)
+            if matcher.real_quick_ratio() < PRIOR_OVERLAP_RATIO:
+                continue
+            if matcher.quick_ratio() < PRIOR_OVERLAP_RATIO:
+                continue
+            ratio = matcher.ratio()
+            if ratio > best[0]:
+                best = (ratio, name, other)
+        if best[0] >= PRIOR_OVERLAP_RATIO:
+            result.warn(
+                f"Question {row['No'].strip()}: {best[0]:.2f} alike a question in "
+                f"{best[1]} ({best[2][:70]!r}); read both and replace it if it is the "
+                "same question"
+            )
 
 
 def verify_coderbyte(path: Path, master: list[dict[str, str]], result: CheckResult) -> None:
@@ -255,6 +334,7 @@ def verify(
     expect_count: int | None,
     result: CheckResult,
     level: Level | None = None,
+    prior_paths: list[str] | None = None,
 ) -> list[dict[str, str]]:
     if not master_path:
         result.error("Question-set verification requires --master")
@@ -262,6 +342,9 @@ def verify(
 
     rows = read_master(Path(master_path), result)
     verify_master(rows, time_map, result, expect_count=expect_count)
+    check_answer_lengths(rows, result)
+    if prior_paths:
+        check_prior_overlap(rows, prior_paths, result)
     if level is not None:
         calibration.check_question_set(rows, level, result)
 

@@ -65,6 +65,31 @@ BACKTICK_MESSAGE = (
 )
 
 
+#: An assessment stands on its own: it tests the topics and objectives the
+#: programme trained, never what one deck or lecture note said. A question that
+#: points at the course material ("the lecture recommends ...") measures who
+#: remembers the slides, and breaks the moment the material changes. Phrases,
+#: not bare words, so a domain that has a Lecture table or a slide component
+#: still passes.
+MATERIAL_REFERENCE = re.compile(
+    r"\blecture notes?\b|\bslide decks?\b|\blab guides?\b|\b(?:in|during) the lecture\b"
+    r"|\b(?:taught|learned|learnt) in (?:the )?(?:class|course|training|lecture|lesson|module)\b"
+    r"|\b(?:covered|shown|presented|discussed|recommended|introduced)"
+    r" in the (?:lecture|slides?|course)\b"
+    r"|\b(?:the|this) (?:lecture|course|trainer|instructor|lesson|slides?) (?:recommends?|says"
+    r"|suggests?|advises?|teaches|taught|states?|stated|told you)\b"
+    r"|bài giảng|giáo trình|tài liệu (?:môn|khóa|khoá) học|học trên lớp"
+    r"|(?:đã|được) (?:học|dạy|giảng)\b|theo (?:bài học|slide|tài liệu)"
+    r"|(?:giảng viên|trainer|slide) (?:khuyên|nói|đề xuất|hướng dẫn)",
+    re.IGNORECASE,
+)
+MATERIAL_MESSAGE = (
+    "refers to the course material ({phrase!r}); an assessment tests the trained "
+    "topics and objectives on their own — ask about the concept, not what a "
+    "lecture or slide said"
+)
+
+
 class CheckResult:
     """Accumulates findings. Errors fail the run; warnings are advisory."""
 
@@ -131,6 +156,15 @@ def check_import_safe_text(text: str, where: str, result: CheckResult) -> None:
         result.error(f"{where}: {BACKTICK_MESSAGE}")
     if ANGLE_BRACKET_NEXT_TO_TEXT.search(text):
         result.error(f"{where}: {ANGLE_MESSAGE}")
+
+
+def check_no_material_reference(text: str, where: str, result: CheckResult) -> None:
+    """Reject wording that leans on the course material instead of the topic."""
+    for number, line in enumerate(text.splitlines(), start=1):
+        match = MATERIAL_REFERENCE.search(line)
+        if match:
+            location = f"{where}, line {number}" if "\n" in text else where
+            result.error(f"{location}: {MATERIAL_MESSAGE.format(phrase=match.group(0))}")
 
 
 def parse_correct_answers(

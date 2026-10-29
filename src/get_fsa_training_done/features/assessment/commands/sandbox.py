@@ -52,7 +52,11 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
     run.add_argument("--timeout", type=int, default=sandbox.Limits.timeout, help="seconds")
     run.add_argument("--memory", default=sandbox.Limits.memory)
     run.add_argument("--cpus", default=sandbox.Limits.cpus)
-    run.add_argument("argv", nargs=argparse.REMAINDER, help="-- then the command")
+    # Not `argv`: `cli.main` sets `args.argv` to the whole command line, which
+    # would replace the command with `assessment sandbox run ...`.
+    run.add_argument(
+        "command_argv", nargs=argparse.REMAINDER, metavar="argv", help="-- then the command"
+    )
     run.set_defaults(func=run_command)
 
 
@@ -62,7 +66,8 @@ def run_check(args: argparse.Namespace) -> int:
 
 
 def run_command(args: argparse.Namespace) -> int:
-    command = args.argv[1:] if args.argv[:1] == ["--"] else args.argv
+    argv = args.command_argv
+    command = argv[1:] if argv[:1] == ["--"] else argv
     limits = sandbox.Limits(cpus=args.cpus, memory=args.memory, timeout=args.timeout)
     code = sandbox.run(
         args.profile,

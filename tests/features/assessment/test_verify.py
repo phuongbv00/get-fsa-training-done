@@ -67,6 +67,7 @@ def verify_question_set(master, **kwargs):
         expect_count=kwargs.get("expect_count"),
         result=result,
         level=kwargs.get("level"),
+        prior_paths=kwargs.get("prior"),
     )
     return result
 
@@ -315,6 +316,93 @@ def test_operators_are_not_mistaken_for_tags(tmp_path, quiz_master_rows, text):
         csv.writer(handle).writerows(rows)
     result = verify_question_set(path)
     assert not any("angle bracket" in error for error in result.errors)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "The lecture recommends a HashMap here. Why?",
+        "As covered in the slides, which index fits best?",
+        "Theo bài giảng, vì sao nên dùng HashMap?",
+        "Bài giảng khuyên dùng StringBuilder, tại sao?",
+        "Bạn đã học về JOIN, hãy chọn câu đúng.",
+    ],
+    ids=["lecture-recommends", "covered-in-slides", "theo-bai-giang", "bai-giang-khuyen", "da-hoc"],
+)
+def test_a_question_pointing_at_the_material_is_rejected(tmp_path, quiz_master_rows, text):
+    rows = quiz_master_rows
+    rows[1][4] = text
+    path = tmp_path / "q.csv"
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        csv.writer(handle).writerows(rows)
+    result = verify_question_set(path)
+    assert any("course material" in error for error in result.errors)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Which column of the Lecture table is its primary key?",
+        "A slide component renders one image. Which prop sets it?",
+        "Which method is declared in the class Order?",
+    ],
+    ids=["lecture-table", "slide-component", "in-the-class"],
+)
+def test_a_domain_word_is_not_a_material_reference(tmp_path, quiz_master_rows, text):
+    rows = quiz_master_rows
+    rows[1][4] = text
+    path = tmp_path / "q.csv"
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        csv.writer(handle).writerows(rows)
+    result = verify_question_set(path)
+    assert not any("course material" in error for error in result.errors)
+
+
+def test_a_brief_pointing_at_the_material_is_rejected(long_form_pair):
+    brief, rubric = long_form_pair
+    brief.write_text(
+        brief.read_text(encoding="utf-8").replace(
+            "## 1. Problem Statement\n",
+            "## 1. Problem Statement\n\nApply the pattern from the lecture notes.\n",
+        ),
+        encoding="utf-8",
+    )
+    result = verify_long_form(brief, rubric)
+    assert any("Brief, line" in error and "course material" in error for error in result.errors)
+
+
+def write_master(tmp_path, rows, name="q.csv"):
+    path = tmp_path / name
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        csv.writer(handle).writerows(rows)
+    return path
+
+
+def test_a_correct_answer_longer_than_every_distractor_warns(tmp_path, quiz_master_rows):
+    rows = quiz_master_rows
+    header = rows[0]
+    row = rows[1]
+    keyed = int(row[header.index("Correct Answer(s)")].split(",")[0])
+    for index in range(1, 5):
+        row[header.index(f"Answer {index}")] = "Short one" if index != keyed else "x" * 40
+    row[header.index("Correct Answer(s)")] = str(keyed)
+    result = verify_question_set(write_master(tmp_path, rows))
+    assert any("Question 1: the correct answer" in warning for warning in result.warnings)
+
+
+def test_a_question_close_to_a_prior_paper_warns(tmp_path, quiz_master_rows):
+    header = quiz_master_rows[0]
+    stem = quiz_master_rows[1][header.index("Question")]
+    prior = write_master(tmp_path, quiz_master_rows, name="prior.csv")
+    rows = [list(row) for row in quiz_master_rows]
+    rows[1][header.index("Question")] = stem.rstrip("?") + " today?"
+    result = verify_question_set(write_master(tmp_path, rows), prior=[str(prior)])
+    assert any("Question 1:" in warning and "prior.csv" in warning for warning in result.warnings)
+
+
+def test_no_prior_paper_means_no_overlap_warnings(tmp_path, quiz_master_rows):
+    result = verify_question_set(write_master(tmp_path, quiz_master_rows))
+    assert not any("alike a question" in warning for warning in result.warnings)
 
 
 def test_wrong_time_limit_is_caught(tmp_path, quiz_master_rows):

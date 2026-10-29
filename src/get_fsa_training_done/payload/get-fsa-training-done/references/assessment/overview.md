@@ -46,6 +46,13 @@ Everything written follows `references/common/style.md`.
 
 ## Standing rules
 
+- **An assessment stands apart from the material.** It tests the topics and
+  learning objectives the programme trained, never what a deck, lecture note or
+  lab guide said. No wording such as "the lecture recommends X — why?", "as
+  shown in the slides", "theo bài giảng", "bài giảng khuyên dùng ...": ask about
+  the concept itself, so the question holds whoever taught it and whatever the
+  material says. `FSA assessment verify` rejects these phrases in every
+  learner-facing file and the rubric.
 - **Instructor-only files never reach learners.** Rubrics, master question CSVs,
   reference schemas, seed tests, blueprints, and every cheat-check output.
   Learner-facing: the brief and its PDF, answer templates and worksheets,

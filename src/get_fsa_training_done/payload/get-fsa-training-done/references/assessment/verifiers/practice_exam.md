@@ -13,12 +13,15 @@ rubric.
 - `references/assessment/levels.md`, for that level's expected calibration.
 - Structural verifier output.
 - Rendered brief PDF path and its page count.
-- Relevant lecture/topic scope.
+- The trained topics and learning objectives in scope.
 
 ## Verification Focus
 
 Check both structure and content:
 
+- Nothing refers to the course material ("the lecture recommends", "as shown
+  in the slides", "theo bài giảng"); every question and task tests a trained
+  topic or objective on its own.
 - Brief follows the three-section long-form structure: title, then a header
   banner carrying **only** `Code:`, `Duration:` and `Topics:`, then
   **1. Problem Statement, 2. Tasks, 3. Deliverables**. The retired Context &

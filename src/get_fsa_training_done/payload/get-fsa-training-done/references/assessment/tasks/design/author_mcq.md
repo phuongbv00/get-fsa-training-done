@@ -8,7 +8,7 @@ emitted from.
 | Input | Notes |
 |---|---|
 | the confirmed plan | count, Bloom and difficulty mix, unit mix, option count, time map |
-| the scope | the material the questions may draw on, e.g. a module's lecture notes |
+| the scope | the topics and learning objectives trained, e.g. a syllabus's objectives and session plan |
 
 ## Produces
 
@@ -42,12 +42,29 @@ emitted from.
    `UP_SKILL` and above most are Apply and Analyze, written as a situation, a
    symptom or a decision. A recall question dressed in a scenario is still
    recall — if it can be answered without reading the scenario, rewrite it.
+   A multiple-choice theory exam keeps the interview style of the written one:
+   about half concept questions ("What is the difference between X and Y?",
+   "Which statement about X is true?") and half short code-trace or scenario
+   questions in a neutral domain. It is not a quiz on how the lecture built
+   things.
+6. Ask about the topic, never about the material: no "the lecture recommends
+   X — why?" or "theo bài giảng". State X as the situation and ask why
+   (`references/assessment/overview.md` § Standing rules).
+7. Run every question whose key depends on what code outputs, on the exact
+   JDK, database or framework version the module trains, through
+   `FSA assessment sandbox run` (`references/common/tasks/run_in_sandbox.md`).
+   A key never rests on what the code looks like it prints.
+8. Compare against what learners have already seen: pass every quiz of the
+   module and every earlier theory exam — written briefs included — as
+   `--prior` to `FSA assessment verify`. Read each question it flags next to
+   the earlier one and replace any that asks the same thing.
 
 ## Done when
 
 `FSA assessment verify --type <quiz|theory_exam> --master <stem>.csv --level
 <LEVEL> --expect-count N` passes, and the actual Bloom, difficulty and unit
-tallies match the plan.
+tallies match the plan, no `--prior` overlap is left unread, and every
+code-output key was run.
 
 ## Hands off to
 

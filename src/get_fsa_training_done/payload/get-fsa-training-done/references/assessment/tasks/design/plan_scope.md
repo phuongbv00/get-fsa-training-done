@@ -13,7 +13,7 @@ type, the level, the scope, the files, and where they go.
 | `output_dir` | all | propose `.`, never assume silently |
 | `subject_code` | all | ask |
 | `seq` | all | auto (below), user may override |
-| `scope_source` | all | ask: paste the scope, name a path to read, or point at an existing blueprint |
+| `scope_source` | all | ask: the trained topics and learning objectives — paste them, name a syllabus or schedule to read, or point at an existing blueprint |
 | `duration` | all | ask |
 | `language` | all | English; a Vietnamese sibling only on request |
 | `grade_pipeline` | assignments, exams | yes — controls the submission-archive naming |
@@ -32,7 +32,10 @@ A confirmed plan, echoed back to the user. No files.
 1. Collect the inputs above, batched, asking only for what is missing.
 2. Resolve `seq`: list `output_dir` **non-recursively**, match
    `^<subject>_<type_token>_(\d{2})`, take the highest plus one, or `01`. Name
-   every file from `references/assessment/overview.md` § Naming.
+   every file from `references/assessment/overview.md` § Naming. A retake is a
+   new paper on the next `seq`, never a copy of the first: collect every paper
+   the learners have already sat in the module (quizzes, earlier exams of
+   either kind) so authoring can avoid their questions and scenarios.
 3. Take the level's calibration: `FSA assessment levels show --level <LEVEL>
    [--band <BAND>] [--count N]`. Let the tool do the arithmetic.
 4. For an exam, read what the module's labs and assignments drilled. The exam

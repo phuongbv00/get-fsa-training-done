@@ -56,9 +56,23 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
         "--expect-count", type=int, help="assert the master holds exactly this many questions"
     )
     question_group.add_argument(
+        "--prior",
+        action="append",
+        default=[],
+        metavar="FILE",
+        help=(
+            "an earlier paper of the module — a master CSV or a written brief — to warn "
+            "on questions close to it (repeatable)"
+        ),
+    )
+    question_group.add_argument(
         "--time-map",
         default=None,
-        help="expected time limit per difficulty, e.g. Easy=5,Medium=10,Hard=20 (default: 5/10/20)",
+        help=(
+            "expected time limit per difficulty, e.g. Easy=5,Medium=10,Hard=20 "
+            "(default: the level's map; without --level, 5/10/20 for a quiz, 30/45/75 for a "
+            "theory exam)"
+        ),
     )
 
     calibration = parser.add_argument_group("calibration")
@@ -85,8 +99,8 @@ def resolve_time_map(
 ) -> dict[str, str]:
     """An explicit --time-map wins; otherwise the level knows the right one.
 
-    Without a level we cannot do better than the quiz timings, which is what
-    this defaulted to before levels were wired in.
+    Without a level the type still decides: a theory exam is timed for
+    thinking (30/45/75), a quiz for a live game (5/10/20).
     """
     if args.time_map:
         try:
@@ -95,6 +109,8 @@ def resolve_time_map(
             raise UsageError(str(exc)) from None
     if level is not None:
         return levels_mod.time_map_for(level, args.type)
+    if args.type == "theory_exam":
+        return dict(levels_mod.EXAM_TIME_MAP)
     return dict(DEFAULT_TIME_MAP)
 
 
@@ -155,6 +171,7 @@ def run(args: argparse.Namespace) -> int:
             expect_count=args.expect_count,
             result=result,
             level=level,
+            prior_paths=args.prior,
         )
 
     return result.report(f"structural verification of the {args.type} artifacts")

@@ -17,7 +17,7 @@ from get_fsa_training_done.features.common.render.pdf import count_pages
 
 from .. import budget as budget_mod
 from . import calibration
-from .common import CheckResult, normalize_name, read_text
+from .common import CheckResult, check_no_material_reference, normalize_name, read_text
 
 REQUIRED_BRIEF_SECTIONS = [
     "## 1. Problem Statement",
@@ -401,6 +401,8 @@ def verify(
     check_page_budget(brief_text, pdf_path, max_pages, result)
     check_prose_density(brief_text, result)
     check_code_width(brief_text, result)
+    check_no_material_reference(brief_text, "Brief", result)
+    check_no_material_reference(rubric_text, "Rubric", result)
 
     for needle in ["> **Code:**", "DO NOT distribute"]:
         if needle not in rubric_text:

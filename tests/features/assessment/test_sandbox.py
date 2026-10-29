@@ -175,3 +175,21 @@ def test_a_real_seed_loads_and_a_failing_assertion_fails(tmp_path):
         )
         != 0
     )
+
+
+def test_the_cli_hands_the_command_not_its_own_argv(tmp_path, monkeypatch):
+    """`cli.main` keeps the whole command line on `args.argv` for `update`; the
+    sandbox's command must not be read from that name."""
+    from get_fsa_training_done import cli
+
+    seen = {}
+
+    def fake_run(profile_name, mount, command, **kwargs):
+        seen["command"] = command
+        return 0
+
+    monkeypatch.setattr(sandbox, "run", fake_run)
+    monkeypatch.setenv("GET_FSA_TRAINING_DONE_NO_VENV", "1")
+    argv = ["assessment", "sandbox", "run", "--profile", "postgres", "--mount", str(tmp_path)]
+    assert cli.main([*argv, "--", "psql", "-c", "select 1"]) == 0
+    assert seen["command"] == ["psql", "-c", "select 1"]

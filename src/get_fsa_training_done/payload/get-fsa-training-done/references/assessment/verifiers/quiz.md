@@ -11,12 +11,15 @@ for the form being verified.
 - Generated Coderbyte JSON path, if any.
 - Confirmed question-set plan.
 - Structural verifier output.
-- Relevant lecture/topic scope.
+- The trained topics and learning objectives in scope.
 
 ## Verification Focus
 
 Check both structure and content:
 
+- Nothing refers to the course material ("the lecture recommends", "as shown
+  in the slides", "theo bài giảng"); every question and task tests a trained
+  topic or objective on its own.
 - Master CSV follows the required columns and contains one row per question.
 - Actual question count, Bloom distribution, unit distribution, difficulty
   distribution, answer option count, and time limits match the confirmed plan.

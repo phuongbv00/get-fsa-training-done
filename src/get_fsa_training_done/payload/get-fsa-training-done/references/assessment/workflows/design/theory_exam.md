@@ -27,7 +27,15 @@ the practice exam, no reference to labs or assignments.
 | Step | Task | For a theory exam |
 |---|---|---|
 | 1 | `references/assessment/tasks/design/plan_scope.md` | the level's non-quiz time map (typically Easy 30s, Medium 45s, Hard 75s) |
-| 2 | `references/assessment/tasks/design/author_mcq.md` | apply the level's Bloom mix strictly: scenario stems, not recall |
+| 2 | `references/assessment/tasks/design/author_mcq.md` | apply the level's Bloom mix strictly; interview style — half concept, half code-trace or scenario in a neutral domain; run every code-output key |
 | 3 | `references/assessment/tasks/design/emit_imports.md` | `emit coderbyte`; index 0 is always correct |
-| 4 | `references/assessment/tasks/design/verify.md` | `--type theory_exam --master ... --coderbyte ...`; verifier `references/assessment/verifiers/theory_exam.md` |
+| 4 | `references/assessment/tasks/design/verify.md` | `--type theory_exam --master ... --coderbyte ... --prior <each quiz and earlier theory exam>`; verifier `references/assessment/verifiers/theory_exam.md` |
 | 5 | `references/common/tasks/translate_vn.md` | only on request: `_vn` master, emitted to `_vn_coderbyte.json` |
+
+## Retake
+
+A retake paper is a new paper in either form, numbered on (`_02` after
+`_01`), never a reshuffle of the first. It may ask the core concepts again, but
+no question or scenario that appeared in the module's quizzes, the first
+theory exam or the practice exam: pass all of them as `--prior`. Grading and
+merging the two attempts is `references/assessment/workflows/grade/retake.md`.
