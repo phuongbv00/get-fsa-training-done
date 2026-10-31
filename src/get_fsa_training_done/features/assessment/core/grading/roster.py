@@ -22,6 +22,9 @@ DROPPED_STATUSES = {"drop", "dropped", "inactive", "withdrawn"}
 ID_COLUMN = "ID"
 NAME_COLUMN = "Name"
 STATUS_COLUMN = "Status"
+#: Optional. The account FAMS knows a trainee by when it is not their FPT
+#: account id — a CPL trainee's personal email. Blank means the id.
+ACCOUNT_COLUMN = "Account"
 
 
 @dataclass(frozen=True)
@@ -29,6 +32,11 @@ class Trainee:
     std_id: str
     name: str
     status: str
+    account: str = ""
+
+    @property
+    def fams_account(self) -> str:
+        return self.account or self.std_id
 
     @property
     def dropped(self) -> bool:
@@ -85,6 +93,7 @@ def load(path: Path) -> Roster:
                     std_id=std_id,
                     name=(row.get(NAME_COLUMN) or "").strip(),
                     status=(row.get(STATUS_COLUMN) or "").strip(),
+                    account=(row.get(ACCOUNT_COLUMN) or "").strip(),
                 )
             )
 

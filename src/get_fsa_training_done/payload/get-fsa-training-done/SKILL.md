@@ -138,7 +138,7 @@ templates in `references/material/templates/`, and the module in
 | design | `capstone_project` | `references/assessment/workflows/design/capstone_project.md` | `references/assessment/verifiers/capstone_project.md` |
 | grade | assignments and exams | `references/assessment/workflows/grade/submissions.md` | — |
 | grade | a retake, merged with the first attempt | `references/assessment/workflows/grade/retake.md` | — |
-| grade | quiz scores | `references/assessment/workflows/grade/quiz_report.md` | — |
+| grade | a module's quiz scores, to FAMS | `references/assessment/workflows/grade/quiz_report.md` | — |
 | grade | copying / AI authorship | `references/assessment/workflows/grade/cheat_check.md` | — |
 
 | Task | File |
@@ -158,8 +158,10 @@ templates in `references/material/templates/`, and the module in
 | score submissions against a rubric | `references/assessment/tasks/grade/score_submissions.md` |
 | aggregate score sheets into a grade CSV | `references/assessment/tasks/grade/aggregate.md` |
 | merge a retake with the first attempt | `references/assessment/tasks/grade/merge_retake.md` |
-| score a quiz report or Blooket leaderboard | `references/assessment/tasks/grade/score_quiz.md` |
-| put several quizzes in one table | `references/assessment/tasks/grade/merge_quizzes.md` |
+| gather a module's quiz results (reports, leaderboards, screenshots) into one CSV | `references/assessment/tasks/grade/ingest_quiz.md` |
+| score a module's quizzes | `references/assessment/tasks/grade/score_quiz.md` |
+| export quiz scores to the FAMS import workbook | `references/assessment/tasks/grade/export_fams.md` |
+| put several single-quiz score CSVs in one table | `references/assessment/tasks/grade/merge_quizzes.md` |
 | write a short remark per trainee | `references/assessment/tasks/grade/learner_remarks.md` |
 | check similarity between submissions | `references/assessment/tasks/grade/similarity.md` |
 | collect AI-authorship signals | `references/assessment/tasks/grade/ai_signals.md` |

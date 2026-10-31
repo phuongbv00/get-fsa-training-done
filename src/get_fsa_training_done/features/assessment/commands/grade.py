@@ -21,10 +21,12 @@ from ..core import grading
 aggregate_mod = grading.aggregate
 ai_cheat_mod = grading.ai_cheat
 batches_mod = grading.batches
+fams_mod = grading.fams
 plagiarism_mod = grading.plagiarism
 preprocess_mod = grading.preprocess
 quiz_mod = grading.quiz_scores
 quiz_merge_mod = grading.quiz_merge
+quiz_module_mod = grading.quiz_module
 retake_mod = grading.retake
 roster_mod = grading.roster
 
@@ -156,6 +158,70 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
     merge.add_argument("--roster", required=True, help="roster CSV")
     merge.add_argument("--out", required=True, help="CSV to write")
     merge.set_defaults(func=run_merge_quizzes)
+
+    ingest = sub.add_parser(
+        "quiz-ingest", help="add a quiz report or leaderboard to a module's results CSV"
+    )
+    ingest_source = ingest.add_mutually_exclusive_group(required=True)
+    ingest_source.add_argument("--xlsx", help="quiz report workbook")
+    ingest_source.add_argument(
+        "--html", action="append", help="Blooket leaderboard HTML (repeatable)"
+    )
+    ingest.add_argument("--results", required=True, help="the module's results CSV (appended)")
+    ingest.add_argument("--quiz", required=True, help="the quiz's column label, e.g. 'JCF 01'")
+    ingest.add_argument("--part", default="", help="which run of the quiz: live, HW…")
+    ingest.add_argument("--sheet-index", type=int, default=2, help="1-based sheet (default: 2)")
+    ingest.set_defaults(func=run_quiz_ingest)
+
+    module = sub.add_parser(
+        "quiz-module", help="score every quiz in a module's results CSV, by roster"
+    )
+    module.add_argument("--results", required=True, help="the module's results CSV")
+    module.add_argument("--roster", required=True, help="roster CSV")
+    module.add_argument(
+        "--questions",
+        type=int,
+        help="questions per quiz, for rows without an unattempted count (leaderboards, "
+        "screenshots)",
+    )
+    module.add_argument(
+        "--questions-for",
+        action="append",
+        default=[],
+        metavar="LABEL=N",
+        help="a quiz whose question count differs from --questions (repeatable)",
+    )
+    module.add_argument(
+        "--alias",
+        action="append",
+        default=[],
+        metavar="NICK=STD_ID",
+        help="map a nickname the roster cannot match to a roster id (repeatable)",
+    )
+    module.add_argument("--out", required=True, help="score CSV to write")
+    module.set_defaults(func=run_quiz_module)
+
+    fams = sub.add_parser("fams-export", help="a module's quiz scores as the FAMS import workbook")
+    fams.add_argument("--scores", required=True, help="`grade quiz-module` output")
+    fams.add_argument("--out", required=True, help=".xlsx to write")
+    fams.add_argument(
+        "--template",
+        help="class template downloaded from FAMS; it decides who is in the class "
+        "(without it, every active roster trainee)",
+    )
+    fams.add_argument("--roster", help="roster CSV, for its Account column (CPL emails)")
+    fams.add_argument("--topic-code", help="e.g. FR_JSKS_JCF; required when the template has none")
+    fams.add_argument(
+        "--test-name",
+        action="append",
+        default=[],
+        metavar="LABEL=NAME",
+        help="name a quiz other than Quiz_<n> by column order (repeatable)",
+    )
+    fams.add_argument(
+        "--sheet-index", type=int, default=1, help="template sheet, 1-based (default: 1)"
+    )
+    fams.set_defaults(func=run_fams_export)
 
     plag = sub.add_parser("plagiarism", help="similarity across submissions (instructor-only)")
     plag.add_argument("--preprocessed", required=True)
@@ -369,6 +435,80 @@ def run_merge_quizzes(args: argparse.Namespace) -> int:
     for label, ids in merged.unknown.items():
         print(f"NOTE: {label} has {len(ids)} id(s) not active on the roster: {', '.join(ids)}")
     print(f"Wrote {len(merged.rows)} row(s) -> {out}")
+    return 0
+
+
+def run_quiz_ingest(args: argparse.Namespace) -> int:
+    results = Path(args.results).expanduser()
+    if args.html:
+        rows = [list(quiz_mod.LEADERBOARD_HEADERS)]
+        for path in args.html:
+            # The question count is applied when the module is scored.
+            rows += quiz_mod.read_leaderboard(Path(path).expanduser(), 1)[1:]
+        for row in rows[1:]:
+            row[4] = ""
+    else:
+        rows = quiz_mod.read_sheet(Path(args.xlsx).expanduser(), args.sheet_index)
+    added = quiz_module_mod.from_report(rows, args.quiz.strip(), args.part.strip())
+    quiz_module_mod.append_results(results, added)
+    print(f"Added {len(added)} player row(s) for {args.quiz.strip()} -> {results}")
+    return 0
+
+
+def run_quiz_module(args: argparse.Namespace) -> int:
+    out = Path(args.out).expanduser()
+    roster = roster_mod.load(Path(args.roster).expanduser())
+    module = quiz_module_mod.score(
+        quiz_module_mod.read_results(Path(args.results).expanduser()),
+        roster,
+        quiz_module_mod.parse_questions(args.questions, args.questions_for),
+        _aliases(args.alias),
+    )
+    quiz_module_mod.write(module, out)
+    active = len(roster.active)
+    for quiz, count in module.scored.items():
+        missing = [row[1] for row in module.rows if not row[module.headers.index(quiz)]]
+        line = f"{quiz}: {count}/{active} scored"
+        if missing:
+            line += f"; no score for {', '.join(missing)}"
+        print(line)
+        if quiz in module.dropped:
+            print(f"    dropped, left out: {', '.join(module.dropped[quiz])}")
+        if quiz in module.unmatched:
+            print(f"    NOTE not on the roster: {', '.join(module.unmatched[quiz])}")
+    if module.unmatched:
+        print(
+            "NOTE: each unmatched nickname is a score left out. Map it with "
+            "--alias NICK=STD_ID unless it belongs to another class."
+        )
+    print(f"Wrote {len(module.rows)} row(s) -> {out}")
+    return 0
+
+
+def run_fams_export(args: argparse.Namespace) -> int:
+    out = Path(args.out).expanduser()
+    labels, rows = fams_mod.read_scores(Path(args.scores).expanduser())
+    template = (
+        quiz_mod.read_sheet(Path(args.template).expanduser(), args.sheet_index)
+        if args.template
+        else None
+    )
+    export = fams_mod.build(
+        labels,
+        rows,
+        test_names=fams_mod.parse_test_names(labels, args.test_name),
+        topic_code=args.topic_code,
+        roster=_roster(args.roster),
+        template=template,
+    )
+    fams_mod.write(export, out)
+    if export.left_out:
+        print(f"Left out, not in the FAMS template: {', '.join(export.left_out)}")
+    if export.zeroed:
+        print(f"NOTE: in the template but not scored, written as 0: {', '.join(export.zeroed)}")
+    for test_name, std_id in export.missed:
+        print(f"    {test_name} missed, written as 0: {std_id}")
+    print(f"Wrote {len(export.rows)} row(s) -> {out}")
     return 0
 
 

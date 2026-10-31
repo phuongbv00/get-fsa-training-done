@@ -1,49 +1,46 @@
-# Task — Score a quiz
+# Task — Score a module's quizzes
 
-Turn a quiz platform's results into a score out of 10 per trainee.
+Turn a module's results CSV into a score out of 10 per trainee per quiz.
 
 ## Inputs
 
 | Input | Notes |
 |---|---|
-| the results | a report workbook (`.xlsx`), or Blooket leaderboard HTML pasted from the report page — one file per paste |
-| `questions` | the number of questions in the quiz; required for a leaderboard |
-| `roster` | maps nicknames to ids and drops leavers |
+| results CSV | from `references/assessment/tasks/grade/ingest_quiz.md` |
+| `roster` | maps nicknames to ids, names the row order, drops leavers |
+| `questions` | questions per quiz; needed for rows without an unattempted count (leaderboards, screenshots). Ask when you do not know it |
 
 ## Produces
 
-A CSV of `Std ID, score`.
+`<subject_lower>_quiz_scores.csv`: `No, ID, Name, <one column per quiz>`,
+active trainees in roster order, quizzes in the order the results CSV first
+names them. A quiz a trainee did not sit is blank.
 
 ## Steps
 
-1. Run one of:
+1. Run:
 
    ```bash
-   FSA assessment grade quiz --xlsx "<report>.xlsx" --roster "<roster>" --out "<scores.csv>"
-   FSA assessment grade quiz --html part1.html --html part2.html --questions 40 \
-     --roster "<roster>" --out "<scores.csv>" [--alias "nick=STDID"]
+   FSA assessment grade quiz-module --results "<subject_lower>_quiz_results.csv" \
+     --roster "<roster>" --questions 40 [--questions-for "JCF 03=30"] \
+     --out "<subject_lower>_quiz_scores.csv" [--alias "nick=STDID"]
    ```
 
-   A quiz played in parts (a live game, then homework) is one run with one
-   `--html` per part; a trainee's best attempt is kept. Different quizzes are
-   different runs.
 2. The rule, one decimal, rounded up: correct ÷ the questions the trainee was
-   set × 10. What counts as "set" differs by source:
-   - **workbook**: `max(answered, correct + incorrect) + unattempted`, all read
-     from the report;
-   - **leaderboard**: `max(questions, correct + incorrect)` — a trainee who
-     answered fewer than the quiz holds is scored out of the quiz, one who
-     answered more (game modes repeat questions) out of what they answered.
-3. Reconcile unmatched nicknames with `--list-unmatched`. Expected when the
-   report covers several classes; otherwise each one is a real score being
-   dropped — map it with `--alias` and run again.
+   set × 10, where "set" is `max(answered, correct + incorrect) + unattempted`.
+   A row without `unattempted` is set the quiz's question count, or what the
+   player answered when game modes repeated questions and that is more. A
+   trainee with several attempts at one quiz keeps the best.
+3. Reconcile every nickname the command reports as not on the roster. Most are
+   loose spellings of a roster id (`Hieund`, `nguyenhk7-`, a full name): map each
+   with `--alias` and run again. Ask the user about any you cannot place; one
+   left unmapped is a real score dropped.
 
 ## Done when
 
-Every roster trainee who sat the quiz has a score, and every unmatched nickname
-is explained.
+Every unmatched nickname is mapped or explained, and every blank in the score
+CSV is a quiz the trainee did not sit.
 
 ## Hands off to
 
-`references/assessment/tasks/grade/merge_quizzes.md` when several quizzes go in
-one table.
+`references/assessment/tasks/grade/export_fams.md`.
