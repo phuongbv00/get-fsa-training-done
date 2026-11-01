@@ -13,7 +13,7 @@ the practice mark template, `references/assessment/tasks/grade/export_fams_pract
 | `roster` | the class; its optional `Account` column names a trainee FAMS knows by another account |
 | `template` | the class's theory mark template downloaded from FAMS; optional — without it the rows come from the roster |
 | `topic_code` | `FR_JSKS_JCF`; needed when there is no template, or the template's TopicCode is blank |
-| `assessment` | each test's **code on FAMS**: `Quiz_1`, `Quiz_2`… by column order unless the user says otherwise; for a theory exam, e.g. `Final Theory Test_1` |
+| `assessment` | each test's **code on FAMS**: `Quiz_1`, `Quiz_2`… by column order unless the user says otherwise; for a theory exam, e.g. `Final Theory Exam_1` |
 
 ## Produces
 
@@ -21,7 +21,7 @@ An `.xlsx` with one sheet, `Result`: the template's header (or `Email or
 Account, Full Name, TopicCode, TestName, Final Mark (/10), Score, Total Score`),
 then one block of rows per test. Name it after the template, with the
 assessment's word: `FR_JSKS_JCF_Quiz_Mark_<class>.xlsx`,
-`FR_JSKS_JCF_Final_Theory_Test_Mark_<class>.xlsx`.
+`FR_JSKS_JCF_Final_Theory_Exam_Mark_<class>.xlsx`.
 
 ## Steps
 
@@ -43,11 +43,15 @@ assessment's word: `FR_JSKS_JCF_Quiz_Mark_<class>.xlsx`,
 
    ```bash
    FSA assessment grade export fams theory --grades "<subject_lower>_<archive_token>_grades.csv" \
-     --roster "<roster>" --out "<topic_code>_Final_Theory_Test_Mark_<class>.xlsx" \
+     --roster "<roster>" --out "<topic_code>_Final_Theory_Exam_Mark_<class>.xlsx" \
      [--template "<FAMS template>.xlsx"] [--topic-code FR_JSKS_JCF] \
-     [--assessment "Final Theory Test_1"]
+     [--assessment "Final Theory Exam_1"]
    ```
 
+   For a retake exported apart from the first attempt, add `--graded-only`:
+   the form lists only the trainees who sat it, rather than writing 0 for
+   those who passed the first time. A retake's cap is applied to its grade
+   CSV before this export.
 3. What it writes, each a FAMS rule learned from a rejected import:
    - **Account**: the FPT account id from the roster, never the personal email a
      template ships with. Only a trainee with an `Account` on the roster — a
@@ -55,7 +59,8 @@ assessment's word: `FR_JSKS_JCF_Quiz_Mark_<class>.xlsx`,
    - **Who**: the template decides. A trainee with marks it lacks is left out
      of the workbook (FAMS rejects anyone not enrolled, or whose status forbids
      a mark) but stays in the source CSV; a template trainee with no marks is
-     written as 0 and reported. Without a template, every active roster trainee.
+     written as 0 and reported. Without a template, every active roster trainee. With
+     `--graded-only`, only the trainees with marks.
    - **Marks**: Final Mark and Score are the mark out of 10, Total Score is 10.
      FAMS refuses a blank mark, so a missed test is written as 0.
 4. Pass on everything the command reports — who was left out, who was written

@@ -140,7 +140,7 @@ def test_names(
     if missing:
         raise UsageError(
             "the test's code on FAMS is not known; pass --assessment",
-            hint="e.g. --assessment 'Final Theory Test_1', as the class's assessment list reads",
+            hint="e.g. --assessment 'Final Theory Exam_1', as the class's assessment list reads",
         )
     return [names[label] for label in labels]
 
@@ -155,6 +155,7 @@ def build(
     roster: Roster,
     topic_code: str | None,
     template: list[list[str]] | None = None,
+    graded_only: bool = False,
 ) -> tuple[Sheet, Report]:
     marks = Marks(scores.entries, lambda e: e.std_id, lambda e: e.name)
     report = Report()
@@ -168,6 +169,8 @@ def build(
         at = {name: index for index, name in enumerate(HEADERS)}
         for trainee in roster.active:
             entry = marks.find(trainee, trainee.name)
+            if entry is None and graded_only:
+                continue
             if entry is None:
                 report.zeroed.append(trainee.std_id)
             listed.append((trainee.fams_account, trainee.name, topic_code, entry))
@@ -177,6 +180,7 @@ def build(
         headers = list(template[0])
         at = {name: quiz_scores._column_index(headers, [name]) for name in HEADERS}
         seen: set[str] = set()
+        skipped: list[str] = []
         for line in template[1:]:
 
             def cell(name: str, line: list[str] = line) -> str:
@@ -192,12 +196,17 @@ def build(
             if who.lower() in seen:
                 continue
             seen.add(who.lower())
+            if entry is None and graded_only:
+                skipped.append(who)
+                continue
             if trainee is None:
                 report.unmatched.append(who)
             if entry is None:
                 report.zeroed.append(who)
             account = trainee.fams_account if trainee else account
             listed.append((account, name or trainee.name, cell(TOPIC) or topic_code or "", entry))
+        if skipped:
+            report.notes.append(f"no marks, left off (graded only): {', '.join(skipped)}")
         if any(not topic for _, _, topic, _ in listed):
             raise UsageError("the template has rows without a TopicCode; pass --topic-code")
     report.left_out = marks.unused()
@@ -237,6 +246,7 @@ def export_theory(
     template: Path | None,
     topic_code: str | None,
     assessments: list[str],
+    graded_only: bool = False,
 ) -> Report:
     rows = quiz_scores.read_sheet(template, 1) if template else None
     sheet, report = build(
@@ -245,6 +255,7 @@ def export_theory(
         roster=roster,
         topic_code=topic_code,
         template=rows,
+        graded_only=graded_only,
     )
     write(sheet, out)
     return report

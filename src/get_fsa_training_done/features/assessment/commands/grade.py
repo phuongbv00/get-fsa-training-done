@@ -202,12 +202,10 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
     _fams_arguments(practice)
     practice.add_argument(
         "--assessment",
-        help="the assessment's code on FAMS, e.g. Assignments_1 (default: the template's)",
+        help="the assessment's code on FAMS, e.g. Assignment_1 (default: the template's)",
     )
     practice.add_argument("--marker", help="the marker's FPT account (default: the template's)")
-    practice.add_argument(
-        "--date", help=f"marking date (default: today, {fams_practice_mod.DATE_FORMAT})"
-    )
+    practice.add_argument("--date", help="marking date (default: today, dd/mm/yyyy)")
     practice.add_argument(
         "--pass-mark", type=float, default=6.0, help="generated form only (default: 6)"
     )
@@ -217,6 +215,11 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
         help="comment for a trainee with no grade row, in the comments' language",
     )
     practice.add_argument("--mark-label", help="header over the mark column")
+    practice.add_argument(
+        "--cap",
+        type=float,
+        help="cap each mark, e.g. 6 for a retake; the task scores stay as graded",
+    )
     practice.set_defaults(func=run_export_fams_practice)
 
     plag = sub.add_parser("plagiarism", help="similarity across submissions (instructor-only)")
@@ -256,6 +259,11 @@ def _fams_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--template", help="the class's template downloaded from FAMS")
     parser.add_argument("--topic-code", help="e.g. FR_JSKS_JCF (default: the template's)")
     parser.add_argument("--out", required=True, help=".xlsx to write")
+    parser.add_argument(
+        "--graded-only",
+        action="store_true",
+        help="list only trainees with marks, rather than writing the rest as 0 (a retake)",
+    )
 
 
 def _roster(path: str | None):
@@ -440,6 +448,7 @@ def run_export_fams_theory(args: argparse.Namespace) -> int:
         template=Path(args.template).expanduser() if args.template else None,
         topic_code=args.topic_code,
         assessments=args.assessment,
+        graded_only=args.graded_only,
     )
     _fams_report(report, out)
     return 0
@@ -459,6 +468,8 @@ def run_export_fams_practice(args: argparse.Namespace) -> int:
         pass_mark=args.pass_mark,
         missing_comment=args.missing_comment,
         mark_label=args.mark_label,
+        cap=args.cap,
+        graded_only=args.graded_only,
     )
     _fams_report(report, out)
     return 0

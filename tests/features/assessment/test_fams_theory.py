@@ -138,16 +138,16 @@ def test_a_theory_exam_grade_csv_is_one_test_named_by_its_code(theory_grades, cp
             "--topic-code",
             "FR_JSKS_JCF",
             "--assessment",
-            "Final Theory Test_1",
+            "Final Theory Exam_1",
             "--out",
             out,
         )
         == 0
     )
     assert [row[3:5] for row in quiz_scores.read_sheet(out, 1)[1:]] == [
-        ["Final Theory Test_1", "8.5"],
+        ["Final Theory Exam_1", "8.5"],
         # Not graded: written as 0, never blank.
-        ["Final Theory Test_1", "0"],
+        ["Final Theory Exam_1", "0"],
     ]
 
 
@@ -155,8 +155,33 @@ def test_a_theory_exam_takes_its_code_from_the_template_or_must_be_told(theory_g
     source = fams_theory.read_grades(theory_grades)
     template = [
         fams_theory.HEADERS,
-        ["PhuongBV3", "Bui Van Phuong", "FR_JSKS_JCF", "Final Theory Test_1"],
+        ["PhuongBV3", "Bui Van Phuong", "FR_JSKS_JCF", "Final Theory Exam_1"],
     ]
-    assert fams_theory.test_names(source, [], template) == ["Final Theory Test_1"]
+    assert fams_theory.test_names(source, [], template) == ["Final Theory Exam_1"]
     with pytest.raises(UsageError, match="pass --assessment"):
         fams_theory.test_names(source, [])
+
+
+def test_a_retake_lists_only_its_takers(theory_grades, cpl_roster, tmp_path):
+    template = tmp_path / "class.xlsx"
+    rows = [
+        list(fams_theory.HEADERS),
+        ["a@gmail.com", "Bui Van Phuong", "FR_JSKS_JCF", "Quiz_1", 7.0, 7.0, 10.0],
+        ["b@gmail.com", "Tran Thi Linh", "FR_JSKS_JCF", "Quiz_1", 8.0, 8.0, 10.0],
+    ]
+    fams_theory.write(fams_theory.Sheet(headers=rows[0], rows=rows[1:]), template)
+    out = tmp_path / "retake.xlsx"
+    report = fams_theory.export_theory(
+        fams_theory.read_grades(theory_grades),
+        out,
+        roster=roster_mod.load(cpl_roster),
+        template=template,
+        topic_code=None,
+        assessments=["Final Theory Exam_2"],
+        graded_only=True,
+    )
+    assert report.zeroed == []
+    assert report.notes == ["no marks, left off (graded only): LinhTT127"]
+    assert quiz_scores.read_sheet(out, 1)[1:] == [
+        ["PhuongBV3", "Bui Van Phuong", "FR_JSKS_JCF", "Final Theory Exam_2", "8.5", "8.5", "10"]
+    ]

@@ -14,7 +14,7 @@ the theory exam use the theory mark template,
 | `roster` | the class; its optional `Account` column names a trainee FAMS knows by another account |
 | `template` | the class's practice mark template downloaded from FAMS; optional — without it the form is generated from the roster |
 | `topic_code` | `FR_JSKS_JCF`; the template's when it has one |
-| `assessment` | the assessment's **code on FAMS**, e.g. `Assignments_1`, `Final Practice Test_1` |
+| `assessment` | the assessment's **code on FAMS**, e.g. `Assignment_1`, `Final Practice Exam_1` |
 | `marker` | the marker's FPT account, e.g. `PhuongBV3` |
 | `date` | the marking date; today by default |
 
@@ -34,9 +34,10 @@ with the assessment's word: `FR_JSKS_JCF_Assignment_Mark_<class>.xlsx`,
    - **Assessment** is a code FAMS looks up, not a name to make up. Ask the user
      to read it on FAMS, on the class's assessment list, and say a template's
      own value may belong to another assessment: a template downloaded for the
-     practice exam reads `Final Practice Exam_1`, while its cell comment gives
-     `Quiz_1`, `Assignments_1`, `Final Theory Test_1`, `Final Practice Test_1`
-     as examples. Confirm it even when the template has one.
+     practice exam reads `Final Practice Exam_1`. Never take the codes in the
+     template's cell comment (`Assignments_1`, `Final Theory Exam_1`, …): on a
+     real class FAMS used `Assignment_1`, `Final Theory Exam_1` and
+     `Final Practice Exam_1`. Confirm the code even when the template has one.
    - **Topic** is the class's topic code; **Marker** is an FPT account.
 2. Run:
 
@@ -48,7 +49,10 @@ with the assessment's word: `FR_JSKS_JCF_Assignment_Mark_<class>.xlsx`,
      --missing-comment "Không nộp bài."
    ```
 
-   Write `--missing-comment` in the comments' language.
+   Write `--missing-comment` in the comments' language. For a retake exported
+   apart from the first attempt, add `--graded-only --cap 6`: the form then
+   lists only the trainees who sat it, and each mark is
+   `MIN(6, SUMPRODUCT(…))` with the task scores left as graded.
 3. What it writes, each a FAMS rule:
    - **Account**: the FPT account from the roster, never the personal email a
      template ships with; only a trainee with an `Account` on the roster — a CPL
@@ -56,7 +60,8 @@ with the assessment's word: `FR_JSKS_JCF_Assignment_Mark_<class>.xlsx`,
    - **Who**: the template decides. A graded trainee it lacks is left out (FAMS
      rejects anyone not enrolled) but stays in the grade CSV; a template trainee
      with no grade row is written as 0 with the missing comment, because FAMS
-     refuses a blank mark. Without a template, every active roster trainee.
+     refuses a blank mark. Without a template, every active roster trainee. With
+     `--graded-only`, only the trainees with marks.
    - **Layout**: the template's label cells stay where they are — its comments
      say they must not move. Its question columns are laid out again to the
      rubric's tasks, and the mark is the form's `SUMPRODUCT` over the weights

@@ -3,7 +3,7 @@
 The assignments and the practice exam take this form, one sheet:
 
     B3 Topic:       C3 FR_JSKS_JCF
-    B4 Assessment:  C4 Assignments_1        — the assessment's code on FAMS
+    B4 Assessment:  C4 Assignment_1         — the assessment's code on FAMS
     B5 Marker:      C5 PhuongBV3
     B6 Date:        C6 31/10/2026
     row 9   Account | Full Name | <mark> | Comment | Q1 … Qn | Bonus
@@ -304,18 +304,21 @@ def relay(sheet: Sheet, layout: Layout, count: int) -> None:
 # --- writing ---------------------------------------------------------------------
 
 
-def _formula(layout: Layout, row: int) -> str:
+def _formula(layout: Layout, row: int, cap: float | None = None) -> str:
     first = refs.column_letter(layout.question_cols[0])
     last = refs.column_letter(layout.bonus_col)
     weights = f"${first}${layout.weights_row}:${last}${layout.weights_row}"
-    return f"SUMPRODUCT({weights},{first}{row}:{last}{row})/SUM({weights})"
+    weighted = f"SUMPRODUCT({weights},{first}{row}:{last}{row})/SUM({weights})"
+    return weighted if cap is None else f"MIN({cap:g},{weighted})"
 
 
-def _set_mark(sheet: Sheet, layout: Layout, row: int, value: float) -> None:
+def _set_mark(
+    sheet: Sheet, layout: Layout, row: int, value: float, cap: float | None = None
+) -> None:
     ref = refs.cell(layout.mark_col, row)
-    sheet.set_formula(ref, _formula(layout, row))
+    sheet.set_formula(ref, _formula(layout, row, cap))
     cached = ET.SubElement(sheet.cell(ref), q("v"))
-    cached.text = repr(round(value, 10))
+    cached.text = repr(round(value if cap is None else min(cap, value), 10))
 
 
 def fill(
@@ -328,6 +331,8 @@ def fill(
     info: dict[str, str | None],
     missing_comment: str,
     mark_label: str | None = None,
+    cap: float | None = None,
+    graded_only: bool = False,
 ) -> Report:
     sheet = package.sheet(sheet_name)
     layout = locate(package, sheet)
@@ -364,28 +369,55 @@ def fill(
     _set_mark(sheet, layout, layout.example_row, 10.0)
 
     marks = Marks(grades, lambda g: g.std_id, lambda g: g.name)
+    # (account, name, grade) per class trainee, in the template's order.
+    listed: list[tuple[str, str, Grade | None]] = []
+    skipped = []
     for row in range(layout.first_row, layout.last_row + 1):
         account = texts.get(refs.cell(layout.account_col, row), "")
         name = texts.get(refs.cell(layout.name_col, row), "")
         if not account and not name:
             continue
         trainee, grade = marks.place(roster, account, name)
-        if trainee is not None:
-            sheet.set_text(refs.cell(layout.account_col, row), trainee.fams_account)
-        else:
+        who = trainee.std_id if trainee else name or account
+        if grade is None and graded_only:
+            skipped.append(who)
+            continue
+        if trainee is None:
             export.unmatched.append(name or account)
         if grade is None:
-            export.zeroed.append(trainee.std_id if trainee else name or account)
-            scores = (0.0,) * len(tasks)
-            comment = missing_comment
+            export.zeroed.append(who)
+        listed.append((trainee.fams_account if trainee else account, name, grade))
+
+    # The graded trainees take the template's rows from the top, so a
+    # retake's form lists only those who sat it; the rows left over go.
+    for offset, (account, name, grade) in enumerate(listed):
+        row = layout.first_row + offset
+        if graded_only:
+            if layout.account_col > 1:
+                sheet.set_number(refs.cell(layout.account_col - 1, row), offset + 1)
+            sheet.set_text(refs.cell(layout.name_col, row), name)
+        sheet.set_text(refs.cell(layout.account_col, row), account)
+        if grade is None:
+            scores, comment = (0.0,) * len(tasks), missing_comment
         else:
             scores, comment = grade.scores, grade.comment
         for k, score in enumerate(scores):
             sheet.set_number(refs.cell(layout.question_cols[k], row), score)
         sheet.set_number(refs.cell(layout.bonus_col, row), 0)
-        _set_mark(sheet, layout, row, mark(tasks, scores))
+        _set_mark(sheet, layout, row, mark(tasks, scores), cap)
         sheet.set_text(refs.cell(layout.comment_col, row), comment)
         export.rows += 1
+    if graded_only:
+        last = layout.first_row + len(listed)
+        for element in list(sheet.sheet_data.findall(q("row"))):
+            if last <= int(element.get("r", 0)) <= layout.last_row:
+                sheet.sheet_data.remove(element)
+        if skipped:
+            export.notes.append(f"no marks, left off (graded only): {', '.join(skipped)}")
+    if cap is not None:
+        capped = [g.std_id for _, _, g in listed if g and mark(tasks, g.scores) > cap]
+        if capped:
+            export.notes.append(f"capped at {cap:g}: {', '.join(capped)}")
     export.left_out = marks.unused()
 
     package.write_sheet(sheet_name, sheet)
@@ -407,6 +439,8 @@ def export_practice(
     pass_mark: float,
     missing_comment: str = MISSING_COMMENT,
     mark_label: str | None = None,
+    cap: float | None = None,
+    graded_only: bool = False,
 ) -> Report:
     tasks, grades = read_grades(grades_csv)
     info = {
@@ -420,6 +454,10 @@ def export_practice(
         missing = [flag for flag, value in flags.items() if not value]
         if missing:
             raise UsageError(f"without a template, {', '.join(missing)} must be given")
+        if graded_only:
+            graded = {g.std_id.lower() for g in grades}
+            kept = [t for t in roster.trainees if t.std_id.lower() in graded]
+            roster = Roster(path=roster.path, trainees=kept)
         write_form(out, roster, tasks, pass_mark=pass_mark, mark_label=mark_label or "Mark")
         package = XlsxPackage(out)
     else:
@@ -434,6 +472,8 @@ def export_practice(
         info=info,
         missing_comment=missing_comment,
         mark_label=mark_label if template is not None else None,
+        cap=cap,
+        graded_only=graded_only,
     )
     package.save(out)
     return result

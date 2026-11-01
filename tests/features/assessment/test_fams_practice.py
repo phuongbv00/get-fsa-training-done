@@ -101,7 +101,7 @@ def test_roster_mode_writes_every_active_trainee_with_cached_marks(tmp_path, cla
             "--topic-code",
             "FR_JSKS_JCF",
             "--assessment",
-            "Assignments_1",
+            "Assignment_1",
             "--marker",
             "PhuongBV3",
             "--date",
@@ -114,7 +114,7 @@ def test_roster_mode_writes_every_active_trainee_with_cached_marks(tmp_path, cla
     values, sheet = cells(out)
     assert [values["C3"], values["C4"], values["C5"], values["C6"]] == [
         "FR_JSKS_JCF",
-        "Assignments_1",
+        "Assignment_1",
         "PhuongBV3",
         "31/10/2026",
     ]
@@ -158,7 +158,7 @@ def test_template_decides_the_class_and_its_questions_are_laid_out_again(tmp_pat
         roster=roster_mod.load(class_roster),
         template=tpl,
         topic_code="FR_JSKS_JCF",
-        assessment="Assignments_1",
+        assessment="Assignment_1",
         marker="PhuongBV3",
         date="31/10/2026",
         pass_mark=6,
@@ -205,7 +205,7 @@ def test_more_tasks_than_the_template_has_questions(tmp_path, class_roster):
         roster=roster_mod.load(class_roster),
         template=tpl,
         topic_code="FR_JSKS_JCF",
-        assessment="Assignments_1",
+        assessment="Assignment_1",
         marker="PhuongBV3",
         date=None,
         pass_mark=6,
@@ -311,8 +311,90 @@ def test_something_else_than_a_marks_table_is_refused(tmp_path, class_roster):
             roster=roster_mod.load(class_roster),
             template=other,
             topic_code="FR_JSKS_JCF",
-            assessment="Assignments_1",
+            assessment="Assignment_1",
             marker="PhuongBV3",
             date=None,
             pass_mark=6,
         )
+
+
+def test_a_retake_lists_only_its_takers_with_marks_capped(tmp_path, class_roster):
+    tpl = template(
+        tmp_path,
+        [
+            "1,x,Bùi Văn Phương,active,",
+            "2,y,Trần Thùy Linh,active,",
+            "3,z,Nguyễn Văn An,active,",
+        ],
+        questions=2,
+    )
+    csv_path = grades(
+        tmp_path,
+        TWO_TASKS,
+        "LinhTT127,Trần Thùy Linh,Thi lại tốt.,10,9,9.4",
+        "AnNV9,Nguyễn Văn An,Thi lại.,5,5,5",
+    )
+    out = tmp_path / "retake.xlsx"
+    report = fams_practice.export_practice(
+        csv_path,
+        out,
+        roster=roster_mod.load(class_roster),
+        template=tpl,
+        topic_code="FR_JSKS_JCF",
+        assessment="Final Practice Exam_2",
+        marker="PhuongBV3",
+        date=None,
+        pass_mark=6,
+        cap=6,
+        graded_only=True,
+    )
+    assert report.rows == 2 and report.zeroed == []
+    assert "no marks, left off (graded only): PhuongBV3" in report.notes
+    assert "capped at 6: LinhTT127" in report.notes
+    values, sheet = cells(out)
+    # The takers move up into the first rows, numbered again; the rest go.
+    assert [values["A13"], values["B13"], values["C13"]] == ["1", "LinhTT127", "Trần Thùy Linh"]
+    assert [values["A14"], values["B14"], values["C14"]] == [
+        "2",
+        "an.cpl@gmail.com",
+        "Nguyễn Văn An",
+    ]
+    assert not any(refs.split(ref)[1] == 15 for ref in sheet.refs_present())
+    # Task scores stay as graded; the mark is capped, its value cached.
+    assert [values["F13"], values["G13"]] == ["10", "9"]
+    assert formula(sheet, "D13") == "MIN(6,SUMPRODUCT($F$11:$H$11,F13:H13)/SUM($F$11:$H$11))"
+    assert float(values["D13"]) == pytest.approx(6.0)
+    assert float(values["D14"]) == pytest.approx(5.0)
+    # The worked example is the form's, never capped.
+    assert formula(sheet, "D12") == "SUMPRODUCT($F$11:$H$11,F12:H12)/SUM($F$11:$H$11)"
+
+
+def test_a_generated_retake_form_lists_only_its_takers(tmp_path, class_roster):
+    csv_path = grades(tmp_path, TWO_TASKS, "LinhTT127,Trần Thùy Linh,Ổn.,7,7,7")
+    out = tmp_path / "retake.xlsx"
+    assert (
+        grade(
+            "export",
+            "fams",
+            "practice",
+            "--grades",
+            csv_path,
+            "--roster",
+            class_roster,
+            "--out",
+            out,
+            "--topic-code",
+            "FR_JSKS_JCF",
+            "--assessment",
+            "Final Practice Exam_2",
+            "--marker",
+            "PhuongBV3",
+            "--graded-only",
+            "--cap",
+            "6",
+        )
+        == 0
+    )
+    values, _ = cells(out)
+    assert values["B13"] == "LinhTT127" and "B14" not in values
+    assert float(values["D13"]) == pytest.approx(6.0)
