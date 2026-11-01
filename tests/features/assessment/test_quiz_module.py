@@ -1,4 +1,4 @@
-"""A module's quizzes: ingest, score by roster, export to FAMS."""
+"""A module's quizzes: ingest, then score by roster."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import pytest
 
 from get_fsa_training_done.cli import main
 from get_fsa_training_done.errors import UsageError
-from get_fsa_training_done.features.assessment.core.grading import fams, quiz_module, quiz_scores
+from get_fsa_training_done.features.assessment.core.grading import quiz_module
 from get_fsa_training_done.features.assessment.core.grading import roster as roster_mod
 
 from .test_quiz_scores import leaderboard, player, read_csv, write_xlsx
@@ -107,12 +107,12 @@ def test_questions_for_takes_label_and_count(value):
         quiz_module.parse_questions(40, [value])
 
 
-def test_quiz_module_command_maps_aliases(tmp_path, roster_csv):
+def test_quiz_score_command_maps_aliases(tmp_path, roster_csv):
     path = results(tmp_path, "JCF 01,,Linh T,40,0,,")
     out = tmp_path / "jcf_quiz_scores.csv"
     assert (
         grade(
-            "quiz-module",
+            "quiz-score",
             "--results",
             path,
             "--roster",
@@ -127,97 +127,3 @@ def test_quiz_module_command_maps_aliases(tmp_path, roster_csv):
         == 0
     )
     assert read_csv(out)[2] == ["2", "LinhTT127", "Tran Thi Linh", "10.0"]
-
-
-# --- FAMS export ---------------------------------------------------------------
-
-
-@pytest.fixture
-def scores(tmp_path):
-    path = tmp_path / "jcf_quiz_scores.csv"
-    path.write_text(
-        "No,ID,Name,JCF 01,JCF 02\n"
-        "1,PhuongBV3,Bui Van Phuong,7.5,\n"
-        "2,LinhTT127,Tran Thi Linh,8.6,8.0\n",
-        encoding="utf-8-sig",
-    )
-    return path
-
-
-@pytest.fixture
-def cpl_roster(tmp_path):
-    path = tmp_path / "std_list.csv"
-    path.write_text(
-        "No,ID,Name,Status,Account\n"
-        "1,PhuongBV3,Bui Van Phuong,active,\n"
-        "2,LinhTT127,Tran Thi Linh,active,linh.tran@example.com\n",
-        encoding="utf-8-sig",
-    )
-    return path
-
-
-def test_without_a_template_rows_come_from_the_scores(scores, cpl_roster, tmp_path):
-    out = tmp_path / "fams.xlsx"
-    assert (
-        grade(
-            "fams-export",
-            "--scores",
-            scores,
-            "--roster",
-            cpl_roster,
-            "--topic-code",
-            "FR_JSKS_JCF",
-            "--out",
-            out,
-        )
-        == 0
-    )
-    rows = quiz_scores.read_sheet(out, 1)
-    assert rows == [
-        fams.HEADERS,
-        ["PhuongBV3", "Bui Van Phuong", "FR_JSKS_JCF", "Quiz_1", "7.5", "7.5", "10"],
-        # The roster's Account wins: a CPL trainee is known by personal email.
-        ["linh.tran@example.com", "Tran Thi Linh", "FR_JSKS_JCF", "Quiz_1", "8.6", "8.6", "10"],
-        # FAMS refuses a blank mark, so a missed quiz is 0.
-        ["PhuongBV3", "Bui Van Phuong", "FR_JSKS_JCF", "Quiz_2", "0", "0", "10"],
-        ["linh.tran@example.com", "Tran Thi Linh", "FR_JSKS_JCF", "Quiz_2", "8", "8", "10"],
-    ]
-
-
-def test_without_a_template_the_topic_code_is_required(scores):
-    labels, rows = fams.read_scores(scores)
-    with pytest.raises(UsageError, match="topic-code"):
-        fams.build(labels, rows, test_names=["Quiz_1", "Quiz_2"], topic_code=None)
-
-
-def test_the_template_decides_who_is_in_the_class(scores):
-    template = [
-        [*fams.HEADERS, "Topic Extra Score"],
-        ["phuong@example.com", "Bùi Văn Phương", "FR_JSKS_JCF", "Quiz_1"],
-        ["anh@example.com", "Pham Quynh Anh", "FR_JSKS_JCF", "Quiz_1"],
-    ]
-    labels, rows = fams.read_scores(scores)
-    rows[0][2] = "Bùi Văn Phương"
-    export = fams.build(
-        labels,
-        rows,
-        test_names=fams.parse_test_names(labels, ["JCF 02=Quiz_B"]),
-        topic_code=None,
-        template=template,
-    )
-    assert export.headers == template[0]
-    assert [row[:7] for row in export.rows] == [
-        # Matched by name; the template's email gives way to the FPT account.
-        ["PhuongBV3", "Bùi Văn Phương", "FR_JSKS_JCF", "Quiz_1", 7.5, 7.5, 10.0],
-        ["anh@example.com", "Pham Quynh Anh", "FR_JSKS_JCF", "Quiz_1", 0.0, 0.0, 10.0],
-        ["PhuongBV3", "Bùi Văn Phương", "FR_JSKS_JCF", "Quiz_B", 0.0, 0.0, 10.0],
-        ["anh@example.com", "Pham Quynh Anh", "FR_JSKS_JCF", "Quiz_B", 0.0, 0.0, 10.0],
-    ]
-    assert export.left_out == ["LinhTT127"]
-    assert export.zeroed == ["Pham Quynh Anh"]
-    assert export.missed == [("Quiz_B", "PhuongBV3")]
-
-
-def test_a_test_name_must_name_a_quiz_in_the_scores():
-    with pytest.raises(UsageError, match="test-name"):
-        fams.parse_test_names(["JCF 01"], ["JCF 09=Quiz_9"])

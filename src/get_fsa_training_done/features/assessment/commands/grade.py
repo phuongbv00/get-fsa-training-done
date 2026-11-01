@@ -21,11 +21,11 @@ from ..core import grading
 aggregate_mod = grading.aggregate
 ai_cheat_mod = grading.ai_cheat
 batches_mod = grading.batches
-fams_mod = grading.fams
+fams_practice_mod = grading.fams_practice
+fams_theory_mod = grading.fams_theory
 plagiarism_mod = grading.plagiarism
 preprocess_mod = grading.preprocess
 quiz_mod = grading.quiz_scores
-quiz_merge_mod = grading.quiz_merge
 quiz_module_mod = grading.quiz_module
 retake_mod = grading.retake
 roster_mod = grading.roster
@@ -113,52 +113,6 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
     )
     retake.set_defaults(func=run_merge_retake)
 
-    quiz = sub.add_parser("quiz", help="score a quiz platform report or leaderboard")
-    source = quiz.add_mutually_exclusive_group(required=True)
-    source.add_argument("--xlsx", help="quiz report workbook")
-    source.add_argument(
-        "--html",
-        action="append",
-        help="Blooket leaderboard HTML copied from the report page; repeat for parts "
-        "of the same quiz (a trainee's best attempt is kept)",
-    )
-    quiz.add_argument(
-        "--questions",
-        type=int,
-        help="number of questions in the quiz; required with --html",
-    )
-    quiz.add_argument(
-        "--alias",
-        action="append",
-        default=[],
-        metavar="NICK=STD_ID",
-        help="map a nickname the roster cannot match to a roster id (repeatable)",
-    )
-    quiz.add_argument("--out", required=True, help="score CSV to write")
-    quiz.add_argument("--roster", help="roster CSV, to map nicknames and drop leavers")
-    quiz.add_argument("--converted-csv", help="also write the raw sheet as CSV")
-    quiz.add_argument("--sheet-index", type=int, default=2, help="1-based sheet (default: 2)")
-    quiz.add_argument(
-        "--list-unmatched",
-        action="store_true",
-        help="list every nickname that is not on the roster, however many there are",
-    )
-    quiz.set_defaults(func=run_quiz)
-
-    merge = sub.add_parser(
-        "merge-quizzes", help="put several quiz score CSVs side by side, by roster"
-    )
-    merge.add_argument(
-        "--quiz",
-        action="append",
-        required=True,
-        metavar="LABEL=CSV",
-        help="a `grade quiz` output and the column label for it (repeatable, in order)",
-    )
-    merge.add_argument("--roster", required=True, help="roster CSV")
-    merge.add_argument("--out", required=True, help="CSV to write")
-    merge.set_defaults(func=run_merge_quizzes)
-
     ingest = sub.add_parser(
         "quiz-ingest", help="add a quiz report or leaderboard to a module's results CSV"
     )
@@ -174,7 +128,7 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
     ingest.set_defaults(func=run_quiz_ingest)
 
     module = sub.add_parser(
-        "quiz-module", help="score every quiz in a module's results CSV, by roster"
+        "quiz-score", help="score every quiz in a module's results CSV, by roster"
     )
     module.add_argument("--results", required=True, help="the module's results CSV")
     module.add_argument("--roster", required=True, help="roster CSV")
@@ -199,29 +153,71 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
         help="map a nickname the roster cannot match to a roster id (repeatable)",
     )
     module.add_argument("--out", required=True, help="score CSV to write")
-    module.set_defaults(func=run_quiz_module)
+    module.set_defaults(func=run_quiz_score)
 
-    fams = sub.add_parser("fams-export", help="a module's quiz scores as the FAMS import workbook")
-    fams.add_argument("--scores", required=True, help="`grade quiz-module` output")
-    fams.add_argument("--out", required=True, help=".xlsx to write")
-    fams.add_argument(
-        "--template",
-        help="class template downloaded from FAMS; it decides who is in the class "
-        "(without it, every active roster trainee)",
+    export = sub.add_parser("export", help="grades into a platform's import file")
+    export_sub = export.add_subparsers(dest="export_target", required=True, metavar="<target>")
+    fams = export_sub.add_parser("fams", help="into one of FAMS's two mark templates")
+    # FAMS's two mark templates, named as FAMS names them. Each takes the class
+    # template downloaded from FAMS, which decides who is in the class, or,
+    # without one, the roster.
+    fams_sub = fams.add_subparsers(dest="fams_template", required=True, metavar="<template>")
+    theory = fams_sub.add_parser(
+        "theory",
+        help="quiz or theory-exam marks, FAMS's theory mark template: one row per test",
+        description=(
+            "Fill FAMS's theory mark template, which quizzes and the theory exam share: "
+            "one row per trainee per test, a final mark only."
+        ),
     )
-    fams.add_argument("--roster", help="roster CSV, for its Account column (CPL emails)")
-    fams.add_argument("--topic-code", help="e.g. FR_JSKS_JCF; required when the template has none")
-    fams.add_argument(
-        "--test-name",
+    theory_source = theory.add_mutually_exclusive_group(required=True)
+    theory_source.add_argument(
+        "--quiz-scores", help="`grade quiz-score` output: a module's quizzes"
+    )
+    theory_source.add_argument(
+        "--grades", help="`grade aggregate` or `merge-retake` output: a written theory exam"
+    )
+    _fams_arguments(theory)
+    theory.add_argument(
+        "--assessment",
         action="append",
         default=[],
-        metavar="LABEL=NAME",
-        help="name a quiz other than Quiz_<n> by column order (repeatable)",
+        metavar="[LABEL=]CODE",
+        help="a test's code on FAMS: CODE for one test, LABEL=CODE per quiz (repeatable; "
+        "default: Quiz_<n> by column order, or the template's TestName for --grades)",
     )
-    fams.add_argument(
-        "--sheet-index", type=int, default=1, help="template sheet, 1-based (default: 1)"
+    theory.set_defaults(func=run_export_fams_theory)
+
+    practice = fams_sub.add_parser(
+        "practice",
+        help="assignment or practice-exam marks, FAMS's practice mark template: a mark per task",
+        description=(
+            "Fill FAMS's practice mark template, which the assignments and the practice exam "
+            "share: one row per trainee, a mark per task over the task weights."
+        ),
     )
-    fams.set_defaults(func=run_fams_export)
+    practice.add_argument(
+        "--grades", required=True, help="`grade aggregate` or `merge-retake` output"
+    )
+    _fams_arguments(practice)
+    practice.add_argument(
+        "--assessment",
+        help="the assessment's code on FAMS, e.g. Assignments_1 (default: the template's)",
+    )
+    practice.add_argument("--marker", help="the marker's FPT account (default: the template's)")
+    practice.add_argument(
+        "--date", help=f"marking date (default: today, {fams_practice_mod.DATE_FORMAT})"
+    )
+    practice.add_argument(
+        "--pass-mark", type=float, default=6.0, help="generated form only (default: 6)"
+    )
+    practice.add_argument(
+        "--missing-comment",
+        default=fams_practice_mod.MISSING_COMMENT,
+        help="comment for a trainee with no grade row, in the comments' language",
+    )
+    practice.add_argument("--mark-label", help="header over the mark column")
+    practice.set_defaults(func=run_export_fams_practice)
 
     plag = sub.add_parser("plagiarism", help="similarity across submissions (instructor-only)")
     plag.add_argument("--preprocessed", required=True)
@@ -252,6 +248,14 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
     cheat.add_argument("--min-score", type=float, default=0.0)
     cheat.add_argument("--min-tokens", type=int, default=40)
     cheat.set_defaults(func=run_ai_cheat)
+
+
+def _fams_arguments(parser: argparse.ArgumentParser) -> None:
+    """What both FAMS forms take."""
+    parser.add_argument("--roster", required=True, help="roster CSV: FPT accounts, CPL emails")
+    parser.add_argument("--template", help="the class's template downloaded from FAMS")
+    parser.add_argument("--topic-code", help="e.g. FR_JSKS_JCF (default: the template's)")
+    parser.add_argument("--out", required=True, help=".xlsx to write")
 
 
 def _roster(path: str | None):
@@ -353,57 +357,6 @@ def _aliases(values: list[str]) -> dict[str, str]:
     return aliases
 
 
-def run_quiz(args: argparse.Namespace) -> int:
-    out = Path(args.out).expanduser()
-    if args.html:
-        if not args.questions:
-            raise UsageError(
-                "--html needs --questions: a leaderboard does not say how many the quiz has"
-            )
-        rows = [list(quiz_mod.LEADERBOARD_HEADERS)]
-        for path in args.html:
-            rows += quiz_mod.read_leaderboard(Path(path).expanduser(), args.questions)[1:]
-        label = "leaderboard rows"
-    else:
-        rows = quiz_mod.read_sheet(Path(args.xlsx).expanduser(), args.sheet_index)
-        label = f"sheet {args.sheet_index}"
-
-    if args.converted_csv:
-        converted = Path(args.converted_csv).expanduser()
-        aggregate_mod.write_rows(converted, rows)
-        print(f"Converted {label} -> {converted}")
-
-    roster = _roster(args.roster)
-    result = quiz_mod.score(rows, roster, _aliases(args.alias))
-    aggregate_mod.write_rows(out, result.rows)
-
-    if result.dropped:
-        print(f"Excluded {len(result.dropped)} dropped trainee(s)")
-
-    if result.unmatched:
-        # These people sat the quiz but are not on this roster. Usually that just
-        # means the report covers the whole cohort and they belong to another
-        # class — so say so rather than raising an alarm — but a mistyped
-        # nickname looks identical, and silently dropping it would lose a real
-        # score. Report the count always, the names on request.
-        print(
-            f"NOTE: {len(result.unmatched)} nickname(s) are not on this roster and were "
-            "left out of the score CSV."
-        )
-        if args.list_unmatched or len(result.unmatched) <= 5:
-            for nickname in result.unmatched:
-                print(f"    {nickname}")
-        else:
-            print("      re-run with --list-unmatched to see them")
-        print(
-            "      Expected if this report covers several classes; otherwise one of them "
-            "is a mistyped nickname worth reconciling by hand."
-        )
-
-    print(f"Wrote {result.scored} score row(s) -> {out}")
-    return 0
-
-
 def run_merge_retake(args: argparse.Namespace) -> int:
     out = Path(args.out).expanduser()
     merged = retake_mod.merge(
@@ -427,17 +380,6 @@ def run_merge_retake(args: argparse.Namespace) -> int:
     return 0
 
 
-def run_merge_quizzes(args: argparse.Namespace) -> int:
-    out = Path(args.out).expanduser()
-    roster = roster_mod.load(Path(args.roster).expanduser())
-    merged = quiz_merge_mod.merge(quiz_merge_mod.parse_inputs(args.quiz), roster)
-    quiz_merge_mod.write(merged, out)
-    for label, ids in merged.unknown.items():
-        print(f"NOTE: {label} has {len(ids)} id(s) not active on the roster: {', '.join(ids)}")
-    print(f"Wrote {len(merged.rows)} row(s) -> {out}")
-    return 0
-
-
 def run_quiz_ingest(args: argparse.Namespace) -> int:
     results = Path(args.results).expanduser()
     if args.html:
@@ -455,7 +397,7 @@ def run_quiz_ingest(args: argparse.Namespace) -> int:
     return 0
 
 
-def run_quiz_module(args: argparse.Namespace) -> int:
+def run_quiz_score(args: argparse.Namespace) -> int:
     out = Path(args.out).expanduser()
     roster = roster_mod.load(Path(args.roster).expanduser())
     module = quiz_module_mod.score(
@@ -485,31 +427,58 @@ def run_quiz_module(args: argparse.Namespace) -> int:
     return 0
 
 
-def run_fams_export(args: argparse.Namespace) -> int:
+def run_export_fams_theory(args: argparse.Namespace) -> int:
     out = Path(args.out).expanduser()
-    labels, rows = fams_mod.read_scores(Path(args.scores).expanduser())
-    template = (
-        quiz_mod.read_sheet(Path(args.template).expanduser(), args.sheet_index)
-        if args.template
-        else None
-    )
-    export = fams_mod.build(
-        labels,
-        rows,
-        test_names=fams_mod.parse_test_names(labels, args.test_name),
-        topic_code=args.topic_code,
+    if args.quiz_scores:
+        scores = fams_theory_mod.read_quiz_scores(Path(args.quiz_scores).expanduser())
+    else:
+        scores = fams_theory_mod.read_grades(Path(args.grades).expanduser())
+    report = fams_theory_mod.export_theory(
+        scores,
+        out,
         roster=_roster(args.roster),
-        template=template,
+        template=Path(args.template).expanduser() if args.template else None,
+        topic_code=args.topic_code,
+        assessments=args.assessment,
     )
-    fams_mod.write(export, out)
-    if export.left_out:
-        print(f"Left out, not in the FAMS template: {', '.join(export.left_out)}")
-    if export.zeroed:
-        print(f"NOTE: in the template but not scored, written as 0: {', '.join(export.zeroed)}")
-    for test_name, std_id in export.missed:
-        print(f"    {test_name} missed, written as 0: {std_id}")
-    print(f"Wrote {len(export.rows)} row(s) -> {out}")
+    _fams_report(report, out)
     return 0
+
+
+def run_export_fams_practice(args: argparse.Namespace) -> int:
+    out = Path(args.out).expanduser()
+    report = fams_practice_mod.export_practice(
+        Path(args.grades).expanduser(),
+        out,
+        roster=_roster(args.roster),
+        template=Path(args.template).expanduser() if args.template else None,
+        topic_code=args.topic_code,
+        assessment=args.assessment,
+        marker=args.marker,
+        date=args.date,
+        pass_mark=args.pass_mark,
+        missing_comment=args.missing_comment,
+        mark_label=args.mark_label,
+    )
+    _fams_report(report, out)
+    return 0
+
+
+def _fams_report(report, out: Path) -> None:
+    """Both forms report alike: what the user must hear before importing."""
+    for label, value in report.info.items():
+        print(f"{label} {value}")
+    for note in report.notes:
+        print(f"NOTE: {note}")
+    if report.left_out:
+        print(f"Left out, not in the FAMS template: {', '.join(report.left_out)}")
+    if report.zeroed:
+        print(f"NOTE: no marks, written as 0: {', '.join(report.zeroed)}")
+    for test, std_id in report.missed:
+        print(f"    {test} missed, written as 0: {std_id}")
+    if report.unmatched:
+        print(f"NOTE: not on the roster, account kept as given: {', '.join(report.unmatched)}")
+    print(f"Wrote {report.rows} row(s) -> {out}")
 
 
 def run_plagiarism(args: argparse.Namespace) -> int:

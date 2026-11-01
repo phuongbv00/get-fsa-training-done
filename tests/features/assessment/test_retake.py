@@ -1,4 +1,4 @@
-"""Retake merges, and quizzes side by side."""
+"""Retake merges."""
 
 from __future__ import annotations
 
@@ -7,9 +7,7 @@ import csv
 import pytest
 
 from get_fsa_training_done.cli import main
-from get_fsa_training_done.errors import UsageError
-from get_fsa_training_done.features.assessment.core.grading import quiz_merge, retake
-from get_fsa_training_done.features.assessment.core.grading import roster as roster_mod
+from get_fsa_training_done.features.assessment.core.grading import retake
 
 
 def read_csv(path):
@@ -130,35 +128,3 @@ def test_merge_retake_cli_leaves_its_inputs_alone(tmp_path, attempts):
     assert main(argv) == 0
     assert (first.read_bytes(), second.read_bytes()) == before
     assert read_csv(out)[0] == ["Std ID", "Name", "Comment", "T1 (50%)", "T2 (50%)", "Total"]
-
-
-# --- Quizzes side by side ----------------------------------------------------
-
-
-def scores(tmp_path, name, rows):
-    path = tmp_path / name
-    with path.open("w", newline="", encoding="utf-8-sig") as handle:
-        writer = csv.writer(handle)
-        writer.writerow(["Std ID", "score"])
-        writer.writerows(rows)
-    return path
-
-
-def test_quizzes_line_up_by_roster_with_blanks_for_a_missed_quiz(tmp_path, roster_csv):
-    q1 = scores(tmp_path, "q1.csv", [["PhuongBV3", "9.0"], ["LinhTT127", "7.5"]])
-    q2 = scores(tmp_path, "q2.csv", [["LinhTT127", "8.0"], ["Stranger1", "5.0"]])
-    merged = quiz_merge.merge(
-        quiz_merge.parse_inputs([f"FND 01={q1}", f"FND 02={q2}"]), roster_mod.load(roster_csv)
-    )
-    assert merged.headers == ["No", "ID", "Name", "FND 01", "FND 02"]
-    assert merged.rows == [
-        ["1", "PhuongBV3", "Bui Van Phuong", "9.0", ""],
-        ["2", "LinhTT127", "Tran Thi Linh", "7.5", "8.0"],
-    ]
-    assert merged.unknown == {"FND 02": ["Stranger1"]}
-
-
-@pytest.mark.parametrize("value", ["no-label.csv", "=q.csv", "Q1="])
-def test_a_quiz_needs_a_label_and_a_path(value):
-    with pytest.raises(UsageError):
-        quiz_merge.parse_inputs([value])

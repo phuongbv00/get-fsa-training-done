@@ -9,10 +9,11 @@ module's quizzes at once.
 |---|---|---|
 | 1 | `references/assessment/tasks/grade/ingest_quiz.md` | every source into one results CSV: report workbooks, leaderboard HTML, screenshots |
 | 2 | `references/assessment/tasks/grade/score_quiz.md` | the results CSV to one score per trainee per quiz |
-| 3 | `references/assessment/tasks/grade/export_fams.md` | the scores as the FAMS import workbook |
+| 3 | `references/assessment/tasks/grade/export_fams_theory.md` | the scores as FAMS's theory mark template, `--quiz-scores` |
 
-`references/assessment/tasks/grade/merge_quizzes.md` lines up the output of the
-single-quiz `grade quiz` command; this workflow does not need it.
+A multiple-choice theory exam goes the same way, as a module with one quiz: at
+step 3, give it its code on FAMS with `--assessment`. FAMS imports quizzes and
+the theory exam from the same theory mark template.
 
 ## Report
 

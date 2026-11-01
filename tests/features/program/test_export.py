@@ -14,8 +14,8 @@ import pytest
 
 from get_fsa_training_done.cli import main
 from get_fsa_training_done.errors import GftdError, UsageError
+from get_fsa_training_done.features.common.xlsx.package import XlsxPackage
 from get_fsa_training_done.features.program.core.xlsx import syllabus_layout as layout
-from get_fsa_training_done.features.program.core.xlsx.package import XlsxPackage
 
 DBF = "curriculum/syllabi/AA_FR_TT_DBF_Syllabus.md"
 DBF_PLAN = "curriculum/syllabi/AA_FR_TT_DBF_ScheduleDetail.csv"

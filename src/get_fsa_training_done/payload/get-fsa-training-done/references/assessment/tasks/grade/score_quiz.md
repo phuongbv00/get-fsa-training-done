@@ -21,7 +21,7 @@ names them. A quiz a trainee did not sit is blank.
 1. Run:
 
    ```bash
-   FSA assessment grade quiz-module --results "<subject_lower>_quiz_results.csv" \
+   FSA assessment grade quiz-score --results "<subject_lower>_quiz_results.csv" \
      --roster "<roster>" --questions 40 [--questions-for "JCF 03=30"] \
      --out "<subject_lower>_quiz_scores.csv" [--alias "nick=STDID"]
    ```
@@ -43,4 +43,4 @@ CSV is a quiz the trainee did not sit.
 
 ## Hands off to
 
-`references/assessment/tasks/grade/export_fams.md`.
+`references/assessment/tasks/grade/export_fams_theory.md`.

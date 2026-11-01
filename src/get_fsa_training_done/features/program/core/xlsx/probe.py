@@ -15,8 +15,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from get_fsa_training_done.errors import GftdError
-
-from .package import XlsxPackage
+from get_fsa_training_done.features.common.xlsx.package import XlsxPackage
 
 #: The template ships defined names that are already `#REF!` — two of the real
 #: form's three are. Only *cell values* are scanned for error literals.

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import csv
 import re
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -50,6 +51,8 @@ class Roster:
 
     def __post_init__(self) -> None:
         self._by_lower = {trainee.std_id.lower(): trainee for trainee in self.trainees}
+        self._by_account = {t.account.lower(): t for t in self.trainees if t.account}
+        self._by_name = {name_key(t.name): t for t in self.trainees if t.name}
 
     @property
     def active(self) -> list[Trainee]:
@@ -62,12 +65,27 @@ class Roster:
     def get(self, std_id: str) -> Trainee | None:
         return self._by_lower.get(std_id.strip().lower())
 
+    def find(self, account: str, name: str = "") -> Trainee | None:
+        """The trainee a FAMS template row names: by id, by the roster's
+        `Account`, then by name as people write it."""
+        key = account.strip().lower()
+        return (
+            self._by_lower.get(key)
+            or self._by_account.get(key)
+            or (self._by_name.get(name_key(name)) if name.strip() else None)
+        )
+
     def is_dropped(self, std_id: str) -> bool:
         trainee = self.get(std_id)
         return bool(trainee and trainee.dropped)
 
     def order(self) -> list[str]:
         return [trainee.std_id for trainee in self.trainees]
+
+
+def name_key(text: str) -> str:
+    """Names compared as people write them: NFC, case and spacing ignored."""
+    return re.sub(r"\s+", " ", unicodedata.normalize("NFC", text or "")).strip().casefold()
 
 
 def load(path: Path) -> Roster:

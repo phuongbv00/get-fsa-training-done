@@ -18,13 +18,13 @@ from pathlib import Path
 
 from get_fsa_training_done.errors import GftdError, UsageError
 from get_fsa_training_done.features.common.findings import Report
+from get_fsa_training_done.features.common.xlsx.package import XlsxPackage
 
 from ..core import csvio
 from ..core import syllabus as syllabus_mod
 from ..core.checks import topic as topic_checks
 from ..core.xlsx import probe as probe_mod
 from ..core.xlsx import syllabus_layout as layout
-from ..core.xlsx.package import XlsxPackage
 
 
 def add_parser(subparsers: argparse._SubParsersAction) -> None:

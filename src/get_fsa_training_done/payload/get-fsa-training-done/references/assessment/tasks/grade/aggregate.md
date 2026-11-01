@@ -31,4 +31,6 @@ it.
 ## Hands off to
 
 `references/assessment/tasks/grade/merge_retake.md` when this was a retake;
-otherwise the report.
+otherwise the FAMS export for its type: `references/assessment/tasks/grade/export_fams_practice.md`
+for an assignment or the practice exam,
+`references/assessment/tasks/grade/export_fams_theory.md` for a theory exam.

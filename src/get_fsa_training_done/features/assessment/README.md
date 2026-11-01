@@ -183,11 +183,10 @@ What has to run goes through `sandbox`, below.
 | `plan` | split preprocessed submissions into grading batches |
 | `aggregate` | roll per-submission score JSONs into one grade CSV |
 | `merge-retake` | merge a first attempt with a retake: cap, keep policy, voided retakes |
-| `quiz` | score a quiz report workbook, or Blooket leaderboard HTML with `--questions` |
 | `quiz-ingest` | append a report workbook or leaderboard HTML to a module's results CSV |
-| `quiz-module` | score every quiz in a module's results CSV, one column per quiz, in roster order |
-| `fams-export` | a module's quiz scores as the FAMS import workbook, from its class template or the roster |
-| `merge-quizzes` | several quizzes side by side, in roster order |
+| `quiz-score` | score every quiz in a module's results CSV, one column per quiz, in roster order |
+| `export fams theory` | quiz or theory-exam marks as FAMS's theory mark template, one row per trainee per test, from the class template or the roster |
+| `export fams practice` | assignment or practice-exam marks as FAMS's practice mark template, a mark per task, from the class template or the roster |
 | `plagiarism` | similarity across submissions (**instructor-only**) |
 | `ai-cheat` | AI-authorship and shared-source signals (**instructor-only**) |
 

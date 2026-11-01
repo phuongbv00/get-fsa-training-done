@@ -6,7 +6,6 @@ import zipfile
 
 import pytest
 
-from get_fsa_training_done.cli import main
 from get_fsa_training_done.errors import UsageError
 from get_fsa_training_done.features.assessment.core.grading import quiz_scores
 from get_fsa_training_done.features.assessment.core.grading import roster as roster_mod
@@ -165,11 +164,9 @@ def test_scores_use_the_quiz_size_or_what_was_answered_whichever_is_larger(tmp_p
 def test_a_trainee_who_played_twice_keeps_the_best_attempt(tmp_path, roster_csv):
     live = leaderboard(tmp_path, "live.html", [player("phuongbv3", 20, 2)])
     home = leaderboard(tmp_path, "home.html", [player("PhuongBV3", 30, 1)])
-    out = tmp_path / "q.csv"
-    argv = ["--no-venv", "assessment", "grade", "quiz", "--html", str(live), "--html", str(home)]
-    argv += ["--questions", "40", "--roster", str(roster_csv), "--out", str(out)]
-    assert main(argv) == 0
-    assert read_csv(out)[1:] == [["PhuongBV3", "7.5"]]
+    rows = quiz_scores.read_leaderboard(live, 40) + quiz_scores.read_leaderboard(home, 40)[1:]
+    result = quiz_scores.score(rows, roster_mod.load(roster_csv))
+    assert result.rows[1:] == [["PhuongBV3", "7.5"]]
 
 
 def test_an_alias_maps_a_loose_nickname(tmp_path, roster_csv):
@@ -183,13 +180,6 @@ def test_an_alias_maps_a_loose_nickname(tmp_path, roster_csv):
 def test_names_are_read_as_text_not_markup(tmp_path):
     path = leaderboard(tmp_path, "q.html", [player("O&#39;Neil &amp; co", 10, 0)])
     assert quiz_scores.read_leaderboard(path, 10)[1][0] == "O'Neil & co"
-
-
-def test_html_without_questions_is_refused(tmp_path):
-    path = leaderboard(tmp_path, "q.html", [player("PhuongBV3", 1, 1)])
-    argv = ["--no-venv", "assessment", "grade", "quiz", "--html", str(path)]
-    with pytest.raises(UsageError):
-        main(argv + ["--out", str(tmp_path / "q.csv")])
 
 
 def test_a_page_with_no_players_is_refused(tmp_path):

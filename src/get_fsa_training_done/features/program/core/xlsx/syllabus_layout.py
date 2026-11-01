@@ -22,12 +22,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from get_fsa_training_done.features.common.xlsx import refs
+from get_fsa_training_done.features.common.xlsx.package import XlsxPackage
+from get_fsa_training_done.features.common.xlsx.sheetxml import Sheet
+
 from ..schedule import SCHEDULE_HEADER
 from ..syllabus import Syllabus
-from . import refs
-from .package import XlsxPackage
 from .probe import Expect
-from .sheetxml import Sheet
 
 SYLLABUS_SHEET = "<Topic Code>_Syllabus"
 SCHEDULE_SHEET = "<Topics Code>_ScheduleDetail"
